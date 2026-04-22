@@ -7,6 +7,7 @@ const app = express();
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 
 app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 
 app.get('/', (req, res) => res.json({ message: 'Server radi!' }));
