@@ -3,20 +3,20 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
-  const { name, email, password, role, phone } = req.body;
+  const { name, email, password, phone } = req.body;
 
   try {
     const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
     if (existing.rows.length > 0) {
-      return res.status(400).json({ error: 'Email već postoji.' });
+      return res.status(400).json({ error: 'Email already exists.' });
     }
 
     const password_hash = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
       `INSERT INTO users (name, email, password_hash, role, phone)
-       VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role`,
-      [name, email, password_hash, role || 'tourist', phone]
+       VALUES ($1, $2, $3, 'tourist', $4) RETURNING id, name, email, role`,
+      [name, email, password_hash, phone]
     );
 
     const user = result.rows[0];
