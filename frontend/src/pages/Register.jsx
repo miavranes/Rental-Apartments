@@ -52,13 +52,14 @@ export default function Register() {
       <div style={styles.left}>
         <div style={styles.overlay}>
           <h1 style={styles.brand}>Rentura</h1>
+          <p style={styles.tagline}>Your next favourite place is waiting</p>
         </div>
       </div>
 
       <div style={styles.right}>
         <div style={styles.formBox}>
           <h2 style={styles.title}>Create an account</h2>
-          <p style={styles.subtitle}>Join Rentura today</p>
+          <p style={styles.subtitle}>Join Rentura today — it's free</p>
 
           {error && <div style={styles.error}>{error}</div>}
 
@@ -73,7 +74,7 @@ export default function Register() {
                 placeholder="Maria Peterson"
                 required
                 style={styles.input}
-                onFocus={e => e.target.style.borderColor = '#FF385C'}
+                onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                 onBlur={e => e.target.style.borderColor = '#ddd'}
               />
             </div>
@@ -88,7 +89,7 @@ export default function Register() {
                 placeholder="your@email.com"
                 required
                 style={styles.input}
-                onFocus={e => e.target.style.borderColor = '#FF385C'}
+                onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                 onBlur={e => e.target.style.borderColor = '#ddd'}
               />
             </div>
@@ -102,7 +103,7 @@ export default function Register() {
                 onChange={handleChange}
                 placeholder="+1 234 567 890"
                 style={styles.input}
-                onFocus={e => e.target.style.borderColor = '#FF385C'}
+                onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                 onBlur={e => e.target.style.borderColor = '#ddd'}
               />
             </div>
@@ -118,7 +119,7 @@ export default function Register() {
                   placeholder="••••••••"
                   required
                   style={styles.input}
-                  onFocus={e => e.target.style.borderColor = '#FF385C'}
+                  onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                   onBlur={e => e.target.style.borderColor = '#ddd'}
                 />
               </div>
@@ -132,7 +133,7 @@ export default function Register() {
                   placeholder="••••••••"
                   required
                   style={styles.input}
-                  onFocus={e => e.target.style.borderColor = '#FF385C'}
+                  onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                   onBlur={e => e.target.style.borderColor = '#ddd'}
                 />
               </div>
@@ -142,8 +143,8 @@ export default function Register() {
               type="submit"
               disabled={loading}
               style={styles.button}
-              onMouseEnter={e => e.target.style.backgroundColor = '#e0314f'}
-              onMouseLeave={e => e.target.style.backgroundColor = '#FF385C'}
+              onMouseEnter={e => e.target.style.backgroundColor = '#0a3a47'}
+              onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}
             >
               {loading ? 'Creating account...' : 'Create account'}
             </button>
@@ -151,9 +152,7 @@ export default function Register() {
 
           <p style={styles.footer}>
             Already have an account?{' '}
-            <Link to="/login" style={styles.link}>
-              Login
-            </Link>
+            <Link to="/login" style={styles.link}>Sign in</Link>
           </p>
         </div>
       </div>
@@ -170,7 +169,7 @@ const styles = {
   },
   left: {
     flex: 1,
-    backgroundImage: `linear-gradient(135deg, rgba(59, 105, 203, 0.50) 0%, rgba(173, 76, 112, 0.50) 100%), url('/pristaniste.jpg')`,
+    backgroundImage: `linear-gradient(135deg, rgba(15,76,92,0.72) 0%, rgba(14,54,66,0.80) 100%), url('/pristaniste.jpg')`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
@@ -190,12 +189,19 @@ const styles = {
     margin: '0 0 20px',
     letterSpacing: '-1px',
   },
+  tagline: {
+    fontSize: '18px',
+    lineHeight: '1.7',
+    opacity: 0.85,
+    margin: 0,
+    fontWeight: '300',
+  },
   right: {
     flex: 1,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FAFAF9',
     padding: '40px',
     overflowY: 'auto',
   },
@@ -208,18 +214,18 @@ const styles = {
   title: {
     fontSize: '28px',
     fontWeight: '700',
-    color: '#1a1a1a',
+    color: '#0F4C5C',
     margin: '0 0 8px',
   },
   subtitle: {
     fontSize: '15px',
-    color: '#717171',
+    color: '#888',
     margin: '0 0 28px',
   },
   error: {
-    backgroundColor: '#fff0f0',
-    border: '1px solid #ffd0d0',
-    color: '#c0392b',
+    backgroundColor: '#fff5f0',
+    border: '1px solid #f5c6a0',
+    color: '#b85c2a',
     padding: '12px 16px',
     borderRadius: '10px',
     marginBottom: '20px',
@@ -234,10 +240,12 @@ const styles = {
   },
   label: {
     display: 'block',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '600',
-    color: '#222',
+    color: '#444',
     marginBottom: '8px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.4px',
   },
   input: {
     width: '100%',
@@ -249,11 +257,12 @@ const styles = {
     transition: 'border-color 0.2s',
     boxSizing: 'border-box',
     color: '#222',
+    backgroundColor: '#fff',
   },
   button: {
     width: '100%',
     padding: '14px',
-    backgroundColor: '#FF385C',
+    backgroundColor: '#0F4C5C',
     color: '#fff',
     border: 'none',
     borderRadius: '10px',
@@ -262,17 +271,19 @@ const styles = {
     cursor: 'pointer',
     marginTop: '8px',
     transition: 'background-color 0.2s',
+    letterSpacing: '0.3px',
   },
   footer: {
     textAlign: 'center',
-    marginTop: '20px',
+    marginTop: '24px',
     fontSize: '15px',
-    color: '#717171',
-    margin: '20px 0 0',
+    color: '#888',
+    margin: '24px 0 0',
   },
   link: {
-    color: '#FF385C',
-    textDecoration: 'underline',
-    fontWeight: '600',
+    color: '#0F4C5C',
+    textDecoration: 'none',
+    fontWeight: '700',
+    borderBottom: '1px solid #E8A87C',
   },
 };
