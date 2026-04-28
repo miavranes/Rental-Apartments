@@ -42,8 +42,29 @@ export function AuthProvider({ children }) {
     window.location.href = '/';
   };
 
+  const updateProfile = async (payload) => {
+  const updatedUser = await authService.updateProfile(payload);
+  setUser(updatedUser);
+  return updatedUser;
+};
+
+const switchRole = async () => {
+  const { user, token } = await authService.switchRole();
+  localStorage.setItem('token', token);
+  setUser(user);
+  return user;
+};
+
+const deleteAccount = async () => {
+  await authService.deleteAccount();
+  localStorage.removeItem('token');
+  setUser(null);
+  window.location.href = '/';
+};
+
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, switchRole, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

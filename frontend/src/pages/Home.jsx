@@ -6,7 +6,7 @@ import SearchBar from '../components/SearchBar';
 import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,14 +28,18 @@ export default function Home() {
         <div style={styles.navLinks}>
           {user ? (
             <>
-              <span style={styles.navGreeting}>Hi, {user.name?.split(' ')[0]}</span>
               {user.role === 'owner' && (
                 <Link to="/owner" style={styles.navLink}>My listings</Link>
               )}
               {user.role === 'admin' && (
                 <Link to="/admin" style={styles.navLink}>Admin</Link>
               )}
-              <button onClick={logout} style={styles.navButton}>Log out</button>
+              <Link to="/profile" style={styles.navProfile}>
+                <div style={styles.navAvatar}>
+                  {user.name?.charAt(0).toUpperCase()}
+                </div>
+                <span>{user.name?.split(' ')[0]}</span>
+              </Link>
             </>
           ) : (
             <>
@@ -56,6 +60,7 @@ export default function Home() {
           <SearchBar />
         </div>
       </section>
+
       <section style={styles.section}>
         <div style={styles.sectionHeader}>
           <div>
@@ -81,7 +86,7 @@ export default function Home() {
         ) : (
           <div style={styles.grid}>
             {featured.map((a) => (
-              <ApartmentCard key={a._id} apartment={a} />
+              <ApartmentCard key={a.id} apartment={a} />
             ))}
           </div>
         )}
@@ -99,6 +104,7 @@ export default function Home() {
           </div>
         </section>
       )}
+
       <footer style={styles.footer}>
         <span style={styles.footerText}>© {new Date().getFullYear()} Rentura. All rights reserved.</span>
       </footer>
@@ -136,25 +142,35 @@ const styles = {
     alignItems: 'center',
     gap: '20px',
   },
-  navGreeting: {
-    color: '#666',
-    fontSize: '14px',
-  },
   navLink: {
     color: '#333',
     textDecoration: 'none',
     fontSize: '14px',
     fontWeight: '500',
   },
-  navButton: {
-    background: 'transparent',
-    border: '1px solid #ccc',
+  navProfile: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    textDecoration: 'none',
     color: '#333',
-    borderRadius: '20px',
-    padding: '7px 18px',
     fontSize: '14px',
     fontWeight: '500',
-    cursor: 'pointer',
+    padding: '6px 12px',
+    borderRadius: '20px',
+    border: '1px solid #ccc',
+  },
+  navAvatar: {
+    width: '28px',
+    height: '28px',
+    borderRadius: '50%',
+    backgroundColor:  '#0F4C5C',
+    color: '#fff',
+    fontSize: '13px',
+    fontWeight: '700',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   navButtonLink: {
     background: '#0F4C5C',

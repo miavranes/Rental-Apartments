@@ -18,14 +18,18 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('submit triggered', form);
     setError('');
     setLoading(true);
     try {
+      console.log('calling login...');
       const user = await login(form.email, form.password);
+      console.log('login success', user);
       if (user.role === 'owner') navigate('/owner');
       else if (user.role === 'admin') navigate('/admin');
       else navigate('/');
     } catch (err) {
+      console.log('login error', err);
       setError(err.response?.data?.error || 'Wrong email or password');
     } finally {
       setLoading(false);
