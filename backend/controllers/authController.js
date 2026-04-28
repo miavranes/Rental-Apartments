@@ -66,4 +66,44 @@ const me = async (req, res) => {
   }
 };
 
-module.exports = { register, login, me };
+const updateProfile = async (req, res) => {
+  const { name, email, phone } = req.body;
+  try {
+    const result = await pool.query(
+      `UPDATE users SET name=$1, email=$2, phone=$3 WHERE id=$4
+       RETURNING id, name, email, role, phone, profile_image`,
+      [name, email, phone, req.user.id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const switchRole = async (req, res) => {
+  try {
+    const current = await pool.query('SELECT role FROM users WHERE id=$1', [req.user.id]);
+    const newRole = current.rows[0].role === 'tourist' ? 'owner' : 'tourist';
+
+    const result = await pool.query(
+      `UPDATE users SET role=$1 WHERE id=$2 RETURNING id, name, email, role, phone`,
+      [newRole, req.user.id]
+    );
+
+    const user = result.rows[0];
+    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+    res.json({ user, token });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};const deleteAccount = async (req, res) => {
+  try {
+    await pool.query('DELETE FROM users WHERE id = $1', [req.user.id]);
+    res.json({ message: 'Nalog obrisan.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { register, login, me, updateProfile, switchRole, deleteAccount };
