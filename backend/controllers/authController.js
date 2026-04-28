@@ -1,6 +1,8 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const sendVerificationEmail = require('../utils/sendEmail');
+
 
 const register = async (req, res) => {
   const { name, email, password, role, phone } = req.body;
@@ -8,21 +10,23 @@ const register = async (req, res) => {
   try {
     const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
     if (existing.rows.length > 0) {
-      return res.status(400).json({ error: 'Email već postoji.' });
+      return res.status(400).json({ error: 'Email already exists.' });
     }
 
     const password_hash = await bcrypt.hash(password, 10);
 
-    const result = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role, phone)
-       VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role`,
-      [name, email, password_hash, role || 'tourist', phone]
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + 10 * 60 * 1000);
+
+    await pool.query(
+      `INSERT INTO users (name, email, password_hash, role, phone, verification_code, verification_code_expires, is_verified)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, false)`,
+      [name, email, password_hash, role || 'tourist', phone, code, expires]
     );
 
-    const user = result.rows[0];
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    await sendVerificationEmail(email, code);
 
-    res.status(201).json({ user, token });
+    res.status(201).json({ message: 'Registration successful. Check your email for the verification code.', email });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -34,13 +38,13 @@ const login = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length === 0) {
-      return res.status(400).json({ error: 'Pogrešan email ili lozinka.' });
+      return res.status(400).json({ error: 'Wrong email or password.' });
     }
 
     const user = result.rows[0];
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
-      return res.status(400).json({ error: 'Pogrešan email ili lozinka.' });
+      return res.status(400).json({ error: 'Wrong email or password.' });
     }
 
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -97,13 +101,51 @@ const switchRole = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};const deleteAccount = async (req, res) => {
+};
+
+const deleteAccount = async (req, res) => {
   try {
     await pool.query('DELETE FROM users WHERE id = $1', [req.user.id]);
-    res.json({ message: 'Nalog obrisan.' });
+    res.json({ message: 'Account is succesfully deleted.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-module.exports = { register, login, me, updateProfile, switchRole, deleteAccount };
+const verifyEmail = async (req, res) => {
+  const { email, code } = req.body;
+
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const user = result.rows[0];
+
+    if (!user) return res.status(400).json({ error: 'User is not found.' });
+    if (user.is_verified) return res.status(400).json({ error: 'Email is already verified.' });
+
+    if (user.verification_code !== code || new Date() > new Date(user.verification_code_expires)) {
+      return res.status(400).json({ error: 'The code is invalid or expired.' });
+    }
+
+    await pool.query(
+      'UPDATE users SET is_verified = true, verification_code = NULL, verification_code_expires = NULL WHERE email = $1',
+      [email]
+    );
+
+    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+    res.json({
+      message: 'Email succesfull verified!',
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      token
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+  if (!user.is_verified) {
+  return res.status(403).json({ error: 'Email is not verified. Check your inbox.' });
+}
+};
+
+
+
+module.exports = { register, login, me, updateProfile, switchRole, deleteAccount, verifyEmail };

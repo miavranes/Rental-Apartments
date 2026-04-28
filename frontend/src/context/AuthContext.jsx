@@ -30,10 +30,13 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (payload) => {
-    const { user, token } = await authService.register(payload);
+    const data = await authService.register(payload);
+    return data;
+  };
+
+  const loginWithToken = (userData, token) => {
     localStorage.setItem('token', token);
-    setUser(user);
-    return user;
+    setUser(userData);
   };
 
   const logout = () => {
@@ -64,7 +67,7 @@ const deleteAccount = async () => {
 
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, switchRole, deleteAccount }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithToken, register, logout, updateProfile, switchRole, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );
@@ -72,6 +75,6 @@ const deleteAccount = async () => {
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth mora biti unutar AuthProvider-a');
+  if (!ctx) throw new Error('useAuth musgt be within AuthProvider-a');
   return ctx;
 };
