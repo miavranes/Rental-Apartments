@@ -147,4 +147,26 @@ const deleteApartment = async (req, res) => {
   }
 };
 
-module.exports = { getApartments, getApartment, createApartment, updateApartment, deleteApartment };
+const getMyApartments = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT a.*, 
+        COALESCE(AVG(r.rating), 0) AS avg_rating,
+        COUNT(r.id) AS review_count,
+        json_agg(DISTINCT jsonb_build_object('id', ai.id, 'image_url', ai.image_url)) 
+          FILTER (WHERE ai.id IS NOT NULL) AS images
+       FROM apartments a
+       LEFT JOIN reviews r ON r.apartment_id = a.id
+       LEFT JOIN apartment_images ai ON ai.apartment_id = a.id
+       WHERE a.owner_id = $1
+       GROUP BY a.id
+       ORDER BY a.created_at DESC`,
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { getApartments, getApartment, createApartment, updateApartment, deleteApartment, getMyApartments };

@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getApartments, getApartment, createApartment, updateApartment, deleteApartment } = require('../controllers/apartmentsController');
+const { getApartments, getApartment, createApartment, updateApartment, deleteApartment, getMyApartments } = require('../controllers/apartmentsController');
 const { authenticate, authorize } = require('../middleware/auth');
 
+router.get('/my', authenticate, getMyApartments);
 router.get('/', getApartments);
 router.get('/:id', getApartment);
 router.post('/', authenticate, authorize('owner', 'admin'), createApartment);

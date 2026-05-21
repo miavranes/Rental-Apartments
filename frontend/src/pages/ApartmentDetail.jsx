@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 
 const BASE = 'http://localhost:5000/uploads/';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
 function Stars({ rating, size = 14 }) {
   const full = Math.round(rating);
   return (
@@ -33,7 +32,6 @@ function formatDate(str) {
   return new Date(str).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-// ─── Image Gallery ───────────────────────────────────────────────────────────
 function Gallery({ images }) {
   const [active, setActive] = useState(0);
   const [lightbox, setLightbox] = useState(false);
@@ -59,7 +57,6 @@ function Gallery({ images }) {
           </div>
         </div>
 
-        {/* Thumbnails */}
         {images.length > 1 && (
           <div style={g.thumbs}>
             {images.map((img, i) => (
@@ -72,7 +69,6 @@ function Gallery({ images }) {
         )}
       </div>
 
-      {/* Lightbox */}
       {lightbox && (
         <div style={g.lightboxBg} onClick={() => setLightbox(false)}>
           <button style={g.lbClose} onClick={() => setLightbox(false)}>✕</button>
@@ -106,7 +102,6 @@ const g = {
   lbCounter: { position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.7)', fontSize: 14, margin: 0 },
 };
 
-// ─── Booking Panel ───────────────────────────────────────────────────────────
 function BookingPanel({ apartment }) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -246,7 +241,6 @@ const bp = {
   successIcon: { width: 56, height: 56, borderRadius: '50%', backgroundColor: '#e6f4f1', color: '#0F4C5C', fontSize: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontWeight: 700 },
 };
 
-// ─── Main Page ───────────────────────────────────────────────────────────────
 export default function ApartmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -328,14 +322,11 @@ export default function ApartmentDetail() {
           </div>
         </div>
 
-        {/* Gallery */}
         <Gallery images={apt.images} />
 
-        {/* Body: info + booking */}
         <div style={s.body}>
           {/* Left column */}
           <div style={s.left}>
-            {/* Quick stats */}
             <div style={s.statsRow}>
               {[
                 { icon: '🛏', label: `${apt.bedrooms} bedroom${apt.bedrooms !== 1 ? 's' : ''}` },
@@ -351,13 +342,11 @@ export default function ApartmentDetail() {
 
             <div style={s.divider} />
 
-            {/* Description */}
             <section>
               <h2 style={s.sectionTitle}>About this place</h2>
               <p style={s.description}>{apt.description || 'No description provided.'}</p>
             </section>
 
-            {/* Address */}
             {apt.address && (
               <>
                 <div style={s.divider} />
@@ -368,7 +357,6 @@ export default function ApartmentDetail() {
               </>
             )}
 
-            {/* Amenities */}
             {apt.amenities && apt.amenities.length > 0 && (
               <>
                 <div style={s.divider} />
@@ -388,7 +376,6 @@ export default function ApartmentDetail() {
 
             <div style={s.divider} />
 
-            {/* Reviews */}
             <section>
               <div style={s.reviewsHeader}>
                 <h2 style={s.sectionTitle}>
@@ -422,14 +409,12 @@ export default function ApartmentDetail() {
             </section>
           </div>
 
-          {/* Right column — booking */}
           <div style={s.right}>
             <BookingPanel apartment={apt} />
           </div>
         </div>
       </div>
 
-      {/* Footer */}
       <footer style={s.footer}>
         <span style={s.footerText}>© {new Date().getFullYear()} Rentura. All rights reserved.</span>
       </footer>
@@ -440,7 +425,7 @@ export default function ApartmentDetail() {
 const s = {
   page: { minHeight: '100vh', fontFamily: "'Segoe UI', sans-serif", backgroundColor: '#FAFAF9' },
 
-  // Nav
+  
   nav: { position: 'sticky', top: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 48px', backgroundColor: '#fff', borderBottom: '1px solid #ebebeb', boxShadow: '0 1px 8px rgba(15,76,92,0.06)' },
   brand: { fontSize: 22, fontWeight: 800, color: '#0F4C5C', textDecoration: 'none', letterSpacing: '-0.5px' },
   navLinks: { display: 'flex', alignItems: 'center', gap: 20 },
@@ -448,23 +433,23 @@ const s = {
   navLink: { color: '#333', textDecoration: 'none', fontSize: 14, fontWeight: 500 },
   navButtonLink: { background: '#0F4C5C', color: '#fff', textDecoration: 'none', borderRadius: 20, padding: '8px 20px', fontSize: 14, fontWeight: 600 },
 
-  // Layout
+
   container: { maxWidth: 1100, margin: '0 auto', padding: '32px 24px 64px' },
   backBtn: { background: 'none', border: 'none', color: '#0F4C5C', fontSize: 14, fontWeight: 600, cursor: 'pointer', padding: '0 0 20px', fontFamily: "'Segoe UI', sans-serif" },
 
-  // Title
+  
   titleRow: { marginBottom: 20 },
   title: { fontSize: 30, fontWeight: 800, color: '#0F4C5C', margin: '0 0 10px', letterSpacing: '-0.5px' },
   meta: { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   metaItem: { display: 'flex', alignItems: 'center', fontSize: 14, color: '#444' },
   metaDot: { color: '#ccc' },
 
-  // Body
+  
   body: { display: 'grid', gridTemplateColumns: '1fr 380px', gap: 48, marginTop: 36, alignItems: 'start' },
   left: { minWidth: 0 },
   right: {},
 
-  // Stats
+  
   statsRow: { display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 0 },
   statCard: { display: 'flex', alignItems: 'center', gap: 8, backgroundColor: '#fff', border: '1px solid #ebebeb', borderRadius: 12, padding: '10px 16px' },
   statIcon: { fontSize: 18 },
@@ -472,17 +457,17 @@ const s = {
 
   divider: { height: 1, backgroundColor: '#ebebeb', margin: '28px 0' },
 
-  // Description
+  
   sectionTitle: { fontSize: 20, fontWeight: 700, color: '#0F4C5C', margin: '0 0 14px' },
   description: { fontSize: 15, color: '#555', lineHeight: 1.75, margin: 0 },
 
-  // Amenities
+  
   amenitiesGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 },
   amenityItem: { display: 'flex', alignItems: 'center', gap: 10 },
   amenityIcon: { fontSize: 20 },
   amenityName: { fontSize: 14, color: '#444' },
 
-  // Reviews
+  
   reviewsHeader: { marginBottom: 20 },
   reviewsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 },
   reviewCard: { backgroundColor: '#fff', border: '1px solid #ebebeb', borderRadius: 16, padding: 20 },
@@ -491,11 +476,11 @@ const s = {
   reviewDate: { margin: 0, fontSize: 12, color: '#aaa' },
   reviewComment: { margin: 0, fontSize: 14, color: '#555', lineHeight: 1.65 },
 
-  // Loading
+ 
   loadingPage: { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, fontFamily: "'Segoe UI', sans-serif" },
   spinner: { width: 36, height: 36, border: '3px solid #e0e0e0', borderTop: '3px solid #0F4C5C', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
 
-  // Footer
+  
   footer: { borderTop: '1px solid #ebebeb', padding: 28, textAlign: 'center', backgroundColor: '#fff' },
   footerText: { fontSize: 13, color: '#bbb' },
 };

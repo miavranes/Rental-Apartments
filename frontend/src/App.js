@@ -5,6 +5,8 @@ import Register from './pages/Register';
 import Home from './pages/Home';
 import ApartmentDetail from './pages/ApartmentDetail';
 import Profile from './pages/Profile';
+import Owner from './pages/Owner';
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -15,6 +17,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/owner" element={<Owner />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

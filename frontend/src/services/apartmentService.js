@@ -7,6 +7,7 @@ const apartmentService = {
   update: (id, payload) => api.put(`/api/apartments/${id}`, payload).then(r => r.data),
   delete: (id) => api.delete(`/api/apartments/${id}`).then(r => r.data),
   getReviews: (id) => api.get(`/api/reviews/apartment/${id}`).then(r => r.data),
+  getMine: () => api.get('/api/apartments/my').then(r => r.data),
 };
 
 export default apartmentService;

@@ -1,7 +1,44 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { Eye, EyeOff, ChevronDown } from 'lucide-react';
+
+const COUNTRIES = [
+  { code: 'ME', name: 'Montenegro',      dial: '+382', flag: '🇲🇪' },
+  { code: 'RS', name: 'Serbia',          dial: '+381', flag: '🇷🇸' },
+  { code: 'BA', name: 'Bosnia',          dial: '+387', flag: '🇧🇦' },
+  { code: 'HR', name: 'Croatia',         dial: '+385', flag: '🇭🇷' },
+  { code: 'SI', name: 'Slovenia',        dial: '+386', flag: '🇸🇮' },
+  { code: 'MK', name: 'N. Macedonia',    dial: '+389', flag: '🇲🇰' },
+  { code: 'AL', name: 'Albania',         dial: '+355', flag: '🇦🇱' },
+  { code: 'DE', name: 'Germany',         dial: '+49',  flag: '🇩🇪' },
+  { code: 'AT', name: 'Austria',         dial: '+43',  flag: '🇦🇹' },
+  { code: 'CH', name: 'Switzerland',     dial: '+41',  flag: '🇨🇭' },
+  { code: 'GB', name: 'United Kingdom',  dial: '+44',  flag: '🇬🇧' },
+  { code: 'FR', name: 'France',          dial: '+33',  flag: '🇫🇷' },
+  { code: 'IT', name: 'Italy',           dial: '+39',  flag: '🇮🇹' },
+  { code: 'ES', name: 'Spain',           dial: '+34',  flag: '🇪🇸' },
+  { code: 'NL', name: 'Netherlands',     dial: '+31',  flag: '🇳🇱' },
+  { code: 'BE', name: 'Belgium',         dial: '+32',  flag: '🇧🇪' },
+  { code: 'SE', name: 'Sweden',          dial: '+46',  flag: '🇸🇪' },
+  { code: 'NO', name: 'Norway',          dial: '+47',  flag: '🇳🇴' },
+  { code: 'DK', name: 'Denmark',         dial: '+45',  flag: '🇩🇰' },
+  { code: 'PL', name: 'Poland',          dial: '+48',  flag: '🇵🇱' },
+  { code: 'CZ', name: 'Czech Republic',  dial: '+420', flag: '🇨🇿' },
+  { code: 'SK', name: 'Slovakia',        dial: '+421', flag: '🇸🇰' },
+  { code: 'HU', name: 'Hungary',         dial: '+36',  flag: '🇭🇺' },
+  { code: 'RO', name: 'Romania',         dial: '+40',  flag: '🇷🇴' },
+  { code: 'BG', name: 'Bulgaria',        dial: '+359', flag: '🇧🇬' },
+  { code: 'GR', name: 'Greece',          dial: '+30',  flag: '🇬🇷' },
+  { code: 'TR', name: 'Turkey',          dial: '+90',  flag: '🇹🇷' },
+  { code: 'RU', name: 'Russia',          dial: '+7',   flag: '🇷🇺' },
+  { code: 'UA', name: 'Ukraine',         dial: '+380', flag: '🇺🇦' },
+  { code: 'US', name: 'United States',   dial: '+1',   flag: '🇺🇸' },
+  { code: 'CA', name: 'Canada',          dial: '+1',   flag: '🇨🇦' },
+  { code: 'AU', name: 'Australia',       dial: '+61',  flag: '🇦🇺' },
+  { code: 'AE', name: 'UAE',             dial: '+971', flag: '🇦🇪' },
+];
 
 export default function Register() {
   const { register, loginWithToken } = useAuth();
@@ -14,6 +51,27 @@ export default function Register() {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [dialCode, setDialCode] = useState(COUNTRIES[0]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+        setSearch('');
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const filteredCountries = COUNTRIES.filter(c =>
+    c.name.toLowerCase().includes(search.toLowerCase()) || c.dial.includes(search)
+  );
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -27,7 +85,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register({ name: form.name, email: form.email, password: form.password, phone: form.phone });
+      await register({ name: form.name, email: form.email, password: form.password, phone: `${dialCode.dial}${form.phone}` });
       setStep('verify');
     } catch (err) {
       setError(err.response?.data?.error || 'An error occurred during registration.');
@@ -89,25 +147,83 @@ export default function Register() {
                 </div>
                 <div style={styles.field}>
                   <label style={styles.label}>Phone number</label>
-                  <input type="tel" name="phone" value={form.phone} onChange={handleChange}
-                    placeholder="+1 234 567 890" style={styles.input}
-                    onFocus={e => e.target.style.borderColor = '#0F4C5C'}
-                    onBlur={e => e.target.style.borderColor = '#ddd'} />
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <div ref={dropdownRef} style={{ position: 'relative' }}>
+                      <button
+                        type="button"
+                        onClick={() => { setDropdownOpen(v => !v); setSearch(''); }}
+                        style={styles.dialBtn}
+                      >
+                        <span>{dialCode.flag}</span>
+                        <span style={{ fontSize: 14, color: '#222' }}>{dialCode.dial}</span>
+                        <ChevronDown size={14} color="#888" />
+                      </button>
+                      {dropdownOpen && (
+                        <div style={styles.dropdown}>
+                          <input
+                            autoFocus
+                            type="text"
+                            placeholder="Search..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            style={styles.dropdownSearch}
+                          />
+                          <div style={styles.dropdownList}>
+                            {filteredCountries.map(c => (
+                              <div
+                                key={c.code}
+                                onClick={() => { setDialCode(c); setDropdownOpen(false); setSearch(''); }}
+                                style={{
+                                  ...styles.dropdownItem,
+                                  backgroundColor: dialCode.code === c.code ? '#f0f7f9' : 'transparent',
+                                }}
+                              >
+                                <span>{c.flag}</span>
+                                <span style={{ flex: 1, fontSize: 14 }}>{c.name}</span>
+                                <span style={{ fontSize: 13, color: '#888' }}>{c.dial}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {/* Phone number input */}
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={form.phone}
+                      onChange={handleChange}
+                      placeholder="67 123 456"
+                      style={{ ...styles.input, flex: 1 }}
+                      onFocus={e => e.target.style.borderColor = '#0F4C5C'}
+                      onBlur={e => e.target.style.borderColor = '#ddd'}
+                    />
+                  </div>
                 </div>
                 <div style={styles.row}>
                   <div style={{ ...styles.field, flex: 1 }}>
                     <label style={styles.label}>Password</label>
-                    <input type="password" name="password" value={form.password} onChange={handleChange}
-                      placeholder="••••••••" required style={styles.input}
-                      onFocus={e => e.target.style.borderColor = '#0F4C5C'}
-                      onBlur={e => e.target.style.borderColor = '#ddd'} />
+                    <div style={styles.inputWrapper}>
+                      <input type={showPassword ? 'text' : 'password'} name="password" value={form.password} onChange={handleChange}
+                        placeholder="••••••••" required style={styles.input}
+                        onFocus={e => e.target.style.borderColor = '#0F4C5C'}
+                        onBlur={e => e.target.style.borderColor = '#ddd'} />
+                      <button type="button" onClick={() => setShowPassword(v => !v)} style={styles.eyeBtn} tabIndex={-1}>
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
                   <div style={{ ...styles.field, flex: 1 }}>
                     <label style={styles.label}>Confirm password</label>
-                    <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange}
-                      placeholder="••••••••" required style={styles.input}
-                      onFocus={e => e.target.style.borderColor = '#0F4C5C'}
-                      onBlur={e => e.target.style.borderColor = '#ddd'} />
+                    <div style={styles.inputWrapper}>
+                      <input type={showConfirm ? 'text' : 'password'} name="confirmPassword" value={form.confirmPassword} onChange={handleChange}
+                        placeholder="••••••••" required style={styles.input}
+                        onFocus={e => e.target.style.borderColor = '#0F4C5C'}
+                        onBlur={e => e.target.style.borderColor = '#ddd'} />
+                      <button type="button" onClick={() => setShowConfirm(v => !v)} style={styles.eyeBtn} tabIndex={-1}>
+                        {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <button type="submit" disabled={loading} style={styles.button}
@@ -138,7 +254,7 @@ export default function Register() {
                   maxLength={6}
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="123456"
+                  placeholder="XXXXXX"
                   style={{ ...styles.input, letterSpacing: '8px', fontSize: '22px', textAlign: 'center' }}
                   onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                   onBlur={e => e.target.style.borderColor = '#ddd'}
@@ -184,6 +300,35 @@ const styles = {
   error: { backgroundColor: '#fff5f0', border: '1px solid #f5c6a0', color: '#b85c2a', padding: '12px 16px', borderRadius: '10px', marginBottom: '20px', fontSize: '14px' },
   field: { marginBottom: '18px' },
   row: { display: 'flex', gap: '16px' },
+  inputWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
+  eyeBtn: { position: 'absolute', right: '12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', padding: '0', lineHeight: 1, color: '#888' },
+  dialBtn: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    padding: '0 12px', height: '49px',
+    border: '1px solid #ddd', borderRadius: '10px',
+    backgroundColor: '#fff', cursor: 'pointer',
+    fontSize: '16px', whiteSpace: 'nowrap',
+    fontFamily: "'Segoe UI', sans-serif",
+  },
+  dropdown: {
+    position: 'absolute', top: 'calc(100% + 4px)', left: 0,
+    zIndex: 999, backgroundColor: '#fff',
+    border: '1px solid #ddd', borderRadius: '10px',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+    width: '260px', overflow: 'hidden',
+  },
+  dropdownSearch: {
+    width: '100%', padding: '10px 14px',
+    border: 'none', borderBottom: '1px solid #eee',
+    outline: 'none', fontSize: '14px',
+    boxSizing: 'border-box', fontFamily: "'Segoe UI', sans-serif",
+  },
+  dropdownList: { maxHeight: '220px', overflowY: 'auto' },
+  dropdownItem: {
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '9px 14px', cursor: 'pointer',
+    transition: 'background 0.1s',
+  },
   label: { display: 'block', fontSize: '13px', fontWeight: '600', color: '#444', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.4px' },
   input: { width: '100%', padding: '13px 16px', border: '1px solid #ddd', borderRadius: '10px', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box', color: '#222', backgroundColor: '#fff' },
   button: { width: '100%', padding: '14px', backgroundColor: '#0F4C5C', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginTop: '8px', transition: 'background-color 0.2s', letterSpacing: '0.3px' },

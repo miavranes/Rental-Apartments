@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 
-// Deep Teal: #0F4C5C  |  Accent (warm peach): #E8A87C
 
 export default function Login() {
   const { login } = useAuth();
@@ -11,6 +11,7 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -70,17 +71,27 @@ export default function Login() {
 
             <div style={styles.field}>
               <label style={styles.label}>Password</label>
-              <input
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                required
-                style={styles.input}
-                onFocus={e => e.target.style.borderColor = '#0F4C5C'}
-                onBlur={e => e.target.style.borderColor = '#ddd'}
-              />
+              <div style={styles.inputWrapper}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
+                  style={styles.input}
+                  onFocus={e => e.target.style.borderColor = '#0F4C5C'}
+                  onBlur={e => e.target.style.borderColor = '#ddd'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  style={styles.eyeBtn}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <button
@@ -176,10 +187,24 @@ const styles = {
     marginBottom: '20px',
     fontSize: '14px',
   },
-  field: {
-    marginBottom: '20px',
+  inputWrapper: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  eyeBtn: {
+    position: 'absolute',
+    right: '12px',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '18px',
+    padding: '0',
+    lineHeight: 1,
+    color: '#888',
   },
   label: {
+    marginTop: '20px',
     display: 'block',
     fontSize: '13px',
     fontWeight: '600',
@@ -210,7 +235,7 @@ const styles = {
     fontSize: '16px',
     fontWeight: '600',
     cursor: 'pointer',
-    marginTop: '8px',
+    marginTop: '20px',
     transition: 'background-color 0.2s',
     letterSpacing: '0.3px',
   },
