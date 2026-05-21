@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building } from 'lucide-react';
+import { Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building, Home, BedDouble, Users, Plus, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import apartmentService from '../services/apartmentService';
@@ -14,9 +14,9 @@ const AMENITIES_LIST = [
   { key: 'utensils',        label: 'Kitchen',       Icon: UtensilsCrossed },
   { key: 'washing-machine', label: 'Washing machine',    Icon: WashingMachine },
   { key: 'tv',              label: 'TV',            Icon: Tv },
-  { key: 'paw-print',       label: 'Ljubimci OK',   Icon: PawPrint },
-  { key: 'flame',           label: 'Roštilj',       Icon: Flame },
-  { key: 'building',        label: 'Balkon',        Icon: Building },
+  { key: 'paw-print',       label: 'Pet friendly',   Icon: PawPrint },
+  { key: 'flame',           label: 'Grill',       Icon: Flame },
+  { key: 'building',        label: 'Balcony',        Icon: Building },
 ];
 
 export default function Owner() {
@@ -124,7 +124,7 @@ export default function Owner() {
             <h1 style={s.pageTitle}>My listings</h1>
             <p style={s.pageSub}>Manage your properties on Rentura</p>
           </div>
-          <button onClick={openNew} style={s.addBtn}>+ New listing</button>
+          <button onClick={openNew} style={s.addBtn}><Plus size={16} strokeWidth={2.5} style={{ marginRight: 6 }} />New listing</button>
         </div>
 
         {success && <div style={s.successBanner}>{success}</div>}
@@ -134,7 +134,7 @@ export default function Owner() {
           <div style={s.grid}>{[1,2,3].map(i => <div key={i} style={s.skeleton} />)}</div>
         ) : apartments.length === 0 ? (
           <div style={s.empty}>
-            <div style={s.emptyIcon}>🏠</div>
+            <Home size={64} color="#ddd" strokeWidth={1} style={{ marginBottom: 16 }} />
             <h3 style={s.emptyTitle}>No listings yet</h3>
             <p style={s.emptySub}>Add your first property to start receiving bookings.</p>
           </div>
@@ -145,15 +145,15 @@ export default function Owner() {
                 <div style={s.cardImg}>
                   {apt.images?.length > 0
                     ? <img src={BASE + apt.images[0].image_url} alt={apt.title} style={s.cardImgEl} />
-                    : <div style={s.cardImgPlaceholder}><span style={{ fontSize: 40 }}>🏠</span></div>}
+                    : <div style={s.cardImgPlaceholder}><Home size={40} color="#ccc" strokeWidth={1.5} /></div>}
                 </div>
                 <div style={s.cardBody}>
                   <p style={s.cardLocation}>{apt.location}</p>
                   <h3 style={s.cardTitle}>{apt.title}</h3>
                   <p style={s.cardPrice}><strong style={{ color: '#0F4C5C' }}>${apt.price_per_night}</strong> / night</p>
                   <div style={s.cardMeta}>
-                    <span>🛏 {apt.bedrooms} bed{apt.bedrooms !== 1 ? 's' : ''}</span>
-                    <span>👥 {apt.max_guests} guests</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><BedDouble size={14} color="#aaa" /> {apt.bedrooms} bed{apt.bedrooms !== 1 ? 's' : ''}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Users size={14} color="#aaa" /> {apt.max_guests} guests</span>
                   </div>
                 </div>
                 <div style={s.cardActions}>
@@ -172,7 +172,7 @@ export default function Owner() {
           <div style={s.modal} onClick={e => e.stopPropagation()}>
             <div style={s.modalHeader}>
               <h2 style={s.modalTitle}>{editTarget ? 'Edit listing' : 'New listing'}</h2>
-              <button onClick={() => setShowForm(false)} style={s.closeBtn}>✕</button>
+              <button onClick={() => setShowForm(false)} style={s.closeBtn}><X size={20} /></button>
             </div>
 
             {error && <div style={s.errorBanner}>{error}</div>}
@@ -308,7 +308,7 @@ const s = {
   pageHeader: { display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32 },
   pageTitle: { fontSize: 28, fontWeight: 800, color: '#0F4C5C', margin: '0 0 4px', letterSpacing: '-0.5px' },
   pageSub: { fontSize: 14, color: '#999', margin: 0 },
-  addBtn: { backgroundColor: '#0F4C5C', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 22px', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
+  addBtn: { display: 'flex', alignItems: 'center', backgroundColor: '#0F4C5C', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 22px', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
   successBanner: { backgroundColor: '#f0fff4', border: '1px solid #b7ebc8', color: '#2d7a47', padding: '12px 16px', borderRadius: 10, marginBottom: 20, fontSize: 14 },
   errorBanner: { backgroundColor: '#fff0f0', border: '1px solid #ffd0d0', color: '#c0392b', padding: '12px 16px', borderRadius: 10, marginBottom: 20, fontSize: 14 },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 },

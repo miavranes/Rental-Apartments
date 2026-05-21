@@ -3,6 +3,11 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import apartmentService from '../services/apartmentService';
 import reservationService from '../services/reservationService';
 import { useAuth } from '../context/AuthContext';
+import {
+  Home, MapPin, BedDouble, Bed, Users,
+  Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building,
+  Star, ChevronLeft, Check, X
+} from 'lucide-react';
 
 const BASE = 'http://localhost:5000/uploads/';
 
@@ -36,10 +41,21 @@ function Gallery({ images }) {
   const [active, setActive] = useState(0);
   const [lightbox, setLightbox] = useState(false);
 
+  useEffect(() => {
+    if (!lightbox) return;
+    const handleKey = (e) => {
+      if (e.key === 'ArrowRight') setActive(a => (a + 1) % images.length);
+      if (e.key === 'ArrowLeft')  setActive(a => (a - 1 + images.length) % images.length);
+      if (e.key === 'Escape')     setLightbox(false);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [lightbox, images.length]);
+
   if (!images || images.length === 0) {
     return (
       <div style={g.placeholder}>
-        <span style={{ fontSize: 64 }}>🏠</span>
+        <Home size={64} color="#ccc" strokeWidth={1} />
       </div>
     );
   }
@@ -71,7 +87,7 @@ function Gallery({ images }) {
 
       {lightbox && (
         <div style={g.lightboxBg} onClick={() => setLightbox(false)}>
-          <button style={g.lbClose} onClick={() => setLightbox(false)}>✕</button>
+          <button style={g.lbClose} onClick={() => setLightbox(false)}><X size={24} /></button>
           <button style={{ ...g.lbNav, left: 24 }}
             onClick={e => { e.stopPropagation(); setActive(a => (a - 1 + images.length) % images.length); }}>‹</button>
           <img src={src(images[active])} alt="" style={g.lbImg} onClick={e => e.stopPropagation()} />
@@ -139,7 +155,7 @@ function BookingPanel({ apartment }) {
   if (success) {
     return (
       <div style={bp.card}>
-        <div style={bp.successIcon}>✓</div>
+        <div style={bp.successIcon}><Check size={28} strokeWidth={2.5} color="#0F4C5C" /></div>
         <h3 style={{ ...bp.price, textAlign: 'center', marginBottom: 8 }}>Booking confirmed!</h3>
         <p style={{ color: '#888', fontSize: 14, textAlign: 'center', margin: '0 0 20px' }}>
           Your reservation is pending approval from the host.
@@ -278,7 +294,24 @@ export default function ApartmentDetail() {
     </div>
   );
 
-  const amenityIcons = { wifi: '📶', parking: '🅿️', pool: '🏊', kitchen: '🍳', ac: '❄️', tv: '📺', washer: '🫧', gym: '🏋️' };
+  const amenityIcons = {
+    wifi: Wifi, car: Car, snowflake: Snowflake, waves: Waves,
+    utensils: UtensilsCrossed, 'washing-machine': WashingMachine,
+    tv: Tv, 'paw-print': PawPrint, flame: Flame, building: Building,
+  };
+
+  const amenityLabels = {
+    wifi: 'WiFi',
+    car: 'Parking',
+    snowflake: 'Air Conditioning',
+    waves: 'Pool',
+    utensils: 'Kitchen',
+    'washing-machine': 'Washing Machine',
+    tv: 'TV',
+    'paw-print': 'Pet Friendly',
+    flame: 'Grill',
+    building: 'Balcony',
+  };
 
   return (
     <div style={s.page}>
@@ -302,7 +335,7 @@ export default function ApartmentDetail() {
 
       <div style={s.container}>
         {/* Back */}
-        <button onClick={() => navigate(-1)} style={s.backBtn}>← Back</button>
+        <button onClick={() => navigate(-1)} style={s.backBtn}><ChevronLeft size={16} style={{ marginRight: 2 }} />Back</button>
 
         {/* Title row */}
         <div style={s.titleRow}>
@@ -317,7 +350,7 @@ export default function ApartmentDetail() {
                 </span>
               )}
               <span style={s.metaDot}>·</span>
-              <span style={s.metaItem}>📍 {apt.location}</span>
+              <span style={s.metaItem}><MapPin size={14} style={{ marginRight: 4 }} />{apt.location}</span>
             </div>
           </div>
         </div>
@@ -329,12 +362,12 @@ export default function ApartmentDetail() {
           <div style={s.left}>
             <div style={s.statsRow}>
               {[
-                { icon: '🛏', label: `${apt.bedrooms} bedroom${apt.bedrooms !== 1 ? 's' : ''}` },
-                { icon: '🛌', label: `${apt.beds} bed${apt.beds !== 1 ? 's' : ''}` },
-                { icon: '👥', label: `Up to ${apt.max_guests} guests` },
+                { Icon: BedDouble, label: `${apt.bedrooms} bedroom${apt.bedrooms !== 1 ? 's' : ''}` },
+                { Icon: Bed,       label: `${apt.beds} bed${apt.beds !== 1 ? 's' : ''}` },
+                { Icon: Users,     label: `Up to ${apt.max_guests} guests` },
               ].map((item, i) => (
                 <div key={i} style={s.statCard}>
-                  <span style={s.statIcon}>{item.icon}</span>
+                  <item.Icon size={18} color="#0F4C5C" strokeWidth={1.8} />
                   <span style={s.statLabel}>{item.label}</span>
                 </div>
               ))}
@@ -352,7 +385,7 @@ export default function ApartmentDetail() {
                 <div style={s.divider} />
                 <section>
                   <h2 style={s.sectionTitle}>Address</h2>
-                  <p style={s.description}>📍 {apt.address}</p>
+                  <p style={{ ...s.description, display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={15} color="#0F4C5C" />{apt.address}</p>
                 </section>
               </>
             )}
@@ -363,12 +396,15 @@ export default function ApartmentDetail() {
                 <section>
                   <h2 style={s.sectionTitle}>Amenities</h2>
                   <div style={s.amenitiesGrid}>
-                    {apt.amenities.map(a => (
-                      <div key={a.id} style={s.amenityItem}>
-                        <span style={s.amenityIcon}>{amenityIcons[a.icon] || a.icon || '✓'}</span>
-                        <span style={s.amenityName}>{a.name}</span>
-                      </div>
-                    ))}
+                    {apt.amenities.map(a => {
+                      const IconComp = amenityIcons[a.icon] || Check;
+                      return (
+                        <div key={a.id} style={s.amenityItem}>
+                          <IconComp size={18} color="#0F4C5C" strokeWidth={1.8} />
+                          <span style={s.amenityName}>{amenityLabels[a.icon] || a.name}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </section>
               </>
@@ -380,7 +416,7 @@ export default function ApartmentDetail() {
               <div style={s.reviewsHeader}>
                 <h2 style={s.sectionTitle}>
                   {reviews.length > 0
-                    ? `★ ${Number(apt.avg_rating).toFixed(1)} · ${reviews.length} review${reviews.length !== 1 ? 's' : ''}`
+                    ? <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Star size={18} fill="#E8A87C" color="#E8A87C" />{Number(apt.avg_rating).toFixed(1)} · {reviews.length} review{reviews.length !== 1 ? 's' : ''}</span>
                     : 'No reviews yet'}
                 </h2>
               </div>

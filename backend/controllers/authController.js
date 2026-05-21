@@ -141,9 +141,6 @@ const verifyEmail = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-  if (!user.is_verified) {
-  return res.status(403).json({ error: 'Email is not verified. Check your inbox.' });
-}
 };
 
 

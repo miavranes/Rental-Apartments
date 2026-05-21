@@ -87,7 +87,7 @@ const getApartment = async (req, res) => {
   }
 };
 const createApartment = async (req, res) => {
-  const { title, description, location, address, max_guests, bedrooms, beds, price_per_night, amenity_ids } = req.body;
+  const { title, description, location, address, max_guests, bedrooms, beds, price_per_night, amenities } = req.body;
 
   try {
     const result = await pool.query(`
@@ -98,9 +98,28 @@ const createApartment = async (req, res) => {
 
     const apartment = result.rows[0];
 
-    if (amenity_ids && amenity_ids.length > 0) {
-      const amenityValues = amenity_ids.map((aid) => `(${apartment.id}, ${aid})`).join(', ');
-      await pool.query(`INSERT INTO apartment_amenities (apartment_id, amenity_id) VALUES ${amenityValues}`);
+    // Save uploaded images
+    if (req.files && req.files.length > 0) {
+      for (let i = 0; i < req.files.length; i++) {
+        await pool.query(
+          'INSERT INTO apartment_images (apartment_id, image_url, sort_order, is_primary) VALUES ($1, $2, $3, $4)',
+          [apartment.id, req.files[i].filename, i, i === 0]
+        );
+      }
+    }
+
+    // Save amenities (sent as JSON string from FormData)
+    if (amenities) {
+      const amenityKeys = JSON.parse(amenities);
+      for (const key of amenityKeys) {
+        const am = await pool.query('SELECT id FROM amenities WHERE icon = $1', [key]);
+        if (am.rows.length > 0) {
+          await pool.query(
+            'INSERT INTO apartment_amenities (apartment_id, amenity_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+            [apartment.id, am.rows[0].id]
+          );
+        }
+      }
     }
 
     res.status(201).json(apartment);
@@ -111,7 +130,7 @@ const createApartment = async (req, res) => {
 
 const updateApartment = async (req, res) => {
   const { id } = req.params;
-  const { title, description, location, address, max_guests, bedrooms, beds, price_per_night } = req.body;
+  const { title, description, location, address, max_guests, bedrooms, beds, price_per_night, amenities } = req.body;
 
   try {
     const check = await pool.query('SELECT owner_id FROM apartments WHERE id = $1', [id]);
@@ -125,6 +144,32 @@ const updateApartment = async (req, res) => {
       WHERE id=$9
       RETURNING *
     `, [title, description, location, address, max_guests, bedrooms, beds, price_per_night, id]);
+
+    // Replace images if new ones uploaded
+    if (req.files && req.files.length > 0) {
+      await pool.query('DELETE FROM apartment_images WHERE apartment_id = $1', [id]);
+      for (let i = 0; i < req.files.length; i++) {
+        await pool.query(
+          'INSERT INTO apartment_images (apartment_id, image_url, sort_order, is_primary) VALUES ($1, $2, $3, $4)',
+          [id, req.files[i].filename, i, i === 0]
+        );
+      }
+    }
+
+    // Replace amenities
+    if (amenities) {
+      await pool.query('DELETE FROM apartment_amenities WHERE apartment_id = $1', [id]);
+      const amenityKeys = JSON.parse(amenities);
+      for (const key of amenityKeys) {
+        const am = await pool.query('SELECT id FROM amenities WHERE icon = $1', [key]);
+        if (am.rows.length > 0) {
+          await pool.query(
+            'INSERT INTO apartment_amenities (apartment_id, amenity_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+            [id, am.rows[0].id]
+          );
+        }
+      }
+    }
 
     res.json(result.rows[0]);
   } catch (err) {

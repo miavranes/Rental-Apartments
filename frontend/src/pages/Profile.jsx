@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { Home, Luggage, ArrowRight } from 'lucide-react';
 
 export default function Profile() {
   const { user, updateProfile, switchRole, logout, deleteAccount } = useAuth();
@@ -82,7 +83,7 @@ export default function Profile() {
           <div style={s.headerInfo}>
             <h1 style={s.name}>{user?.name}</h1>
             <p style={s.roleTag}>
-              {user?.role === 'owner' ? '🏠 Host' : '🧳 Tourist'}
+              {user?.role === 'owner' ? <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Home size={14} />Host</span> : <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Luggage size={14} />Tourist</span>}
             </p>
             <p style={s.emailTag}>{user?.email}</p>
           </div>
@@ -98,12 +99,12 @@ export default function Profile() {
             </p>
             <div style={s.roleRow}>
               <div style={{ ...s.roleBox, ...(user?.role === 'tourist' ? s.roleBoxActive : {}) }}>
-                <span style={s.roleIcon}>🧳</span>
+                <Luggage size={22} color="#0F4C5C" strokeWidth={1.8} />
                 <span style={s.roleLabel}>Tourist</span>
               </div>
-              <div style={s.roleArrow}>→</div>
+              <div style={s.roleArrow}><ArrowRight size={18} color="#ccc" /></div>
               <div style={{ ...s.roleBox, ...(user?.role === 'owner' ? s.roleBoxActive : {}) }}>
-                <span style={s.roleIcon}>🏠</span>
+                <Home size={22} color="#0F4C5C" strokeWidth={1.8} />
                 <span style={s.roleLabel}>Host</span>
               </div>
             </div>

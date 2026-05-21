@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Home, Star } from 'lucide-react';
 
 export default function ApartmentCard({ apartment }) {
   const { _id, title, location, pricePerNight, images, averageRating, reviewCount } = apartment;
@@ -14,12 +15,13 @@ export default function ApartmentCard({ apartment }) {
           <img src={imgSrc} alt={title} style={styles.image} />
         ) : (
           <div style={styles.imagePlaceholder}>
-            <span style={styles.placeholderIcon}>🏠</span>
+            <Home size={48} color="#ccc" strokeWidth={1} />
           </div>
         )}
         {averageRating > 0 && (
           <div style={styles.badge}>
-            ★ {Number(averageRating).toFixed(1)}
+            <Star size={11} fill="#fff" color="#fff" style={{ marginRight: 3 }} />
+            {Number(averageRating).toFixed(1)}
             {reviewCount > 0 && <span style={styles.reviewCount}> ({reviewCount})</span>}
           </div>
         )}
@@ -91,6 +93,8 @@ const styles = {
     padding: '4px 10px',
     borderRadius: '20px',
     backdropFilter: 'blur(4px)',
+    display: 'flex',
+    alignItems: 'center',
   },
   reviewCount: {
     fontWeight: '400',
