@@ -14,7 +14,7 @@ export default function Home() {
     apartmentService
       .getAll()
       .then((data) => {
-        const sorted = [...data].sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
+        const sorted = [...data].sort((a, b) => (b.avg_rating || 0) - (a.avg_rating || 0));
         setFeatured(sorted.slice(0, 6));
       })
       .catch(() => setFeatured([]))

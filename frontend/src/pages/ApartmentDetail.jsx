@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import apartmentService from '../services/apartmentService';
 import reservationService from '../services/reservationService';
 import { useAuth } from '../context/AuthContext';
+import Calendar from '../components/Calendar';
+import MapView from '../components/MapView';
 import {
   Home, MapPin, BedDouble, Bed, Users,
   Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building,
-  Star, ChevronLeft, Check, X
+  Star, ChevronLeft, Check, X, ChevronDown
 } from 'lucide-react';
 
 const BASE = 'http://localhost:5000/uploads/';
@@ -121,12 +123,34 @@ const g = {
 function BookingPanel({ apartment }) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
-  const [guests, setGuests] = useState(1);
+  const [searchParams] = useSearchParams();
+
+  // Pre-fill from search bar if available
+  const [checkIn, setCheckIn]   = useState(searchParams.get('checkIn')  || '');
+  const [checkOut, setCheckOut] = useState(searchParams.get('checkOut') || '');
+  const [guests, setGuests]     = useState(Number(searchParams.get('guests')) || 1);
+
+  const fromSearch = !!(searchParams.get('checkIn') && searchParams.get('checkOut'));
+  const [editDates, setEditDates] = useState(!fromSearch); // show calendar only if no search params
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError]     = useState('');
   const [success, setSuccess] = useState(false);
+  const [openCal, setOpenCal] = useState(null);
+  const panelRef = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) setOpenCal(null);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const formatDate = (str) => {
+    if (!str) return null;
+    return new Date(str + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
 
   const nights = checkIn && checkOut
     ? Math.max(0, Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000))
@@ -168,7 +192,7 @@ function BookingPanel({ apartment }) {
   }
 
   return (
-    <div style={bp.card}>
+    <div style={bp.card} ref={panelRef}>
       <div style={bp.priceRow}>
         <span style={bp.price}>${apartment.price_per_night}</span>
         <span style={bp.perNight}> / night</span>
@@ -181,21 +205,69 @@ function BookingPanel({ apartment }) {
       )}
 
       <form onSubmit={handleBook} style={bp.form}>
-        <div style={bp.dateRow}>
-          <div style={bp.dateField}>
-            <label style={bp.label}>CHECK IN</label>
-            <input type="date" value={checkIn} min={new Date().toISOString().split('T')[0]}
-              onChange={e => { setCheckIn(e.target.value); if (checkOut && e.target.value >= checkOut) setCheckOut(''); }}
-              required style={bp.dateInput} />
+
+        {/* ── Dates pre-filled from search ── */}
+        {!editDates ? (
+          <div style={bp.filledDates}>
+            <div style={bp.filledRow}>
+              <div style={bp.filledField}>
+                <span style={bp.label}>CHECK IN</span>
+                <span style={bp.filledValue}>{formatDate(checkIn)}</span>
+              </div>
+              <div style={bp.filledDivider} />
+              <div style={bp.filledField}>
+                <span style={bp.label}>CHECK OUT</span>
+                <span style={bp.filledValue}>{formatDate(checkOut)}</span>
+              </div>
+            </div>
+            <button type="button" onClick={() => setEditDates(true)} style={bp.changeDatesBtn}>
+              Change dates
+            </button>
           </div>
-          <div style={bp.dateDivider} />
-          <div style={bp.dateField}>
-            <label style={bp.label}>CHECK OUT</label>
-            <input type="date" value={checkOut} min={checkIn || new Date().toISOString().split('T')[0]}
-              onChange={e => setCheckOut(e.target.value)}
-              required style={bp.dateInput} />
+        ) : (
+          /* ── Calendar picker ── */
+          <div style={bp.dateRow}>
+            <div style={{ ...bp.dateField, position: 'relative' }}
+              onClick={() => setOpenCal(o => o === 'checkin' ? null : 'checkin')}>
+              <label style={bp.label}>CHECK IN</label>
+              <div style={bp.dateValue}>
+                {formatDate(checkIn) || <span style={{ color: '#aaa' }}>Add date</span>}
+                <ChevronDown size={14} color="#aaa" style={{ marginLeft: 'auto' }} />
+              </div>
+              {openCal === 'checkin' && (
+                <div style={bp.calDrop} onClick={e => e.stopPropagation()}>
+                  <Calendar
+                    value={checkIn}
+                    minDate={new Date().toISOString().split('T')[0]}
+                    onChange={(d) => {
+                      setCheckIn(d);
+                      if (checkOut && d >= checkOut) setCheckOut('');
+                      setOpenCal('checkout');
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+            <div style={bp.dateDivider} />
+            <div style={{ ...bp.dateField, position: 'relative' }}
+              onClick={() => setOpenCal(o => o === 'checkout' ? null : 'checkout')}>
+              <label style={bp.label}>CHECK OUT</label>
+              <div style={bp.dateValue}>
+                {formatDate(checkOut) || <span style={{ color: '#aaa' }}>Add date</span>}
+                <ChevronDown size={14} color="#aaa" style={{ marginLeft: 'auto' }} />
+              </div>
+              {openCal === 'checkout' && (
+                <div style={{ ...bp.calDrop, right: 0, left: 'auto' }} onClick={e => e.stopPropagation()}>
+                  <Calendar
+                    value={checkOut}
+                    minDate={checkIn || new Date().toISOString().split('T')[0]}
+                    onChange={(d) => { setCheckOut(d); setOpenCal(null); }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div style={bp.guestField}>
           <label style={bp.label}>GUESTS</label>
@@ -240,11 +312,19 @@ const bp = {
   ratingRow: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 },
   ratingText: { fontSize: 13, color: '#666' },
   form: { display: 'flex', flexDirection: 'column', gap: 0 },
-  dateRow: { display: 'flex', border: '1px solid #ddd', borderRadius: 12, overflow: 'hidden', marginBottom: 8 },
-  dateField: { flex: 1, padding: '10px 14px' },
-  dateDivider: { width: 1, backgroundColor: '#ddd' },
+  dateRow: { display: 'flex', border: '1px solid #ddd', borderRadius: 12, overflow: 'visible', marginBottom: 8 },
+  dateField: { flex: 1, padding: '10px 14px', cursor: 'pointer' },
+  dateValue: { display: 'flex', alignItems: 'center', fontSize: 14, color: '#222', marginTop: 2 },
+  dateDivider: { width: 1, backgroundColor: '#ddd', flexShrink: 0 },
+  calDrop: { position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, backgroundColor: '#fff', borderRadius: 16, boxShadow: '0 12px 40px rgba(15,76,92,0.18)', border: '1px solid rgba(15,76,92,0.08)' },
   label: { display: 'block', fontSize: 10, fontWeight: 700, color: '#0F4C5C', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 },
-  dateInput: { border: 'none', outline: 'none', fontSize: 14, color: '#222', width: '100%', fontFamily: "'Segoe UI', sans-serif", backgroundColor: 'transparent' },
+  // Pre-filled dates (from search)
+  filledDates: { border: '1px solid #ddd', borderRadius: 12, overflow: 'hidden', marginBottom: 8 },
+  filledRow: { display: 'flex' },
+  filledField: { flex: 1, padding: '10px 14px' },
+  filledDivider: { width: 1, backgroundColor: '#ddd', flexShrink: 0 },
+  filledValue: { display: 'block', fontSize: 14, fontWeight: 600, color: '#111', marginTop: 2 },
+  changeDatesBtn: { width: '100%', padding: '8px', background: 'none', border: 'none', borderTop: '1px solid #eee', fontSize: 13, color: '#0F4C5C', fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
   guestField: { border: '1px solid #ddd', borderRadius: 12, padding: '10px 14px', marginBottom: 16 },
   guestRow: { display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 },
   guestBtn: { width: 28, height: 28, borderRadius: '50%', border: '1px solid #ccc', background: '#fff', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F4C5C', fontWeight: 700, padding: 0 },
@@ -385,7 +465,10 @@ export default function ApartmentDetail() {
                 <div style={s.divider} />
                 <section>
                   <h2 style={s.sectionTitle}>Address</h2>
-                  <p style={{ ...s.description, display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={15} color="#0F4C5C" />{apt.address}</p>
+                  <p style={{ ...s.description, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
+                    <MapPin size={15} color="#0F4C5C" />{apt.address}
+                  </p>
+                  <MapView address={apt.address} title={apt.title} lat={apt.lat} lng={apt.lng} />
                 </section>
               </>
             )}

@@ -3,6 +3,7 @@ import { Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPr
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import apartmentService from '../services/apartmentService';
+import PinMap from '../components/PinMap';
 
 const BASE = 'http://localhost:5000/uploads/';
 
@@ -36,6 +37,7 @@ export default function Owner() {
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [amenities, setAmenities] = useState([]);
+  const [pin, setPin] = useState(null); // { lat, lng }
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -52,13 +54,14 @@ export default function Owner() {
   };
 
   const openNew = () => {
-    setEditTarget(null); setForm(emptyForm); setImages([]); setPreviews([]); setAmenities([]); setError(''); setShowForm(true);
+    setEditTarget(null); setForm(emptyForm); setImages([]); setPreviews([]); setAmenities([]); setPin(null); setError(''); setShowForm(true);
   };
   const openEdit = (apt) => {
     setEditTarget(apt);
     setForm({ title: apt.title || '', location: apt.location || '', address: apt.address || '', description: apt.description || '', price_per_night: apt.price_per_night || '', bedrooms: apt.bedrooms || 1, beds: apt.beds || 1, max_guests: apt.max_guests || 1 });
     setImages([]); setPreviews([]);
     setAmenities(apt.amenities?.map(a => a.icon || a.key) || []);
+    setPin(apt.lat && apt.lng ? { lat: parseFloat(apt.lat), lng: parseFloat(apt.lng) } : null);
     setError(''); setShowForm(true);
   };
 
@@ -80,6 +83,7 @@ export default function Owner() {
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
       images.forEach(img => fd.append('images', img));
       fd.append('amenities', JSON.stringify(amenities));
+      if (pin) { fd.append('lat', pin.lat); fd.append('lng', pin.lng); }
 
       if (editTarget) await apartmentService.update(editTarget.id, fd);
       else await apartmentService.create(fd);
@@ -214,6 +218,11 @@ export default function Owner() {
                     onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                     onBlur={e => e.target.style.borderColor = '#ddd'} />
                 </div>
+              </div>
+
+              <div style={s.field}>
+                <label style={s.label}>Pin location on map</label>
+                <PinMap pin={pin} onPin={setPin} />
               </div>
 
               <div style={s.field}>

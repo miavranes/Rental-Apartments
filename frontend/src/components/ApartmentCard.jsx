@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom';
 import { Home, Star } from 'lucide-react';
 
+const BASE = 'http://localhost:5000/uploads/';
+
 export default function ApartmentCard({ apartment }) {
-  const { _id, title, location, pricePerNight, images, averageRating, reviewCount } = apartment;
+  const { id, title, location, price_per_night, images, avg_rating, review_count } = apartment;
 
   const imgSrc = images && images.length > 0
-    ? `http://localhost:5000/uploads/${images[0]}`
+    ? `${BASE}${images[0].image_url ?? images[0]}`
     : null;
 
   return (
-    <Link to={`/apartments/${_id}`} style={styles.card}>
+    <Link to={`/apartments/${id}`} style={styles.card}>
       <div style={styles.imageWrapper}>
         {imgSrc ? (
           <img src={imgSrc} alt={title} style={styles.image} />
@@ -18,11 +20,11 @@ export default function ApartmentCard({ apartment }) {
             <Home size={48} color="#ccc" strokeWidth={1} />
           </div>
         )}
-        {averageRating > 0 && (
+        {avg_rating > 0 && (
           <div style={styles.badge}>
             <Star size={11} fill="#fff" color="#fff" style={{ marginRight: 3 }} />
-            {Number(averageRating).toFixed(1)}
-            {reviewCount > 0 && <span style={styles.reviewCount}> ({reviewCount})</span>}
+            {Number(avg_rating).toFixed(1)}
+            {review_count > 0 && <span style={styles.reviewCount}> ({review_count})</span>}
           </div>
         )}
       </div>
@@ -31,7 +33,7 @@ export default function ApartmentCard({ apartment }) {
         <p style={styles.location}>{location}</p>
         <h3 style={styles.title}>{title}</h3>
         <p style={styles.price}>
-          <strong style={styles.priceAmount}>${pricePerNight}</strong>
+          <strong style={styles.priceAmount}>${price_per_night}</strong>
           <span style={styles.perNight}> / night</span>
         </p>
       </div>

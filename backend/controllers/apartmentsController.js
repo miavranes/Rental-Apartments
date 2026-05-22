@@ -5,7 +5,11 @@ const getApartments = async (req, res) => {
 
   try {
     let query = `
-      SELECT a.*, ar.avg_rating, ar.review_count
+      SELECT a.*, ar.avg_rating, ar.review_count,
+        (
+          SELECT json_agg(jsonb_build_object('id', ai.id, 'image_url', ai.image_url) ORDER BY ai.sort_order)
+          FROM apartment_images ai WHERE ai.apartment_id = a.id
+        ) AS images
       FROM apartments a
       LEFT JOIN apartment_ratings ar ON ar.apartment_id = a.id
       WHERE 1=1
@@ -87,14 +91,14 @@ const getApartment = async (req, res) => {
   }
 };
 const createApartment = async (req, res) => {
-  const { title, description, location, address, max_guests, bedrooms, beds, price_per_night, amenities } = req.body;
+  const { title, description, location, address, max_guests, bedrooms, beds, price_per_night, amenities, lat, lng } = req.body;
 
   try {
     const result = await pool.query(`
-      INSERT INTO apartments (owner_id, title, description, location, address, max_guests, bedrooms, beds, price_per_night)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO apartments (owner_id, title, description, location, address, max_guests, bedrooms, beds, price_per_night, lat, lng)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
-    `, [req.user.id, title, description, location, address, max_guests, bedrooms, beds, price_per_night]);
+    `, [req.user.id, title, description, location, address, max_guests, bedrooms, beds, price_per_night, lat || null, lng || null]);
 
     const apartment = result.rows[0];
 
@@ -130,7 +134,7 @@ const createApartment = async (req, res) => {
 
 const updateApartment = async (req, res) => {
   const { id } = req.params;
-  const { title, description, location, address, max_guests, bedrooms, beds, price_per_night, amenities } = req.body;
+  const { title, description, location, address, max_guests, bedrooms, beds, price_per_night, amenities, lat, lng } = req.body;
 
   try {
     const check = await pool.query('SELECT owner_id FROM apartments WHERE id = $1', [id]);
@@ -140,10 +144,11 @@ const updateApartment = async (req, res) => {
     const result = await pool.query(`
       UPDATE apartments
       SET title=$1, description=$2, location=$3, address=$4,
-          max_guests=$5, bedrooms=$6, beds=$7, price_per_night=$8
-      WHERE id=$9
+          max_guests=$5, bedrooms=$6, beds=$7, price_per_night=$8,
+          lat=$9, lng=$10
+      WHERE id=$11
       RETURNING *
-    `, [title, description, location, address, max_guests, bedrooms, beds, price_per_night, id]);
+    `, [title, description, location, address, max_guests, bedrooms, beds, price_per_night, lat || null, lng || null, id]);
 
     // Replace images if new ones uploaded
     if (req.files && req.files.length > 0) {
