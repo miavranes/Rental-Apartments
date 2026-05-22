@@ -54,7 +54,7 @@ export default function MapView({ address, title, lat, lng }) {
         center={coords}
         zoom={15}
         style={{ width: '100%', height: '100%', borderRadius: 16 }}
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

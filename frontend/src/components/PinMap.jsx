@@ -39,7 +39,7 @@ export default function PinMap({ pin, onPin }) {
           center={center}
           zoom={pin ? 15 : 8}
           style={{ width: '100%', height: '100%', borderRadius: 12 }}
-          scrollWheelZoom={false}
+          scrollWheelZoom={true}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

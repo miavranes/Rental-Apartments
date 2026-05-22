@@ -9,7 +9,13 @@ const getApartments = async (req, res) => {
         (
           SELECT json_agg(jsonb_build_object('id', ai.id, 'image_url', ai.image_url) ORDER BY ai.sort_order)
           FROM apartment_images ai WHERE ai.apartment_id = a.id
-        ) AS images
+        ) AS images,
+        (
+          SELECT json_agg(jsonb_build_object('id', am.id, 'name', am.name, 'icon', am.icon))
+          FROM amenities am
+          JOIN apartment_amenities aa ON aa.amenity_id = am.id
+          WHERE aa.apartment_id = a.id
+        ) AS amenities
       FROM apartments a
       LEFT JOIN apartment_ratings ar ON ar.apartment_id = a.id
       WHERE 1=1

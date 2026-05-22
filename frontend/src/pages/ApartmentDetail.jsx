@@ -8,6 +8,7 @@ import MapView from '../components/MapView';
 import {
   Home, MapPin, BedDouble, Bed, Users,
   Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building,
+  Sparkles, Dumbbell, ConciergeBell, Sailboat, Mountain, Coffee, Sunrise, Sun, MoonStar,
   Star, ChevronLeft, Check, X, ChevronDown
 } from 'lucide-react';
 
@@ -378,20 +379,30 @@ export default function ApartmentDetail() {
     wifi: Wifi, car: Car, snowflake: Snowflake, waves: Waves,
     utensils: UtensilsCrossed, 'washing-machine': WashingMachine,
     tv: Tv, 'paw-print': PawPrint, flame: Flame, building: Building,
+    spa: Sparkles, gym: Dumbbell, 'room-service': ConciergeBell,
+    'sea-view': Sailboat, 'mountain-view': Mountain, kettle: Coffee,
+    breakfast: Sunrise, lunch: Sun, dinner: MoonStar,
   };
 
   const amenityLabels = {
-    wifi: 'WiFi',
-    car: 'Parking',
-    snowflake: 'Air Conditioning',
-    waves: 'Pool',
-    utensils: 'Kitchen',
-    'washing-machine': 'Washing Machine',
-    tv: 'TV',
-    'paw-print': 'Pet Friendly',
-    flame: 'Grill',
-    building: 'Balcony',
+    wifi: 'WiFi', car: 'Parking', snowflake: 'Air Conditioning',
+    waves: 'Pool', utensils: 'Kitchen', 'washing-machine': 'Washing Machine',
+    tv: 'TV', 'paw-print': 'Pet Friendly', flame: 'Grill', building: 'Balcony',
+    spa: 'Spa', gym: 'Gym', 'room-service': 'Room Service',
+    'sea-view': 'Sea View', 'mountain-view': 'Mountain View', kettle: 'Kettle',
+    breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner',
   };
+
+  // Merge breakfast/lunch/dinner into "All Meals" if all three present
+  const displayAmenities = (() => {
+    const icons = apt.amenities?.map(a => a.icon) || [];
+    const hasAll = ['breakfast', 'lunch', 'dinner'].every(k => icons.includes(k));
+    if (hasAll) {
+      const filtered = apt.amenities.filter(a => !['breakfast', 'lunch', 'dinner'].includes(a.icon));
+      return [...filtered, { id: 'all-meals', icon: 'all-meals', name: 'All Meals' }];
+    }
+    return apt.amenities || [];
+  })();
 
   return (
     <div style={s.page}>
@@ -479,12 +490,13 @@ export default function ApartmentDetail() {
                 <section>
                   <h2 style={s.sectionTitle}>Amenities</h2>
                   <div style={s.amenitiesGrid}>
-                    {apt.amenities.map(a => {
-                      const IconComp = amenityIcons[a.icon] || Check;
+                    {displayAmenities.map(a => {
+                      const IconComp = a.icon === 'all-meals' ? UtensilsCrossed : (amenityIcons[a.icon] || Check);
+                      const label = a.icon === 'all-meals' ? 'All Meals' : (amenityLabels[a.icon] || a.name);
                       return (
                         <div key={a.id} style={s.amenityItem}>
                           <IconComp size={18} color="#0F4C5C" strokeWidth={1.8} />
-                          <span style={s.amenityName}>{amenityLabels[a.icon] || a.name}</span>
+                          <span style={s.amenityName}>{label}</span>
                         </div>
                       );
                     })}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building, Home, BedDouble, Users, Plus, X } from 'lucide-react';
+import { Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building, Home, BedDouble, Users, Plus, X, Sparkles, Dumbbell, ConciergeBell, Sailboat, Mountain, Coffee, Sunrise, Sun, MoonStar } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import apartmentService from '../services/apartmentService';
@@ -8,16 +8,25 @@ import PinMap from '../components/PinMap';
 const BASE = 'http://localhost:5000/uploads/';
 
 const AMENITIES_LIST = [
-  { key: 'wifi',            label: 'WiFi',          Icon: Wifi },
-  { key: 'car',             label: 'Parking',       Icon: Car },
-  { key: 'snowflake',       label: 'Air Conditioner',  Icon: Snowflake },
-  { key: 'waves',           label: 'Pool',         Icon: Waves },
-  { key: 'utensils',        label: 'Kitchen',       Icon: UtensilsCrossed },
-  { key: 'washing-machine', label: 'Washing machine',    Icon: WashingMachine },
-  { key: 'tv',              label: 'TV',            Icon: Tv },
-  { key: 'paw-print',       label: 'Pet friendly',   Icon: PawPrint },
-  { key: 'flame',           label: 'Grill',       Icon: Flame },
-  { key: 'building',        label: 'Balcony',        Icon: Building },
+  { key: 'wifi',            label: 'WiFi',            Icon: Wifi },
+  { key: 'car',             label: 'Parking',         Icon: Car },
+  { key: 'snowflake',       label: 'Air Conditioning', Icon: Snowflake },
+  { key: 'waves',           label: 'Pool',            Icon: Waves },
+  { key: 'utensils',        label: 'Kitchen',         Icon: UtensilsCrossed },
+  { key: 'washing-machine', label: 'Washing Machine', Icon: WashingMachine },
+  { key: 'tv',              label: 'TV',              Icon: Tv },
+  { key: 'paw-print',       label: 'Pet Friendly',    Icon: PawPrint },
+  { key: 'flame',           label: 'Grill',           Icon: Flame },
+  { key: 'building',        label: 'Balcony',         Icon: Building },
+  { key: 'spa',             label: 'Spa',             Icon: Sparkles },
+  { key: 'gym',             label: 'Gym',             Icon: Dumbbell },
+  { key: 'room-service',    label: 'Room Service',    Icon: ConciergeBell },
+  { key: 'sea-view',        label: 'Sea View',        Icon: Sailboat },
+  { key: 'mountain-view',   label: 'Mountain View',   Icon: Mountain },
+  { key: 'kettle',          label: 'Kettle',          Icon: Coffee },
+  { key: 'breakfast',       label: 'Breakfast',       Icon: Sunrise },
+  { key: 'lunch',           label: 'Lunch',           Icon: Sun },
+  { key: 'dinner',          label: 'Dinner',          Icon: MoonStar },
 ];
 
 export default function Owner() {
