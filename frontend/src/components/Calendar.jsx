@@ -3,7 +3,7 @@ import { useState } from 'react';
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
-export default function Calendar({ value, onChange, minDate }) {
+export default function Calendar({ value, onChange, minDate, blockedDates = [], toggleMode = false }) {
   const today = new Date();
   const initial = value ? new Date(value + 'T00:00:00') : (minDate ? new Date(minDate + 'T00:00:00') : today);
   const [viewYear, setViewYear] = useState(initial.getFullYear());
@@ -29,10 +29,14 @@ export default function Calendar({ value, onChange, minDate }) {
   const isSelected = (d) => d && value === toStr(d);
   const isDisabled = (d) => {
     if (!d) return true;
-    if (!minDate) return false;
-    return toStr(d) < minDate;
+    const str = toStr(d);
+    if (toggleMode) return false; // in toggle mode, all dates are clickable
+    if (minDate && str < minDate) return true;
+    if (blockedDates.includes(str)) return true;
+    return false;
   };
   const isToday = (d) => d && toStr(d) === today.toISOString().split('T')[0];
+  const isBlocked = (d) => d && blockedDates.includes(toStr(d));
 
   return (
     <div style={cal.wrapper}>
@@ -54,8 +58,10 @@ export default function Calendar({ value, onChange, minDate }) {
               ...(d === null ? cal.empty : {}),
               ...(isToday(d) ? cal.today : {}),
               ...(isSelected(d) ? cal.selected : {}),
-              ...(isDisabled(d) ? cal.disabled : {}),
+              ...(isBlocked(d) ? cal.blocked : {}),
+              ...(isDisabled(d) && !isBlocked(d) ? cal.disabled : {}),
             }}
+            title={isBlocked(d) ? 'Not available' : undefined}
           >
             {d || ''}
           </button>
@@ -76,5 +82,6 @@ export const cal = {
   empty: { cursor: 'default' },
   today: { color: '#0F4C5C', fontWeight: '700' },
   selected: { backgroundColor: '#0F4C5C', color: '#fff', fontWeight: '700' },
+  blocked: { backgroundColor: '#fee2e2', color: '#f87171', textDecoration: 'line-through', cursor: 'not-allowed' },
   disabled: { color: '#ddd', cursor: 'default' },
 };

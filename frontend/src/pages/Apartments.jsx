@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import apartmentService from '../services/apartmentService';
 import ApartmentCard from '../components/ApartmentCard';
 import SearchBar from '../components/SearchBar';
@@ -32,19 +32,36 @@ const AMENITY_FILTERS = [
   { key: 'dinner',          label: 'Dinner',           Icon: MoonStar },
 ];
 
+const AMENITY_KEYS = new Set(AMENITY_FILTERS.map(a => a.key));
+
+const parseAmenitiesParam = (raw) =>
+  (raw ? raw.split(',').map(k => k.trim()).filter(k => AMENITY_KEYS.has(k)) : []);
+
+const emptyDraft = { minPrice: '', maxPrice: '', minBedrooms: 0, minRating: 0, petFriendly: false, amenities: [] };
+
 export default function Apartments() {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [apartments, setApartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(true);
 
-  // Draft state — what user is editing in the sidebar
-  const emptyDraft = { minPrice: '', maxPrice: '', minBedrooms: 0, minRating: 0, petFriendly: false, amenities: [] };
-  const [draft, setDraft] = useState(emptyDraft);
+  const amenitiesParam = searchParams.get('amenities') ?? '';
+  const urlAmenities = parseAmenitiesParam(amenitiesParam);
 
-  // Applied state — what's actually filtering the results
-  const [applied, setApplied] = useState(emptyDraft);
+  // Draft state — what user is editing in the sidebar
+  const [draft, setDraft] = useState(() => ({ ...emptyDraft, amenities: urlAmenities }));
+
+  // Applied state — what's actually filtering the results (non-amenity fields)
+  const [applied, setApplied] = useState(() => ({ ...emptyDraft, amenities: urlAmenities }));
+
+  // Keep sidebar checkboxes in sync when URL amenities change (e.g. after search)
+  useEffect(() => {
+    const parsed = parseAmenitiesParam(amenitiesParam);
+    setDraft(d => ({ ...d, amenities: parsed }));
+    setApplied(d => ({ ...d, amenities: parsed }));
+  }, [amenitiesParam]);
 
   useEffect(() => {
     setLoading(true);
@@ -53,6 +70,7 @@ export default function Apartments() {
     if (searchParams.get('checkIn'))  params.check_in  = searchParams.get('checkIn');
     if (searchParams.get('checkOut')) params.check_out = searchParams.get('checkOut');
     if (searchParams.get('guests'))   params.guests    = searchParams.get('guests');
+    if (urlAmenities.length > 0) params.amenities = urlAmenities.join(',');
 
     apartmentService.getAll(params)
       .then(setApartments)
@@ -60,22 +78,34 @@ export default function Apartments() {
       .finally(() => setLoading(false));
   }, [searchParams]);
 
+  const setUrlAmenities = (keys) => {
+    const params = new URLSearchParams(searchParams);
+    if (keys.length > 0) params.set('amenities', keys.join(','));
+    else params.delete('amenities');
+    setSearchParams(params, { replace: true });
+  };
+
   const toggleAmenity = (key) => {
-    setDraft(d => ({
-      ...d,
-      amenities: d.amenities.includes(key) ? d.amenities.filter(k => k !== key) : [...d.amenities, key],
-    }));
+    const next = urlAmenities.includes(key)
+      ? urlAmenities.filter(k => k !== key)
+      : [...urlAmenities, key];
+    setUrlAmenities(next);
+    setDraft(d => ({ ...d, amenities: next }));
+    setApplied(d => ({ ...d, amenities: next }));
   };
 
   const applyFilters = () => setApplied({ ...draft });
 
   const clearFilters = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete('amenities');
+    setSearchParams(params, { replace: true });
     setDraft(emptyDraft);
     setApplied(emptyDraft);
   };
 
   const hasDraftChanges = JSON.stringify(draft) !== JSON.stringify(applied);
-  const hasAppliedFilters = applied.minPrice || applied.maxPrice || applied.minBedrooms > 0 || applied.minRating > 0 || applied.petFriendly || applied.amenities.length > 0;
+  const hasAppliedFilters = applied.minPrice || applied.maxPrice || applied.minBedrooms > 0 || applied.minRating > 0 || applied.petFriendly || urlAmenities.length > 0;
 
   const filtered = useMemo(() => {
     return apartments.filter(a => {
@@ -86,10 +116,6 @@ export default function Apartments() {
       if (applied.petFriendly) {
         const icons = (a.amenities || []).map(am => am.icon || am);
         if (!icons.includes('paw-print')) return false;
-      }
-      if (applied.amenities.length > 0) {
-        const icons = (a.amenities || []).map(am => am.icon || am);
-        if (!applied.amenities.every(k => icons.includes(k))) return false;
       }
       return true;
     });
@@ -213,7 +239,7 @@ export default function Apartments() {
                   <label key={key} style={s.amenityRow}>
                     <input
                       type="checkbox"
-                      checked={draft.amenities.includes(key)}
+                      checked={urlAmenities.includes(key)}
                       onChange={() => toggleAmenity(key)}
                       style={{ accentColor: '#0F4C5C', width: 15, height: 15, flexShrink: 0 }}
                     />
@@ -224,15 +250,7 @@ export default function Apartments() {
               </div>
             </div>
 
-            {/* Apply / Clear buttons */}
             <div style={s.filterActions}>
-              <button
-                onClick={applyFilters}
-                disabled={!hasDraftChanges}
-                style={{ ...s.applyBtn, opacity: hasDraftChanges ? 1 : 0.4, cursor: hasDraftChanges ? 'pointer' : 'default' }}
-              >
-                Apply filters
-              </button>
               {hasAppliedFilters && (
                 <button onClick={clearFilters} style={s.clearBtn}>
                   Remove filters
@@ -256,7 +274,17 @@ export default function Apartments() {
             </div>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               {hasSearchFilters && (
-                <Link to="/apartments" style={s.clearLink}>Clear search</Link>
+                <button
+                  type="button"
+                  style={s.clearLink}
+                  onClick={() => {
+                    const params = new URLSearchParams();
+                    if (urlAmenities.length > 0) params.set('amenities', urlAmenities.join(','));
+                    navigate(`/apartments${params.toString() ? `?${params}` : ''}`);
+                  }}
+                >
+                  Clear search
+                </button>
               )}
               <button
                 onClick={() => setShowFilters(v => !v)}

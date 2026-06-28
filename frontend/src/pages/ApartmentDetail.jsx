@@ -121,7 +121,7 @@ const g = {
   lbCounter: { position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.7)', fontSize: 14, margin: 0 },
 };
 
-function BookingPanel({ apartment }) {
+function BookingPanel({ apartment, blockedDates = [] }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -240,6 +240,7 @@ function BookingPanel({ apartment }) {
                   <Calendar
                     value={checkIn}
                     minDate={new Date().toISOString().split('T')[0]}
+                    blockedDates={blockedDates}
                     onChange={(d) => {
                       setCheckIn(d);
                       if (checkOut && d >= checkOut) setCheckOut('');
@@ -262,6 +263,7 @@ function BookingPanel({ apartment }) {
                   <Calendar
                     value={checkOut}
                     minDate={checkIn || new Date().toISOString().split('T')[0]}
+                    blockedDates={blockedDates}
                     onChange={(d) => { setCheckOut(d); setOpenCal(null); }}
                   />
                 </div>
@@ -345,6 +347,7 @@ export default function ApartmentDetail() {
 
   const [apt, setApt] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [blockedDates, setBlockedDates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -353,10 +356,12 @@ export default function ApartmentDetail() {
     Promise.all([
       apartmentService.getOne(id),
       apartmentService.getReviews(id),
+      apartmentService.getBlockedDates(id),
     ])
-      .then(([aptData, reviewData]) => {
+      .then(([aptData, reviewData, blocked]) => {
         setApt(aptData);
         setReviews(reviewData);
+        setBlockedDates(blocked);
       })
       .catch(() => setError('Apartment not found.'))
       .finally(() => setLoading(false));
@@ -541,7 +546,17 @@ export default function ApartmentDetail() {
           </div>
 
           <div style={s.right}>
-            <BookingPanel apartment={apt} />
+            {user?.id === apt.owner_id ? (
+              <div style={bp.card}>
+                <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                  <Home size={32} color="#0F4C5C" strokeWidth={1.5} style={{ marginBottom: 12 }} />
+                  <p style={{ fontSize: 15, fontWeight: 600, color: '#0F4C5C', margin: '0 0 6px' }}>This is your listing</p>
+                  <p style={{ fontSize: 13, color: '#888', margin: 0 }}>You can't book your own apartment.</p>
+                </div>
+              </div>
+            ) : (
+              <BookingPanel apartment={apt} blockedDates={blockedDates} />
+            )}
           </div>
         </div>
       </div>

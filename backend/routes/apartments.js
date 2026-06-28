@@ -17,5 +17,12 @@ router.get('/:id', getApartment);
 router.post('/', authenticate, authorize('owner', 'admin'), upload.array('images', 10), createApartment);
 router.put('/:id', authenticate, authorize('owner', 'admin'), upload.array('images', 10), updateApartment);
 router.delete('/:id', authenticate, authorize('owner', 'admin'), deleteApartment);
+router.delete('/:id/images/:imageId', authenticate, authorize('owner', 'admin'), require('../controllers/apartmentsController').deleteImage);
+
+// Blocked dates
+const { getBlockedDates, blockDates, unblockDates } = require('../controllers/blockedDatesController');
+router.get('/:id/blocked-dates', getBlockedDates);
+router.post('/:id/blocked-dates', authenticate, authorize('owner', 'admin'), blockDates);
+router.delete('/:id/blocked-dates', authenticate, authorize('owner', 'admin'), unblockDates);
 
 module.exports = router;

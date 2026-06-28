@@ -1,0 +1,59 @@
+const pool = require('../config/db');
+
+// GET /api/apartments/:id/blocked-dates
+const getBlockedDates = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      'SELECT date FROM blocked_dates WHERE apartment_id = $1 ORDER BY date',
+      [id]
+    );
+    res.json(result.rows.map(r => r.date.toISOString().split('T')[0]));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// POST /api/apartments/:id/blocked-dates  { dates: ['2025-07-01', ...] }
+const blockDates = async (req, res) => {
+  const { id } = req.params;
+  const { dates } = req.body;
+
+  try {
+    const check = await pool.query('SELECT owner_id FROM apartments WHERE id = $1', [id]);
+    if (check.rows.length === 0) return res.status(404).json({ error: 'Apartment not found.' });
+    if (check.rows[0].owner_id !== req.user.id) return res.status(403).json({ error: 'Access denied.' });
+
+    for (const date of dates) {
+      await pool.query(
+        'INSERT INTO blocked_dates (apartment_id, date) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [id, date]
+      );
+    }
+    res.json({ message: 'Dates blocked.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// DELETE /api/apartments/:id/blocked-dates  { dates: ['2025-07-01', ...] }
+const unblockDates = async (req, res) => {
+  const { id } = req.params;
+  const { dates } = req.body;
+
+  try {
+    const check = await pool.query('SELECT owner_id FROM apartments WHERE id = $1', [id]);
+    if (check.rows.length === 0) return res.status(404).json({ error: 'Apartment not found.' });
+    if (check.rows[0].owner_id !== req.user.id) return res.status(403).json({ error: 'Access denied.' });
+
+    await pool.query(
+      'DELETE FROM blocked_dates WHERE apartment_id = $1 AND date = ANY($2::date[])',
+      [id, dates]
+    );
+    res.json({ message: 'Dates unblocked.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { getBlockedDates, blockDates, unblockDates };

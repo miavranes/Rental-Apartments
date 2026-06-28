@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Calendar from './Calendar';
 
 // ─── Dropdown wrapper ────────────────────────────────────────────────────────
@@ -30,6 +30,7 @@ const drop = {
 // ─── Main SearchBar ──────────────────────────────────────────────────────────
 export default function SearchBar() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [active, setActive] = useState(null); // 'location' | 'checkin' | 'checkout' | 'guests'
   const [location, setLocation] = useState('');
   const [checkIn, setCheckIn] = useState('');
@@ -62,6 +63,8 @@ export default function SearchBar() {
     if (checkIn) params.set('checkIn', checkIn);
     if (checkOut) params.set('checkOut', checkOut);
     if (guests > 1) params.set('guests', guests);
+    const existingAmenities = searchParams.get('amenities');
+    if (existingAmenities) params.set('amenities', existingAmenities);
     navigate(`/apartments?${params.toString()}`);
   };
 

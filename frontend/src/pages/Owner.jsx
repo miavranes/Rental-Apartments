@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building, Home, BedDouble, Users, Plus, X, Sparkles, Dumbbell, ConciergeBell, Sailboat, Mountain, Coffee, Sunrise, Sun, MoonStar } from 'lucide-react';
+import { Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building, Home, BedDouble, Users, Plus, X, Sparkles, Dumbbell, ConciergeBell, Sailboat, Mountain, Coffee, Sunrise, Sun, MoonStar, CalendarDays } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import apartmentService from '../services/apartmentService';
 import PinMap from '../components/PinMap';
+import Calendar from '../components/Calendar';
 
 const BASE = 'http://localhost:5000/uploads/';
 
@@ -45,9 +46,13 @@ export default function Owner() {
   const [form, setForm] = useState(emptyForm);
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]); // images already saved in DB
   const [amenities, setAmenities] = useState([]);
   const [pin, setPin] = useState(null); // { lat, lng }
   const [saving, setSaving] = useState(false);
+  const [availApt, setAvailApt] = useState(null); // apartment for availability modal
+  const [blockedDates, setBlockedDates] = useState([]); // blocked dates for availApt
+  const [availLoading, setAvailLoading] = useState(false);
 
   useEffect(() => {
     if (user?.role !== 'owner') { navigate('/'); return; }
@@ -63,15 +68,25 @@ export default function Owner() {
   };
 
   const openNew = () => {
-    setEditTarget(null); setForm(emptyForm); setImages([]); setPreviews([]); setAmenities([]); setPin(null); setError(''); setShowForm(true);
+    setEditTarget(null); setForm(emptyForm); setImages([]); setPreviews([]); setExistingImages([]); setAmenities([]); setPin(null); setError(''); setShowForm(true);
   };
   const openEdit = (apt) => {
     setEditTarget(apt);
     setForm({ title: apt.title || '', location: apt.location || '', address: apt.address || '', description: apt.description || '', price_per_night: apt.price_per_night || '', bedrooms: apt.bedrooms || 1, beds: apt.beds || 1, max_guests: apt.max_guests || 1 });
     setImages([]); setPreviews([]);
+    setExistingImages(apt.images || []);
     setAmenities(apt.amenities?.map(a => a.icon || a.key) || []);
     setPin(apt.lat && apt.lng ? { lat: parseFloat(apt.lat), lng: parseFloat(apt.lng) } : null);
     setError(''); setShowForm(true);
+  };
+
+  const handleDeleteExistingImage = async (imageId) => {
+    try {
+      await apartmentService.deleteImage(editTarget.id, imageId);
+      setExistingImages(prev => prev.filter(img => img.id !== imageId));
+    } catch {
+      setError('Failed to delete image.');
+    }
   };
 
   const handleImages = (e) => {
@@ -118,6 +133,35 @@ export default function Owner() {
     } catch {
       setError('Failed to delete.');
       setDeleteId(null);
+    }
+  };
+
+  const openAvailability = async (apt) => {
+    setAvailApt(apt);
+    setAvailLoading(true);
+    try {
+      const dates = await apartmentService.getBlockedDates(apt.id);
+      setBlockedDates(dates);
+    } catch {
+      setBlockedDates([]);
+    } finally {
+      setAvailLoading(false);
+    }
+  };
+
+  const handleCalendarToggle = async (dateStr) => {
+    if (!availApt) return;
+    const isBlocked = blockedDates.includes(dateStr);
+    try {
+      if (isBlocked) {
+        await apartmentService.unblockDates(availApt.id, [dateStr]);
+        setBlockedDates(prev => prev.filter(d => d !== dateStr));
+      } else {
+        await apartmentService.blockDates(availApt.id, [dateStr]);
+        setBlockedDates(prev => [...prev, dateStr]);
+      }
+    } catch {
+      setError('Failed to update availability.');
     }
   };
 
@@ -172,6 +216,7 @@ export default function Owner() {
                 <div style={s.cardActions}>
                   <Link to={`/apartments/${apt.id}`} style={s.viewBtn}>View</Link>
                   <button onClick={() => openEdit(apt)} style={s.editBtn}>Edit</button>
+                  <button onClick={() => openAvailability(apt)} style={s.availBtn} title="Manage availability"><CalendarDays size={14} /></button>
                   <button onClick={() => setDeleteId(apt.id)} style={s.deleteBtn}>Delete</button>
                 </div>
               </div>
@@ -271,8 +316,28 @@ export default function Owner() {
 
               <div style={s.field}>
                 <label style={s.label}>Photos</label>
-                <label style={s.uploadBtn}>
-                    Choose photos
+
+                {/* Existing images (edit mode only) */}
+                {editTarget && existingImages.length > 0 && (
+                  <div style={s.existingImgRow}>
+                    {existingImages.map(img => (
+                      <div key={img.id} style={s.existingImgWrap}>
+                        <img src={BASE + img.image_url} alt="" style={s.existingImg} />
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteExistingImage(img.id)}
+                          style={s.deleteImgBtn}
+                          title="Remove image"
+                        >
+                          <X size={12} strokeWidth={2.5} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <label style={{ ...s.uploadBtn, marginTop: editTarget && existingImages.length > 0 ? 10 : 0 }}>
+                  {editTarget ? 'Add more photos' : 'Choose photos'}
                   <input type="file" multiple accept="image/*" onChange={handleImages} style={{ display: 'none' }} />
                 </label>
                 {previews.length > 0 && (
@@ -282,7 +347,7 @@ export default function Owner() {
                     ))}
                   </div>
                 )}
-                {images.length > 0 && <p style={{ fontSize: 13, color: '#888', marginTop: 8 }}>{images.length} photo(s) selected</p>}
+                {images.length > 0 && <p style={{ fontSize: 13, color: '#888', marginTop: 8 }}>{images.length} new photo(s) selected</p>}
               </div>
 
               <button type="submit" disabled={saving} style={s.submitBtn}
@@ -304,6 +369,31 @@ export default function Owner() {
               <button onClick={() => setDeleteId(null)} style={{ ...s.editBtn, flex: 1, padding: 13 }}>Cancel</button>
               <button onClick={handleDelete} style={{ ...s.deleteBtn, flex: 1, padding: 13 }}>Delete</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Availability modal */}
+      {availApt && (
+        <div style={s.overlay} onClick={() => setAvailApt(null)}>
+          <div style={{ ...s.modal, maxWidth: 380 }} onClick={e => e.stopPropagation()}>
+            <div style={s.modalHeader}>
+              <h2 style={s.modalTitle}>Availability</h2>
+              <button onClick={() => setAvailApt(null)} style={s.closeBtn}><X size={20} /></button>
+            </div>
+            <p style={{ fontSize: 13, color: '#888', margin: '0 0 16px' }}>
+              Click a date to block or unblock it. Blocked dates (red) won't be available for booking.
+            </p>
+            {availLoading ? (
+              <div style={{ textAlign: 'center', padding: 24, color: '#aaa' }}>Loading...</div>
+            ) : (
+              <Calendar
+                value={null}
+                blockedDates={blockedDates}
+                onChange={handleCalendarToggle}
+                toggleMode
+              />
+            )}
           </div>
         </div>
       )}
@@ -343,6 +433,7 @@ const s = {
   cardActions: { display: 'flex', gap: 8, padding: '10px 16px 14px' },
   viewBtn: { flex: 1, textAlign: 'center', padding: '8px', backgroundColor: '#f0f7f9', color: '#0F4C5C', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'none' },
   editBtn: { flex: 1, padding: '8px', backgroundColor: '#f5f5f5', color: '#333', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
+  availBtn: { padding: '8px 10px', backgroundColor: '#f0f7f9', color: '#0F4C5C', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Segoe UI', sans-serif" },
   deleteBtn: { flex: 1, padding: '8px', backgroundColor: '#fff0f0', color: '#c0392b', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
   empty: { textAlign: 'center', padding: '80px 0' },
   emptyIcon: { fontSize: 64, marginBottom: 16 },
@@ -367,6 +458,10 @@ const s = {
   uploadBtn: { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', backgroundColor: '#f0f7f9', color: '#0F4C5C', border: '1.5px dashed #0F4C5C', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' },
   previewRow: { display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' },
   previewImg: { width: 72, height: 72, borderRadius: 8, objectFit: 'cover', border: '1px solid #ddd' },
+  existingImgRow: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 4 },
+  existingImgWrap: { position: 'relative', borderRadius: 8, overflow: 'hidden', aspectRatio: '1', border: '1px solid #ddd' },
+  existingImg: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
+  deleteImgBtn: { position: 'absolute', top: 4, right: 4, width: 20, height: 20, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', padding: 0 },
   submitBtn: { width: '100%', padding: 14, backgroundColor: '#0F4C5C', color: '#fff', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: 'pointer', marginTop: 8, fontFamily: "'Segoe UI', sans-serif" },
   footer: { borderTop: '1px solid #ebebeb', padding: 28, textAlign: 'center', backgroundColor: '#fff' },
 };
