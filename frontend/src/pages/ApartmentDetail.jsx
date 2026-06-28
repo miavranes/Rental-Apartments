@@ -5,6 +5,7 @@ import reservationService from '../services/reservationService';
 import { useAuth } from '../context/AuthContext';
 import Calendar from '../components/Calendar';
 import MapView from '../components/MapView';
+import Navbar from '../components/Navbar';
 import {
   Home, MapPin, BedDouble, Bed, Users,
   Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building,
@@ -138,6 +139,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
   const [error, setError]     = useState('');
   const [success, setSuccess] = useState(false);
   const [openCal, setOpenCal] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('on_arrival'); // 'online' | 'on_arrival'
   const panelRef = useRef(null);
 
   useEffect(() => {
@@ -168,6 +170,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
         check_in: checkIn,
         check_out: checkOut,
         guests,
+        payment_method: paymentMethod,
       });
       setSuccess(true);
     } catch (err) {
@@ -285,6 +288,32 @@ function BookingPanel({ apartment, blockedDates = [] }) {
 
         {error && <p style={bp.error}>{error}</p>}
 
+        {/* Payment method */}
+        <div style={bp.payRow}>
+          <button
+            type="button"
+            onClick={() => setPaymentMethod('on_arrival')}
+            style={{ ...bp.payOption, ...(paymentMethod === 'on_arrival' ? bp.payOptionActive : {}) }}
+          >
+            <span style={bp.payIcon}>💵</span>
+            <div>
+              <p style={bp.payLabel}>Pay on arrival</p>
+              <p style={bp.paySub}>Cash or card at the property</p>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPaymentMethod('online')}
+            style={{ ...bp.payOption, ...(paymentMethod === 'online' ? bp.payOptionActive : {}) }}
+          >
+            <span style={bp.payIcon}>💳</span>
+            <div>
+              <p style={bp.payLabel}>Pay online</p>
+              <p style={bp.paySub}>Secure card payment via Stripe</p>
+            </div>
+          </button>
+        </div>
+
         <button type="submit" disabled={loading} style={bp.btn}>
           {loading ? 'Booking...' : user ? 'Reserve' : 'Log in to book'}
         </button>
@@ -338,6 +367,12 @@ const bp = {
   breakRow: { display: 'flex', justifyContent: 'space-between', fontSize: 14, color: '#555' },
   breakDivider: { height: 1, backgroundColor: '#ebebeb' },
   successIcon: { width: 56, height: 56, borderRadius: '50%', backgroundColor: '#e6f4f1', color: '#0F4C5C', fontSize: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontWeight: 700 },
+  payRow: { display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 },
+  payOption: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', border: '1px solid #ddd', borderRadius: 10, cursor: 'pointer', background: '#fff', textAlign: 'left', fontFamily: "'Segoe UI', sans-serif", transition: 'border-color 0.15s' },
+  payOptionActive: { borderColor: '#0F4C5C', backgroundColor: '#f0f7f9' },
+  payIcon: { fontSize: 20, flexShrink: 0 },
+  payLabel: { fontSize: 14, fontWeight: 600, color: '#222', margin: 0 },
+  paySub: { fontSize: 12, color: '#888', margin: 0 },
 };
 
 export default function ApartmentDetail() {
@@ -411,23 +446,7 @@ export default function ApartmentDetail() {
 
   return (
     <div style={s.page}>
-      {/* Navbar */}
-      <nav style={s.nav}>
-        <Link to="/" style={s.brand}>Rentura</Link>
-        <div style={s.navLinks}>
-          {user ? (
-            <>
-              <span style={s.navGreeting}>Hi, {user.name?.split(' ')[0]}</span>
-              <Link to="/" style={s.navLink}>Home</Link>
-            </>
-          ) : (
-            <>
-              <Link to="/login" style={s.navLink}>Log in</Link>
-              <Link to="/register" style={s.navButtonLink}>Sign up</Link>
-            </>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       <div style={s.container}>
         {/* Back */}

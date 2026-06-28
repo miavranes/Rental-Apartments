@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Home, Luggage, ArrowRight } from 'lucide-react';
+import Navbar from '../components/Navbar';
 
 export default function Profile() {
   const { user, updateProfile, switchRole, logout, deleteAccount } = useAuth();
@@ -63,15 +64,7 @@ export default function Profile() {
 
   return (
     <div style={s.page}>
-      <nav style={s.nav}>
-        <Link to="/" style={s.brand}>Rentura</Link>
-        <div style={s.navLinks}>
-          {user?.role === 'owner' && (
-            <Link to="/owner" style={s.navLink}>My listings</Link>
-          )}
-          <button onClick={logout} style={s.navLogout}>Sign out</button>
-        </div>
-      </nav>
+      <Navbar />
 
       <div style={s.container}>
         <div style={s.headerCard}>

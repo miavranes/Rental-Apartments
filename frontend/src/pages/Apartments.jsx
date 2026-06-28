@@ -4,6 +4,7 @@ import apartmentService from '../services/apartmentService';
 import ApartmentCard from '../components/ApartmentCard';
 import SearchBar from '../components/SearchBar';
 import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 import {
   Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint,
   Flame, Building, Sparkles, Dumbbell, ConciergeBell, Sailboat, Mountain,
@@ -125,25 +126,7 @@ export default function Apartments() {
 
   return (
     <div style={s.page}>
-      <nav style={s.nav}>
-        <Link to="/" style={s.brand}>Rentura</Link>
-        <div style={s.navLinks}>
-          {user ? (
-            <>
-              {user.role === 'owner' && <Link to="/owner" style={s.navLink}>My listings</Link>}
-              <Link to="/profile" style={s.navProfile}>
-                <div style={s.navAvatar}>{user.name?.charAt(0).toUpperCase()}</div>
-                <span>{user.name?.split(' ')[0]}</span>
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link to="/login" style={s.navLink}>Log in</Link>
-              <Link to="/register" style={s.navButtonLink}>Sign up</Link>
-            </>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       <div style={s.searchWrap}>
         <SearchBar />

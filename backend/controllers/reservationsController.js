@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 
 const createReservation = async (req, res) => {
-  const { apartment_id, check_in, check_out, guests } = req.body;
+  const { apartment_id, check_in, check_out, guests, payment_method = 'on_arrival' } = req.body;
 
   try {
     const aptResult = await pool.query(
@@ -30,10 +30,21 @@ const createReservation = async (req, res) => {
     const total_price = (price_per_night * nights).toFixed(2);
 
     const result = await pool.query(`
-      INSERT INTO reservations (apartment_id, user_id, check_in, check_out, guests, total_price)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO reservations (apartment_id, user_id, check_in, check_out, guests, total_price, payment_method)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
-    `, [apartment_id, req.user.id, check_in, check_out, guests, total_price]);
+    `, [apartment_id, req.user.id, check_in, check_out, guests, total_price, payment_method]);
+
+    // Auto-block all dates in the range
+    const start = new Date(check_in);
+    const end   = new Date(check_out);
+    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      await pool.query(
+        'INSERT INTO blocked_dates (apartment_id, date) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [apartment_id, dateStr]
+      );
+    }
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -129,6 +140,18 @@ const cancelReservation = async (req, res) => {
       'UPDATE reservations SET status = $1 WHERE id = $2 RETURNING *',
       ['cancelled', id]
     );
+
+    // Unblock dates when reservation is cancelled
+    const r = result.rows[0];
+    const start = new Date(r.check_in);
+    const end   = new Date(r.check_out);
+    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      await pool.query(
+        'DELETE FROM blocked_dates WHERE apartment_id = $1 AND date = $2',
+        [r.apartment_id, dateStr]
+      );
+    }
 
     res.json(result.rows[0]);
   } catch (err) {

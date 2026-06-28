@@ -4,6 +4,7 @@ import apartmentService from '../services/apartmentService';
 import ApartmentCard from '../components/ApartmentCard';
 import SearchBar from '../components/SearchBar';
 import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
 
 export default function Home() {
   const { user } = useAuth();
@@ -23,32 +24,7 @@ export default function Home() {
 
   return (
     <div style={styles.page}>
-      <nav style={styles.nav}>
-        <Link to="/" style={styles.brand}>Rentura</Link>
-        <div style={styles.navLinks}>
-          {user ? (
-            <>
-              {user.role === 'owner' && (
-                <Link to="/owner" style={styles.navLink}>My listings</Link>
-              )}
-              {user.role === 'admin' && (
-                <Link to="/admin" style={styles.navLink}>Admin</Link>
-              )}
-              <Link to="/profile" style={styles.navProfile}>
-                <div style={styles.navAvatar}>
-                  {user.name?.charAt(0).toUpperCase()}
-                </div>
-                <span>{user.name?.split(' ')[0]}</span>
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link to="/login" style={styles.navLink}>Log in</Link>
-              <Link to="/register" style={styles.navButtonLink}>Sign up</Link>
-            </>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       <section style={styles.hero}>
         <div style={styles.heroOverlay} />

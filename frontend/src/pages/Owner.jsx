@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import apartmentService from '../services/apartmentService';
 import PinMap from '../components/PinMap';
 import Calendar from '../components/Calendar';
+import Navbar from '../components/Navbar';
 
 const BASE = 'http://localhost:5000/uploads/';
 
@@ -167,13 +168,7 @@ export default function Owner() {
 
   return (
     <div style={s.page}>
-      <nav style={s.nav}>
-        <Link to="/" style={s.brand}>Rentura</Link>
-        <div style={s.navLinks}>
-          <Link to="/profile" style={s.navLink}>Profile</Link>
-          <button onClick={logout} style={s.navLogout}>Sign out</button>
-        </div>
-      </nav>
+      <Navbar />
 
       <div style={s.container}>
         <div style={s.pageHeader}>
