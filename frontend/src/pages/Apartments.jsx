@@ -68,6 +68,7 @@ export default function Apartments() {
     setLoading(true);
     const params = {};
     if (searchParams.get('location')) params.location = searchParams.get('location');
+    if (searchParams.get('country'))  params.country  = searchParams.get('country');
     if (searchParams.get('checkIn'))  params.check_in  = searchParams.get('checkIn');
     if (searchParams.get('checkOut')) params.check_out = searchParams.get('checkOut');
     if (searchParams.get('guests'))   params.guests    = searchParams.get('guests');

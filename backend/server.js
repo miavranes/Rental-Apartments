@@ -15,6 +15,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => res.json({ message: 'Server radi!' }));
 
+app.use('/api/geocode', require('./routes/geocode'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/apartments', require('./routes/apartments'));
 app.use('/api/reservations', require('./routes/reservations'));

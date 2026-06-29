@@ -3,6 +3,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendVerificationEmail = require('../utils/sendEmail');
 
+const toPublicUser = (user) => ({
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  phone: user.phone ?? null,
+  profile_image: user.profile_image ?? null,
+});
 
 const register = async (req, res) => {
   const { name, email, password, role, phone } = req.body;
@@ -50,7 +58,7 @@ const login = async (req, res) => {
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: toPublicUser(user),
       token
     });
   } catch (err) {
@@ -64,7 +72,7 @@ const me = async (req, res) => {
       'SELECT id, name, email, role, phone, profile_image, created_at FROM users WHERE id = $1',
       [req.user.id]
     );
-    res.json(result.rows[0]);
+    res.json(toPublicUser(result.rows[0]));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -78,7 +86,7 @@ const updateProfile = async (req, res) => {
        RETURNING id, name, email, role, phone, profile_image`,
       [name, email, phone, req.user.id]
     );
-    res.json(result.rows[0]);
+    res.json(toPublicUser(result.rows[0]));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -97,7 +105,7 @@ const switchRole = async (req, res) => {
     const user = result.rows[0];
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-    res.json({ user, token });
+    res.json({ user: toPublicUser(user), token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -135,7 +143,7 @@ const verifyEmail = async (req, res) => {
 
     res.json({
       message: 'Email succesfull verified!',
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: toPublicUser(user),
       token
     });
   } catch (err) {

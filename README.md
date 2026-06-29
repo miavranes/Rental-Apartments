@@ -25,7 +25,8 @@ cd backend
 npm install
 ```
 
-Create `backend/.env`:
+Create `backend/.env` (copy from `backend/.env.example`):
+
 ```env
 PORT=5000
 DB_USER=postgres
@@ -40,11 +41,15 @@ EMAIL_USER=your@gmail.com
 EMAIL_PASS=your_app_password
 ```
 
-Run database migrations:
-```sql
-ALTER TABLE apartments ADD COLUMN IF NOT EXISTS lat NUMERIC(10,7);
-ALTER TABLE apartments ADD COLUMN IF NOT EXISTS lng NUMERIC(10,7);
+Run database setup (PostgreSQL must be running):
+
+```bash
+createdb rental_apartments
+psql -U postgres -d rental_apartments -f backend/db/schema.sql
+psql -U postgres -d rental_apartments -f backend/db/seedAmenities.sql
 ```
+
+Or in **pgAdmin**: create database `rental_apartments`, then run `backend/db/schema.sql` and `backend/db/seedAmenities.sql` in Query Tool.
 
 Start backend:
 ```bash
@@ -65,6 +70,9 @@ npm start
 ```
 ├── backend/
 │   ├── config/db.js                  # PostgreSQL connection pool
+│   ├── db/
+│   │   ├── schema.sql                # Full database schema
+│   │   └── seedAmenities.sql         # Default amenities seed data
 │   ├── controllers/
 │   │   ├── authController.js         # Register, login, verify email, profile
 │   │   ├── apartmentsController.js   # Apartment CRUD, search, filtering

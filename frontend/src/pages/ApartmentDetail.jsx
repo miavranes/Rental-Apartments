@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import Calendar from '../components/Calendar';
 import MapView from '../components/MapView';
 import Navbar from '../components/Navbar';
+import { formatLocation } from '../utils/locationUtils';
 import {
   Home, MapPin, BedDouble, Bed, Users,
   Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building,
@@ -465,7 +466,7 @@ export default function ApartmentDetail() {
                 </span>
               )}
               <span style={s.metaDot}>·</span>
-              <span style={s.metaItem}><MapPin size={14} style={{ marginRight: 4 }} />{apt.location}</span>
+              <span style={s.metaItem}><MapPin size={14} style={{ marginRight: 4 }} />{formatLocation(apt)}</span>
             </div>
           </div>
         </div>

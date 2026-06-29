@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Home, Star } from 'lucide-react';
+import { formatLocation } from '../utils/locationUtils';
 
 const BASE = 'http://localhost:5000/uploads/';
 
 export default function ApartmentCard({ apartment }) {
-  const { id, title, location, price_per_night, images, avg_rating, review_count } = apartment;
+  const { id, title, price_per_night, images, avg_rating, review_count } = apartment;
 
   const imgSrc = images && images.length > 0
     ? `${BASE}${images[0].image_url ?? images[0]}`
@@ -30,7 +31,7 @@ export default function ApartmentCard({ apartment }) {
       </div>
 
       <div style={styles.body}>
-        <p style={styles.location}>{location}</p>
+        <p style={styles.location}>{formatLocation(apartment)}</p>
         <h3 style={styles.title}>{title}</h3>
         <p style={styles.price}>
           <strong style={styles.priceAmount}>${price_per_night}</strong>

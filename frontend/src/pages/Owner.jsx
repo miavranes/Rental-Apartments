@@ -5,7 +5,9 @@ import { useAuth } from '../context/AuthContext';
 import apartmentService from '../services/apartmentService';
 import PinMap from '../components/PinMap';
 import Calendar from '../components/Calendar';
+import LocationAutocomplete from '../components/LocationAutocomplete';
 import Navbar from '../components/Navbar';
+import { formatLocation } from '../utils/locationUtils';
 
 const BASE = 'http://localhost:5000/uploads/';
 
@@ -43,7 +45,7 @@ export default function Owner() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const emptyForm = { title: '', location: '', address: '', description: '', price_per_night: '', bedrooms: 1, beds: 1, max_guests: 1 };
+  const emptyForm = { title: '', location: '', municipality: '', country: '', address: '', description: '', price_per_night: '', bedrooms: 1, beds: 1, max_guests: 1 };
   const [form, setForm] = useState(emptyForm);
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -73,7 +75,7 @@ export default function Owner() {
   };
   const openEdit = (apt) => {
     setEditTarget(apt);
-    setForm({ title: apt.title || '', location: apt.location || '', address: apt.address || '', description: apt.description || '', price_per_night: apt.price_per_night || '', bedrooms: apt.bedrooms || 1, beds: apt.beds || 1, max_guests: apt.max_guests || 1 });
+    setForm({ title: apt.title || '', location: apt.location || '', municipality: apt.municipality || '', country: apt.country || '', address: apt.address || '', description: apt.description || '', price_per_night: apt.price_per_night || '', bedrooms: apt.bedrooms || 1, beds: apt.beds || 1, max_guests: apt.max_guests || 1 });
     setImages([]); setPreviews([]);
     setExistingImages(apt.images || []);
     setAmenities(apt.amenities?.map(a => a.icon || a.key) || []);
@@ -200,7 +202,7 @@ export default function Owner() {
                     : <div style={s.cardImgPlaceholder}><Home size={40} color="#ccc" strokeWidth={1.5} /></div>}
                 </div>
                 <div style={s.cardBody}>
-                  <p style={s.cardLocation}>{apt.location}</p>
+                  <p style={s.cardLocation}>{formatLocation(apt)}</p>
                   <h3 style={s.cardTitle}>{apt.title}</h3>
                   <p style={s.cardPrice}><strong style={{ color: '#0F4C5C' }}>${apt.price_per_night}</strong> / night</p>
                   <div style={s.cardMeta}>
@@ -253,11 +255,24 @@ export default function Owner() {
               <div style={s.row}>
                 <div style={{ ...s.field, flex: 1 }}>
                   <label style={s.label}>Location</label>
-                  <input style={s.input} required value={form.location}
-                    onChange={e => setForm({ ...form, location: e.target.value })}
-                    placeholder="Budva, Montenegro"
-                    onFocus={e => e.target.style.borderColor = '#0F4C5C'}
-                    onBlur={e => e.target.style.borderColor = '#ddd'} />
+                  <LocationAutocomplete
+                    required
+                    value={{
+                      location: form.location,
+                      municipality: form.municipality,
+                      country: form.country,
+                      label: formatLocation(form),
+                    }}
+                    onChange={(place) => setForm({
+                      ...form,
+                      location: place.location,
+                      municipality: place.municipality || '',
+                      country: place.country || '',
+                    })}
+                    onCoords={setPin}
+                    placeholder="Start typing a city..."
+                    inputStyle={s.input}
+                  />
                 </div>
                 <div style={{ ...s.field, flex: 1 }}>
                   <label style={s.label}>Address</label>

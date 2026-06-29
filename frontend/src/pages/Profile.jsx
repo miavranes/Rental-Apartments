@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Home, Luggage, ArrowRight } from 'lucide-react';
@@ -13,6 +13,16 @@ export default function Profile() {
     email: user?.email || '',
     phone: user?.phone || '',
   });
+
+  useEffect(() => {
+    if (!user) return;
+    setForm({
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+    });
+  }, [user]);
+
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -174,9 +184,22 @@ export default function Profile() {
           </div>
         </div>
 
-        <button onClick={handleDeleteAccount} style={s.deleteBtn}>
+        <button
+          onClick={handleDeleteAccount}
+          style={s.deleteBtn}
+          onMouseEnter={e => {
+            e.currentTarget.style.backgroundColor = '#fff0f0';
+            e.currentTarget.style.borderColor = '#e57373';
+            e.currentTarget.style.color = '#a93226';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.borderColor = '#ffd0d0';
+            e.currentTarget.style.color = '#c0392b';
+          }}
+        >
           Delete account
-          </button>
+        </button>
       </div>
 
       <footer style={s.footer}>
@@ -429,14 +452,15 @@ const s = {
     color: '#bbb',
   },
   deleteBtn: {
-  width: '100%',
-  padding: '14px',
-  backgroundColor: 'transparent',
-  color: '#c0392b',
-  border: '1px solid #ffd0d0',
-  borderRadius: '10px',
-  fontSize: '15px',
-  cursor: 'pointer',
-  fontFamily: "'Segoe UI', sans-serif",
-},
+    width: '100%',
+    padding: '14px',
+    backgroundColor: 'transparent',
+    color: '#c0392b',
+    border: '1px solid #ffd0d0',
+    borderRadius: '10px',
+    fontSize: '15px',
+    cursor: 'pointer',
+    fontFamily: "'Segoe UI', sans-serif",
+    transition: 'background-color 0.2s, border-color 0.2s, color 0.2s',
+  },
 };

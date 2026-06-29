@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Calendar from './Calendar';
+import LocationAutocomplete from './LocationAutocomplete';
+import { formatLocation } from '../utils/locationUtils';
 
 // ─── Dropdown wrapper ────────────────────────────────────────────────────────
 function Dropdown({ children, open, style }) {
@@ -32,7 +34,7 @@ export default function SearchBar() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [active, setActive] = useState(null); // 'location' | 'checkin' | 'checkout' | 'guests'
-  const [location, setLocation] = useState('');
+  const [place, setPlace] = useState({ location: '', municipality: '', country: '', label: '' });
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(1);
@@ -59,7 +61,8 @@ export default function SearchBar() {
     e.preventDefault();
     setActive(null);
     const params = new URLSearchParams();
-    if (location) params.set('location', location);
+    if (place.location) params.set('location', place.location);
+    if (place.country) params.set('country', place.country);
     if (checkIn) params.set('checkIn', checkIn);
     if (checkOut) params.set('checkOut', checkOut);
     if (guests > 1) params.set('guests', guests);
@@ -77,20 +80,16 @@ export default function SearchBar() {
       <div style={{ ...sb.segment, ...(isActive('location') ? sb.segmentActive : {}) }}
         onClick={() => toggle('location')}>
         <span style={sb.label}>Location</span>
-        <span style={{ ...sb.value, color: location ? '#111' : '#aaa' }}>
-          {location || 'Where are you going?'}
+        <span style={{ ...sb.value, color: place.location ? '#111' : '#aaa' }}>
+          {formatLocation(place) || 'Where are you going?'}
         </span>
-        <Dropdown open={isActive('location')} style={{ left: '0', transform: 'none', minWidth: '260px' }}>
-          <div style={{ padding: '16px' }}>
+        <Dropdown open={isActive('location')} style={{ left: '0', transform: 'none', minWidth: '300px' }}>
+          <div style={{ padding: '16px' }} onClick={e => e.stopPropagation()}>
             <p style={sb.dropLabel}>Search destination</p>
-            <input
-              autoFocus
-              type="text"
-              value={location}
-              onChange={e => setLocation(e.target.value)}
-              placeholder="City, region..."
-              style={sb.textInput}
-              onClick={e => e.stopPropagation()}
+            <LocationAutocomplete
+              value={place}
+              onChange={setPlace}
+              placeholder="City, municipality, country..."
             />
           </div>
         </Dropdown>
