@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, BookOpen, Building, LogOut, LogIn, Globe, ChevronDown } from 'lucide-react';
+import { Home, BookOpen, Building, LogOut, LogIn, Globe, ChevronDown, Heart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const LANGUAGES = [
@@ -46,7 +46,10 @@ export default function Navbar() {
             {user.role === 'tourist' && (
               <Link to="/reservations" style={{ ...s.link, ...(isActive('/reservations') ? s.linkActive : {}) }}>
                 <BookOpen size={15} style={s.linkIcon} /> {t('nav.myBookings')}
+                <Link to="/favorites" style={{...s.link, ...(isActive('/favorites') ? s.linkActive : {}) }}>
+                  <Heart size={15} style={s.linkIcon}/> Favorites </Link>
               </Link>
+              
             )}
             {user.role === 'owner' && (
               <>

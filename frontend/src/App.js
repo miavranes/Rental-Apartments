@@ -11,6 +11,7 @@ import MyReservations from './pages/MyReservations';
 import OwnerReservations from './pages/OwnerReservations';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Favorites from './pages/Favorites';
 
 export default function App() {
   return (
@@ -25,9 +26,10 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/owner" element={<Owner />} />
           <Route path="/reservations" element={<MyReservations />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="/owner/reservations" element={<OwnerReservations />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} /> 
         </Routes>
       </AuthProvider>
     </BrowserRouter>

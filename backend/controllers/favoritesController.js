@@ -29,18 +29,40 @@ const getFavorites = async (req, res) => {
 
 const addFavorite = async (req, res) => {
   const { apartmentId } = req.params;
+
   try {
-    const apt = await pool.query('SELECT id FROM apartments WHERE id = $1', [apartmentId]);
-    if (apt.rows.length === 0) return res.status(404).json({ error: 'Apartment not found.' });
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const apt = await pool.query(
+      'SELECT id FROM apartments WHERE id = $1',
+      [apartmentId]
+    );
+
+    if (apt.rows.length === 0) {
+      return res.status(404).json({ error: 'Apartment not found.' });
+    }
 
     await pool.query(
-      'INSERT INTO favorites (user_id, apartment_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      `INSERT INTO favorites (user_id, apartment_id)
+       VALUES ($1, $2)
+       ON CONFLICT DO NOTHING`,
       [req.user.id, apartmentId]
     );
-    res.status(201).json({ apartment_id: Number(apartmentId), favorited: true });
+
+    res.status(201).json({
+      apartment_id: Number(apartmentId),
+      favorited: true
+    });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  console.error("🔥 FAVORITE ERROR FULL:", err);
+  return res.status(500).json({
+    error: err.message,
+    detail: err
+  });
+}
 };
 
 const removeFavorite = async (req, res) => {

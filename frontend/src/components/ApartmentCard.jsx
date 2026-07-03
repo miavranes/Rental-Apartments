@@ -1,31 +1,86 @@
 import { Link } from 'react-router-dom';
-import { Home, Star } from 'lucide-react';
+import { Home, Star, Heart } from 'lucide-react';
+import { useState } from 'react';
 import { formatLocation } from '../utils/locationUtils';
+import favoriteService from '../services/favoriteService';
 
 const BASE = 'http://localhost:5000/uploads/';
 
 export default function ApartmentCard({ apartment }) {
-  const { id, title, price_per_night, images, avg_rating, review_count } = apartment;
+  const {
+    id,
+    title,
+    price_per_night,
+    images,
+    avg_rating,
+    review_count
+  } = apartment;
 
-  const imgSrc = images && images.length > 0
-    ? `${BASE}${images[0].image_url ?? images[0]}`
+  const [favorite, setFavorite] = useState(false);
+
+  const toggleFavorite = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      if (favorite) {
+        await favoriteService.remove(id);
+        setFavorite(false);
+      } else {
+        await favoriteService.add(id);
+        setFavorite(true);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // 🔥 FIX ZA SLIKE (object ili string)
+  const imgSrc = Array.isArray(images) && images.length > 0
+    ? (typeof images[0] === 'string'
+        ? `${BASE}${images[0]}`
+        : `${BASE}${images[0].image_url}`)
     : null;
 
   return (
     <Link to={`/apartments/${id}`} style={styles.card}>
       <div style={styles.imageWrapper}>
+
+        {/* ❤️ HEART - FIXED CLICK */}
+        <button
+          onClick={toggleFavorite}
+          style={styles.heartBtn}
+          type="button"
+        >
+          <Heart
+            size={18}
+            fill={favorite ? "#ef4444" : "transparent"}
+            color={favorite ? "#ef4444" : "#fff"}
+          />
+        </button>
+
         {imgSrc ? (
-          <img src={imgSrc} alt={title} style={styles.image} />
+          <img
+            src={imgSrc}
+            alt={title}
+            style={styles.image}
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
         ) : (
           <div style={styles.imagePlaceholder}>
-            <Home size={48} color="#ccc" strokeWidth={1} />
+            <Home size={48} color="#ccc" />
           </div>
         )}
+
         {avg_rating > 0 && (
           <div style={styles.badge}>
             <Star size={11} fill="#fff" color="#fff" style={{ marginRight: 3 }} />
             {Number(avg_rating).toFixed(1)}
-            {review_count > 0 && <span style={styles.reviewCount}> ({review_count})</span>}
+            {review_count > 0 && (
+              <span style={styles.reviewCount}> ({review_count})</span>
+            )}
           </div>
         )}
       </div>
@@ -33,6 +88,7 @@ export default function ApartmentCard({ apartment }) {
       <div style={styles.body}>
         <p style={styles.location}>{formatLocation(apartment)}</p>
         <h3 style={styles.title}>{title}</h3>
+
         <p style={styles.price}>
           <strong style={styles.priceAmount}>${price_per_night}</strong>
           <span style={styles.perNight}> / night</span>
@@ -51,88 +107,97 @@ const styles = {
     overflow: 'hidden',
     backgroundColor: '#fff',
     boxShadow: '0 2px 16px rgba(15,76,92,0.08)',
-    transition: 'transform 0.2s, box-shadow 0.2s',
     cursor: 'pointer',
     border: '1px solid #f0f0f0',
   },
+
   imageWrapper: {
     position: 'relative',
     width: '100%',
     paddingTop: '66%',
-    backgroundColor: '#f0f0f0',
     overflow: 'hidden',
   },
+
+  heartBtn: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 36,
+    height: 36,
+    borderRadius: '50%',
+    border: 'none',
+    background: 'rgba(0,0,0,0.45)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 50,
+    cursor: 'pointer',
+  },
+
   image: {
     position: 'absolute',
-    top: 0,
-    left: 0,
     width: '100%',
     height: '100%',
     objectFit: 'cover',
-    transition: 'transform 0.3s',
   },
+
   imagePlaceholder: {
     position: 'absolute',
-    top: 0,
-    left: 0,
     width: '100%',
     height: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
+    background: '#f3f3f3',
   },
-  placeholderIcon: {
-    fontSize: '48px',
-  },
+
   badge: {
     position: 'absolute',
-    top: '12px',
-    right: '12px',
+    top: 10,
+    left: 10,
     backgroundColor: 'rgba(15,76,92,0.85)',
     color: '#fff',
-    fontSize: '13px',
-    fontWeight: '600',
-    padding: '4px 10px',
-    borderRadius: '20px',
-    backdropFilter: 'blur(4px)',
+    fontSize: 12,
+    padding: '3px 8px',
+    borderRadius: 12,
     display: 'flex',
     alignItems: 'center',
   },
+
   reviewCount: {
-    fontWeight: '400',
-    opacity: 0.85,
+    opacity: 0.8,
+    marginLeft: 3,
   },
+
   body: {
-    padding: '14px 16px 18px',
+    padding: 14,
   },
+
   location: {
-    margin: '0 0 4px',
-    fontSize: '11px',
-    fontWeight: '700',
+    fontSize: 11,
+    fontWeight: 700,
     color: '#E8A87C',
     textTransform: 'uppercase',
-    letterSpacing: '0.8px',
   },
+
   title: {
-    margin: '0 0 10px',
-    fontSize: '15px',
-    fontWeight: '600',
-    color: '#1a1a1a',
+    fontSize: 15,
+    margin: '6px 0',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
+
   price: {
-    margin: 0,
-    fontSize: '14px',
+    fontSize: 14,
     color: '#888',
   },
+
   priceAmount: {
-    fontSize: '17px',
+    fontSize: 17,
     color: '#0F4C5C',
-    fontWeight: '700',
   },
+
   perNight: {
     color: '#aaa',
   },
