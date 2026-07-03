@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building, Home, BedDouble, Users, Plus, X, Sparkles, Dumbbell, ConciergeBell, Sailboat, Mountain, Coffee, Sunrise, Sun, MoonStar, CalendarDays } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import apartmentService from '../services/apartmentService';
 import PinMap from '../components/PinMap';
 import Calendar from '../components/Calendar';
@@ -36,6 +37,7 @@ const AMENITIES_LIST = [
 export default function Owner() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [apartments, setApartments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,8 +96,21 @@ export default function Owner() {
 
   const handleImages = (e) => {
     const files = Array.from(e.target.files);
-    setImages(files);
-    setPreviews(files.map(f => URL.createObjectURL(f)));
+    setImages(prev => [...prev, ...files]);
+    setPreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
+  };
+
+  const removeNewImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+    setPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeNewImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+    setPreviews(prev => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const toggleAmenity = (key) => {
@@ -115,7 +130,7 @@ export default function Owner() {
       if (editTarget) await apartmentService.update(editTarget.id, fd);
       else await apartmentService.create(fd);
 
-      setSuccess(editTarget ? 'Listing updated!' : 'Listing created!');
+      setSuccess(editTarget ? t('owner.updated') : t('owner.created'));
       setShowForm(false);
       fetchApartments();
       setTimeout(() => setSuccess(''), 3000);
@@ -130,11 +145,11 @@ export default function Owner() {
     try {
       await apartmentService.delete(deleteId);
       setDeleteId(null);
-      setSuccess('Listing deleted.');
+      setSuccess(t('owner.deleted'));
       fetchApartments();
       setTimeout(() => setSuccess(''), 3000);
     } catch {
-      setError('Failed to delete.');
+      setError(t('common.error'));
       setDeleteId(null);
     }
   };
@@ -175,10 +190,10 @@ export default function Owner() {
       <div style={s.container}>
         <div style={s.pageHeader}>
           <div>
-            <h1 style={s.pageTitle}>My listings</h1>
-            <p style={s.pageSub}>Manage your properties on Rentura</p>
+            <h1 style={s.pageTitle}>{t('owner.myListings')}</h1>
+            <p style={s.pageSub}>{t('owner.manageSub')}</p>
           </div>
-          <button onClick={openNew} style={s.addBtn}><Plus size={16} strokeWidth={2.5} style={{ marginRight: 6 }} />New listing</button>
+          <button onClick={openNew} style={s.addBtn}><Plus size={16} strokeWidth={2.5} style={{ marginRight: 6 }} />{t('owner.newListing')}</button>
         </div>
 
         {success && <div style={s.successBanner}>{success}</div>}
@@ -189,8 +204,8 @@ export default function Owner() {
         ) : apartments.length === 0 ? (
           <div style={s.empty}>
             <Home size={64} color="#ddd" strokeWidth={1} style={{ marginBottom: 16 }} />
-            <h3 style={s.emptyTitle}>No listings yet</h3>
-            <p style={s.emptySub}>Add your first property to start receiving bookings.</p>
+            <h3 style={s.emptyTitle}>{t('owner.noListings')}</h3>
+            <p style={s.emptySub}>{t('owner.noListingsSub')}</p>
           </div>
         ) : (
           <div style={s.grid}>
@@ -211,10 +226,10 @@ export default function Owner() {
                   </div>
                 </div>
                 <div style={s.cardActions}>
-                  <Link to={`/apartments/${apt.id}`} style={s.viewBtn}>View</Link>
-                  <button onClick={() => openEdit(apt)} style={s.editBtn}>Edit</button>
-                  <button onClick={() => openAvailability(apt)} style={s.availBtn} title="Manage availability"><CalendarDays size={14} /></button>
-                  <button onClick={() => setDeleteId(apt.id)} style={s.deleteBtn}>Delete</button>
+                  <Link to={`/apartments/${apt.id}`} style={s.viewBtn}>{t('owner.view')}</Link>
+                  <button onClick={() => openEdit(apt)} style={s.editBtn}>{t('owner.edit')}</button>
+                  <button onClick={() => openAvailability(apt)} style={s.availBtn} title={t('owner.availability')}><CalendarDays size={14} /></button>
+                  <button onClick={() => setDeleteId(apt.id)} style={s.deleteBtn}>{t('owner.delete')}</button>
                 </div>
               </div>
             ))}
@@ -226,7 +241,7 @@ export default function Owner() {
         <div style={s.overlay} onClick={() => setShowForm(false)}>
           <div style={s.modal} onClick={e => e.stopPropagation()}>
             <div style={s.modalHeader}>
-              <h2 style={s.modalTitle}>{editTarget ? 'Edit listing' : 'New listing'}</h2>
+              <h2 style={s.modalTitle}>{editTarget ? t('owner.editListing') : t('owner.createListing')}</h2>
               <button onClick={() => setShowForm(false)} style={s.closeBtn}><X size={20} /></button>
             </div>
 
@@ -235,15 +250,15 @@ export default function Owner() {
             <form onSubmit={handleSubmit} style={s.form}>
               <div style={s.row}>
                 <div style={{ ...s.field, flex: 2 }}>
-                  <label style={s.label}>Title</label>
+                  <label style={s.label}>{t('owner.title')}</label>
                   <input style={s.input} required value={form.title}
                     onChange={e => setForm({ ...form, title: e.target.value })}
-                    placeholder="Cozy apartment in the city center"
+                    placeholder={t('owner.titlePlaceholder')}
                     onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                     onBlur={e => e.target.style.borderColor = '#ddd'} />
                 </div>
                 <div style={{ ...s.field, flex: 1 }}>
-                  <label style={s.label}>Price / night ($)</label>
+                  <label style={s.label}>{t('owner.priceNight')}</label>
                   <input style={s.input} type="number" required min="1" value={form.price_per_night}
                     onChange={e => setForm({ ...form, price_per_night: e.target.value })}
                     placeholder="80"
@@ -254,7 +269,7 @@ export default function Owner() {
 
               <div style={s.row}>
                 <div style={{ ...s.field, flex: 1 }}>
-                  <label style={s.label}>Location</label>
+                  <label style={s.label}>{t('owner.location')}</label>
                   <LocationAutocomplete
                     required
                     value={{
@@ -270,36 +285,36 @@ export default function Owner() {
                       country: place.country || '',
                     })}
                     onCoords={setPin}
-                    placeholder="Start typing a city..."
+                    placeholder={t('owner.locationPlaceholder')}
                     inputStyle={s.input}
                   />
                 </div>
                 <div style={{ ...s.field, flex: 1 }}>
-                  <label style={s.label}>Address</label>
+                  <label style={s.label}>{t('owner.address')}</label>
                   <input style={s.input} value={form.address}
                     onChange={e => setForm({ ...form, address: e.target.value })}
-                    placeholder="Mediteranska 12"
+                    placeholder={t('owner.addressPlaceholder')}
                     onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                     onBlur={e => e.target.style.borderColor = '#ddd'} />
                 </div>
               </div>
 
               <div style={s.field}>
-                <label style={s.label}>Pin location on map</label>
+                <label style={s.label}>{t('owner.pinLocation')}</label>
                 <PinMap pin={pin} onPin={setPin} />
               </div>
 
               <div style={s.field}>
-                <label style={s.label}>Description</label>
+                <label style={s.label}>{t('owner.description')}</label>
                 <textarea style={{ ...s.input, height: 90, resize: 'vertical' }} value={form.description}
                   onChange={e => setForm({ ...form, description: e.target.value })}
-                  placeholder="Describe your place..."
+                  placeholder={t('owner.descriptionPlaceholder')}
                   onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                   onBlur={e => e.target.style.borderColor = '#ddd'} />
               </div>
 
               <div style={s.row}>
-                {[{ key: 'bedrooms', label: 'Bedrooms' }, { key: 'beds', label: 'Beds' }, { key: 'max_guests', label: 'Max guests' }].map(({ key, label }) => (
+                {[{ key: 'bedrooms', label: t('owner.bedrooms') }, { key: 'beds', label: t('owner.beds') }, { key: 'max_guests', label: t('owner.maxGuests') }].map(({ key, label }) => (
                   <div key={key} style={{ ...s.field, flex: 1 }}>
                     <label style={s.label}>{label}</label>
                     <div style={s.counter}>
@@ -312,7 +327,7 @@ export default function Owner() {
               </div>
 
               <div style={s.field}>
-                <label style={s.label}>Amenities</label>
+                <label style={s.label}>{t('owner.amenitiesLabel')}</label>
                 <div style={s.amenitiesGrid}>
                   {AMENITIES_LIST.map(({ key, label, Icon }) => (
                     <div key={key} onClick={() => toggleAmenity(key)}
@@ -325,7 +340,7 @@ export default function Owner() {
               </div>
 
               <div style={s.field}>
-                <label style={s.label}>Photos</label>
+                <label style={s.label}>{t('owner.photos')}</label>
 
                 {/* Existing images (edit mode only) */}
                 {editTarget && existingImages.length > 0 && (
@@ -347,23 +362,37 @@ export default function Owner() {
                 )}
 
                 <label style={{ ...s.uploadBtn, marginTop: editTarget && existingImages.length > 0 ? 10 : 0 }}>
-                  {editTarget ? 'Add more photos' : 'Choose photos'}
+                  {editTarget ? t('owner.addMorePhotos') : t('owner.choosePhotos')}
                   <input type="file" multiple accept="image/*" onChange={handleImages} style={{ display: 'none' }} />
                 </label>
                 {previews.length > 0 && (
                   <div style={s.previewRow}>
                     {previews.map((src, i) => (
-                      <img key={i} src={src} alt="" style={s.previewImg} />
+                      <div key={i} style={s.previewImgWrap}>
+                        <img src={src} alt="" style={s.previewImg} />
+                        <button
+                          type="button"
+                          onClick={() => removeNewImage(i)}
+                          style={s.deleteImgBtn}
+                          title="Remove image"
+                        >
+                          <X size={12} strokeWidth={2.5} />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}
-                {images.length > 0 && <p style={{ fontSize: 13, color: '#888', marginTop: 8 }}>{images.length} new photo(s) selected</p>}
+                {images.length > 0 && (
+                  <p style={{ fontSize: 13, color: '#888', marginTop: 8 }}>
+                    {images.length} {images.length === 1 ? t('owner.photoSelected') : t('owner.photosSelected')}
+                  </p>
+                )}
               </div>
 
               <button type="submit" disabled={saving} style={s.submitBtn}
                 onMouseEnter={e => e.target.style.backgroundColor = '#0a3a47'}
                 onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}>
-                {saving ? 'Saving...' : editTarget ? 'Save changes' : 'Create listing'}
+                {saving ? t('owner.saving') : editTarget ? t('owner.saveChanges') : t('owner.newListing')}
               </button>
             </form>
           </div>
@@ -373,11 +402,11 @@ export default function Owner() {
       {deleteId && (
         <div style={s.overlay}>
           <div style={{ ...s.modal, maxWidth: 400 }}>
-            <h2 style={s.modalTitle}>Delete listing?</h2>
-            <p style={{ color: '#888', fontSize: 15, margin: '12px 0 24px' }}>This action cannot be undone.</p>
+            <h2 style={s.modalTitle}>{t('owner.deleteListing')}</h2>
+            <p style={{ color: '#888', fontSize: 15, margin: '12px 0 24px' }}>{t('owner.deleteConfirm')}</p>
             <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => setDeleteId(null)} style={{ ...s.editBtn, flex: 1, padding: 13 }}>Cancel</button>
-              <button onClick={handleDelete} style={{ ...s.deleteBtn, flex: 1, padding: 13 }}>Delete</button>
+              <button onClick={() => setDeleteId(null)} style={{ ...s.editBtn, flex: 1, padding: 13 }}>{t('owner.cancel')}</button>
+              <button onClick={handleDelete} style={{ ...s.deleteBtn, flex: 1, padding: 13 }}>{t('owner.delete')}</button>
             </div>
           </div>
         </div>
@@ -388,14 +417,14 @@ export default function Owner() {
         <div style={s.overlay} onClick={() => setAvailApt(null)}>
           <div style={{ ...s.modal, maxWidth: 380 }} onClick={e => e.stopPropagation()}>
             <div style={s.modalHeader}>
-              <h2 style={s.modalTitle}>Availability</h2>
+              <h2 style={s.modalTitle}>{t('owner.availability')}</h2>
               <button onClick={() => setAvailApt(null)} style={s.closeBtn}><X size={20} /></button>
             </div>
             <p style={{ fontSize: 13, color: '#888', margin: '0 0 16px' }}>
-              Click a date to block or unblock it. Blocked dates (red) won't be available for booking.
+              {t('owner.availabilityHint')}
             </p>
             {availLoading ? (
-              <div style={{ textAlign: 'center', padding: 24, color: '#aaa' }}>Loading...</div>
+              <div style={{ textAlign: 'center', padding: 24, color: '#aaa' }}>{t('owner.loading')}</div>
             ) : (
               <Calendar
                 value={null}
@@ -409,7 +438,7 @@ export default function Owner() {
       )}
 
       <footer style={s.footer}>
-        <span style={{ fontSize: 13, color: '#bbb' }}>© {new Date().getFullYear()} Rentura. All rights reserved.</span>
+        <span style={{ fontSize: 13, color: '#bbb' }}>© {new Date().getFullYear()} {t('common.copyright')}</span>
       </footer>
     </div>
   );
@@ -467,7 +496,8 @@ const s = {
   amenityChipActive: { border: '1.5px solid #0F4C5C', backgroundColor: '#f0f7f9', color: '#0F4C5C', fontWeight: 600 },
   uploadBtn: { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', backgroundColor: '#f0f7f9', color: '#0F4C5C', border: '1.5px dashed #0F4C5C', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' },
   previewRow: { display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' },
-  previewImg: { width: 72, height: 72, borderRadius: 8, objectFit: 'cover', border: '1px solid #ddd' },
+  previewImg: { width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8, display: 'block' },
+  previewImgWrap: { position: 'relative', width: 72, height: 72, borderRadius: 8, overflow: 'hidden', border: '1px solid #ddd', flexShrink: 0 },
   existingImgRow: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 4 },
   existingImgWrap: { position: 'relative', borderRadius: 8, overflow: 'hidden', aspectRatio: '1', border: '1px solid #ddd' },
   existingImg: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },

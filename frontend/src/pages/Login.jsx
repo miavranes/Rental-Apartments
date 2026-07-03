@@ -2,36 +2,30 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
-
+import { useTranslation } from 'react-i18next';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('submit triggered', form);
-    setError('');
-    setLoading(true);
+    setError(''); setLoading(true);
     try {
-      console.log('calling login...');
       const user = await login(form.email, form.password);
-      console.log('login success', user);
       if (user.role === 'owner') navigate('/owner');
       else if (user.role === 'admin') navigate('/admin');
       else navigate('/');
     } catch (err) {
-      console.log('login error', err);
-      setError(err.response?.data?.error || 'Wrong email or password');
+      setError(err.response?.data?.error || t('auth.wrongCredentials'));
     } finally {
       setLoading(false);
     }
@@ -45,73 +39,46 @@ export default function Login() {
           <p style={styles.tagline}>Find the perfect stay for your next journey</p>
         </div>
       </div>
-
       <div style={styles.right}>
         <div style={styles.formBox}>
-          <h2 style={styles.title}>Welcome back</h2>
-          <p style={styles.subtitle}>Sign in to your account</p>
-
+          <h2 style={styles.title}>{t('auth.welcomeBack')}</h2>
+          <p style={styles.subtitle}>{t('auth.signInAccount')}</p>
           {error && <div style={styles.error}>{error}</div>}
-
           <form onSubmit={handleSubmit}>
             <div style={styles.field}>
-              <label style={styles.label}>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="your@email.com"
-                required
-                style={styles.input}
+              <label style={styles.label}>{t('auth.email')}</label>
+              <input type="email" name="email" value={form.email} onChange={handleChange}
+                placeholder="your@email.com" required style={styles.input}
                 onFocus={e => e.target.style.borderColor = '#0F4C5C'}
-                onBlur={e => e.target.style.borderColor = '#ddd'}
-              />
+                onBlur={e => e.target.style.borderColor = '#ddd'} />
             </div>
-
             <div style={styles.field}>
-              <label style={styles.label}>Password</label>
+              <label style={styles.label}>{t('auth.password')}</label>
               <div style={styles.inputWrapper}>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  required
-                  style={styles.input}
+                <input type={showPassword ? 'text' : 'password'} name="password"
+                  value={form.password} onChange={handleChange}
+                  placeholder="••••••••" required style={styles.input}
                   onFocus={e => e.target.style.borderColor = '#0F4C5C'}
-                  onBlur={e => e.target.style.borderColor = '#ddd'}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  style={styles.eyeBtn}
-                  tabIndex={-1}
-                >
+                  onBlur={e => e.target.style.borderColor = '#ddd'} />
+                <button type="button" onClick={() => setShowPassword(v => !v)} style={styles.eyeBtn} tabIndex={-1}>
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              style={styles.button}
+            <button type="submit" disabled={loading} style={styles.button}
               onMouseEnter={e => e.target.style.backgroundColor = '#0a3a47'}
-              onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
+              onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}>
+              {loading ? t('auth.signingIn') : t('auth.signIn')}
             </button>
           </form>
-
-          <div style={styles.divider}>
-            <span style={styles.dividerLine} />
-          </div>
-
+          <div style={styles.divider}><span style={styles.dividerLine} /></div>
           <p style={styles.footer}>
-            Don't have an account?{' '}
-            <Link to="/register" style={styles.link}>Sign up</Link>
+            {t('auth.noAccount')}{' '}<Link to="/register" style={styles.link}>{t('nav.signUp')}</Link>
+          </p>
+          <p style={{ ...styles.footer, marginTop: 10 }}>
+            <Link to="/forgot-password" style={{ ...styles.link, fontWeight: 500, borderBottom: 'none', color: '#888' }}>
+              {t('auth.forgotPassword')}
+            </Link>
           </p>
         </div>
       </div>

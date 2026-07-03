@@ -1,7 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import apartmentService from '../services/apartmentService';
 import reservationService from '../services/reservationService';
+import paymentService from '../services/paymentService';
 import { useAuth } from '../context/AuthContext';
 import Calendar from '../components/Calendar';
 import MapView from '../components/MapView';
@@ -11,10 +14,11 @@ import {
   Home, MapPin, BedDouble, Bed, Users,
   Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building,
   Sparkles, Dumbbell, ConciergeBell, Sailboat, Mountain, Coffee, Sunrise, Sun, MoonStar,
-  Star, ChevronLeft, Check, X, ChevronDown
+  Star, ChevronLeft, Check, X, ChevronDown, CreditCard, Banknote
 } from 'lucide-react';
 
 const BASE = 'http://localhost:5000/uploads/';
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '');
 
 function Stars({ rating, size = 14 }) {
   const full = Math.round(rating);
@@ -70,7 +74,6 @@ function Gallery({ images }) {
   return (
     <>
       <div style={g.wrapper}>
-        {/* Main image */}
         <div style={g.main} onClick={() => setLightbox(true)}>
           <img src={src(images[active])} alt="apartment" style={g.mainImg} />
           <div style={g.mainOverlay}>
@@ -123,24 +126,64 @@ const g = {
   lbCounter: { position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.7)', fontSize: 14, margin: 0 },
 };
 
+// ─── Stripe payment form (rendered inside Elements provider) ─────────────────
+function StripePaymentForm({ reservationId, total, onSuccess, onError }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+
+  const handlePay = async (e) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+    setLoading(true);
+    try {
+      const { client_secret } = await paymentService.createIntent(reservationId, Math.round(total * 100));
+      const result = await stripe.confirmCardPayment(client_secret, {
+        payment_method: { card: elements.getElement(CardElement) },
+      });
+      if (result.error) {
+        onError(result.error.message);
+      } else if (result.paymentIntent.status === 'succeeded') {
+        onSuccess();
+      }
+    } catch (err) {
+      onError(err.response?.data?.error || 'Payment failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handlePay} style={{ marginTop: 12 }}>
+      <div style={bp.cardElementWrap}>
+        <CardElement options={{ style: { base: { fontSize: '15px', color: '#222', fontFamily: "'Segoe UI', sans-serif", '::placeholder': { color: '#aaa' } } } }} />
+      </div>
+      <button type="submit" disabled={!stripe || loading} style={{ ...bp.btn, marginTop: 12 }}>
+        {loading ? 'Processing...' : `Pay $${Number(total).toFixed(2)}`}
+      </button>
+    </form>
+  );
+}
+
+// ─── Booking panel ────────────────────────────────────────────────────────────
 function BookingPanel({ apartment, blockedDates = [] }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Pre-fill from search bar if available
   const [checkIn, setCheckIn]   = useState(searchParams.get('checkIn')  || '');
   const [checkOut, setCheckOut] = useState(searchParams.get('checkOut') || '');
   const [guests, setGuests]     = useState(Number(searchParams.get('guests')) || 1);
 
   const fromSearch = !!(searchParams.get('checkIn') && searchParams.get('checkOut'));
-  const [editDates, setEditDates] = useState(!fromSearch); // show calendar only if no search params
+  const [editDates, setEditDates] = useState(!fromSearch);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
-  const [success, setSuccess] = useState(false);
-  const [openCal, setOpenCal] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState('on_arrival'); // 'online' | 'on_arrival'
+  const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState('');
+  const [step, setStep]                 = useState('form'); // 'form' | 'pay' | 'done'
+  const [createdReservation, setCreatedReservation] = useState(null);
+  const [openCal, setOpenCal]           = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('on_arrival');
   const panelRef = useRef(null);
 
   useEffect(() => {
@@ -151,7 +194,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const formatDate = (str) => {
+  const fmtDate = (str) => {
     if (!str) return null;
     return new Date(str + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   };
@@ -166,14 +209,19 @@ function BookingPanel({ apartment, blockedDates = [] }) {
     if (!user) return navigate('/login');
     setError(''); setLoading(true);
     try {
-      await reservationService.create({
+      const reservation = await reservationService.create({
         apartment_id: apartment.id,
         check_in: checkIn,
         check_out: checkOut,
         guests,
         payment_method: paymentMethod,
       });
-      setSuccess(true);
+      setCreatedReservation(reservation);
+      if (paymentMethod === 'online') {
+        setStep('pay');
+      } else {
+        setStep('done');
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Booking failed. Please try again.');
     } finally {
@@ -181,21 +229,49 @@ function BookingPanel({ apartment, blockedDates = [] }) {
     }
   };
 
-  if (success) {
+  // ── Success screen ──
+  if (step === 'done') {
     return (
       <div style={bp.card}>
         <div style={bp.successIcon}><Check size={28} strokeWidth={2.5} color="#0F4C5C" /></div>
         <h3 style={{ ...bp.price, textAlign: 'center', marginBottom: 8 }}>Booking confirmed!</h3>
         <p style={{ color: '#888', fontSize: 14, textAlign: 'center', margin: '0 0 20px' }}>
-          Your reservation is pending approval from the host.
+          {paymentMethod === 'online'
+            ? 'Payment successful. Your reservation is confirmed.'
+            : 'Your reservation is pending approval from the host.'}
         </p>
-        <Link to="/" style={{ ...bp.btn, display: 'block', textAlign: 'center', textDecoration: 'none' }}>
-          Back to home
+        <Link to="/reservations" style={{ ...bp.btn, display: 'block', textAlign: 'center', textDecoration: 'none' }}>
+          View my bookings
         </Link>
       </div>
     );
   }
 
+  // ── Stripe payment step ──
+  if (step === 'pay') {
+    return (
+      <div style={bp.card}>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F4C5C', margin: '0 0 4px' }}>Complete payment</h3>
+        <p style={{ fontSize: 13, color: '#888', margin: '0 0 16px' }}>
+          {apartment.title} · {nights} night{nights !== 1 ? 's' : ''} · <strong style={{ color: '#0F4C5C' }}>${total.toFixed(2)}</strong>
+        </p>
+        {error && <p style={bp.error}>{error}</p>}
+        <Elements stripe={stripePromise}>
+          <StripePaymentForm
+            reservationId={createdReservation?.id}
+            total={total}
+            onSuccess={() => { setError(''); setStep('done'); }}
+            onError={(msg) => setError(msg)}
+          />
+        </Elements>
+        <button onClick={() => { setStep('done'); }} style={{ ...bp.btn, marginTop: 10, backgroundColor: '#f5f5f5', color: '#888', fontSize: 13 }}>
+          Skip — I'll pay later
+        </button>
+      </div>
+    );
+  }
+
+  // ── Main booking form ──
   return (
     <div style={bp.card} ref={panelRef}>
       <div style={bp.priceRow}>
@@ -211,18 +287,17 @@ function BookingPanel({ apartment, blockedDates = [] }) {
 
       <form onSubmit={handleBook} style={bp.form}>
 
-        {/* ── Dates pre-filled from search ── */}
         {!editDates ? (
           <div style={bp.filledDates}>
             <div style={bp.filledRow}>
               <div style={bp.filledField}>
                 <span style={bp.label}>CHECK IN</span>
-                <span style={bp.filledValue}>{formatDate(checkIn)}</span>
+                <span style={bp.filledValue}>{fmtDate(checkIn)}</span>
               </div>
               <div style={bp.filledDivider} />
               <div style={bp.filledField}>
                 <span style={bp.label}>CHECK OUT</span>
-                <span style={bp.filledValue}>{formatDate(checkOut)}</span>
+                <span style={bp.filledValue}>{fmtDate(checkOut)}</span>
               </div>
             </div>
             <button type="button" onClick={() => setEditDates(true)} style={bp.changeDatesBtn}>
@@ -230,13 +305,12 @@ function BookingPanel({ apartment, blockedDates = [] }) {
             </button>
           </div>
         ) : (
-          /* ── Calendar picker ── */
           <div style={bp.dateRow}>
             <div style={{ ...bp.dateField, position: 'relative' }}
               onClick={() => setOpenCal(o => o === 'checkin' ? null : 'checkin')}>
               <label style={bp.label}>CHECK IN</label>
               <div style={bp.dateValue}>
-                {formatDate(checkIn) || <span style={{ color: '#aaa' }}>Add date</span>}
+                {fmtDate(checkIn) || <span style={{ color: '#aaa' }}>Add date</span>}
                 <ChevronDown size={14} color="#aaa" style={{ marginLeft: 'auto' }} />
               </div>
               {openCal === 'checkin' && (
@@ -259,7 +333,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
               onClick={() => setOpenCal(o => o === 'checkout' ? null : 'checkout')}>
               <label style={bp.label}>CHECK OUT</label>
               <div style={bp.dateValue}>
-                {formatDate(checkOut) || <span style={{ color: '#aaa' }}>Add date</span>}
+                {fmtDate(checkOut) || <span style={{ color: '#aaa' }}>Add date</span>}
                 <ChevronDown size={14} color="#aaa" style={{ marginLeft: 'auto' }} />
               </div>
               {openCal === 'checkout' && (
@@ -289,14 +363,13 @@ function BookingPanel({ apartment, blockedDates = [] }) {
 
         {error && <p style={bp.error}>{error}</p>}
 
-        {/* Payment method */}
         <div style={bp.payRow}>
           <button
             type="button"
             onClick={() => setPaymentMethod('on_arrival')}
             style={{ ...bp.payOption, ...(paymentMethod === 'on_arrival' ? bp.payOptionActive : {}) }}
           >
-            <span style={bp.payIcon}>💵</span>
+            <Banknote size={20} color={paymentMethod === 'on_arrival' ? '#0F4C5C' : '#aaa'} />
             <div>
               <p style={bp.payLabel}>Pay on arrival</p>
               <p style={bp.paySub}>Cash or card at the property</p>
@@ -307,7 +380,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
             onClick={() => setPaymentMethod('online')}
             style={{ ...bp.payOption, ...(paymentMethod === 'online' ? bp.payOptionActive : {}) }}
           >
-            <span style={bp.payIcon}>💳</span>
+            <CreditCard size={20} color={paymentMethod === 'online' ? '#0F4C5C' : '#aaa'} />
             <div>
               <p style={bp.payLabel}>Pay online</p>
               <p style={bp.paySub}>Secure card payment via Stripe</p>
@@ -315,7 +388,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
           </button>
         </div>
 
-        <button type="submit" disabled={loading} style={bp.btn}>
+        <button type="submit" disabled={loading || !checkIn || !checkOut} style={{ ...bp.btn, opacity: (!checkIn || !checkOut) ? 0.6 : 1 }}>
           {loading ? 'Booking...' : user ? 'Reserve' : 'Log in to book'}
         </button>
 
@@ -351,7 +424,6 @@ const bp = {
   dateDivider: { width: 1, backgroundColor: '#ddd', flexShrink: 0 },
   calDrop: { position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 300, backgroundColor: '#fff', borderRadius: 16, boxShadow: '0 12px 40px rgba(15,76,92,0.18)', border: '1px solid rgba(15,76,92,0.08)' },
   label: { display: 'block', fontSize: 10, fontWeight: 700, color: '#0F4C5C', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 },
-  // Pre-filled dates (from search)
   filledDates: { border: '1px solid #ddd', borderRadius: 12, overflow: 'hidden', marginBottom: 8 },
   filledRow: { display: 'flex' },
   filledField: { flex: 1, padding: '10px 14px' },
@@ -371,11 +443,12 @@ const bp = {
   payRow: { display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 },
   payOption: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', border: '1px solid #ddd', borderRadius: 10, cursor: 'pointer', background: '#fff', textAlign: 'left', fontFamily: "'Segoe UI', sans-serif", transition: 'border-color 0.15s' },
   payOptionActive: { borderColor: '#0F4C5C', backgroundColor: '#f0f7f9' },
-  payIcon: { fontSize: 20, flexShrink: 0 },
   payLabel: { fontSize: 14, fontWeight: 600, color: '#222', margin: 0 },
   paySub: { fontSize: 12, color: '#888', margin: 0 },
+  cardElementWrap: { border: '1px solid #ddd', borderRadius: 10, padding: '13px 14px', backgroundColor: '#fff' },
 };
 
+// ─── Main page ────────────────────────────────────────────────────────────────
 export default function ApartmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -434,7 +507,6 @@ export default function ApartmentDetail() {
     breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner',
   };
 
-  // Merge breakfast/lunch/dinner into "All Meals" if all three present
   const displayAmenities = (() => {
     const icons = apt.amenities?.map(a => a.icon) || [];
     const hasAll = ['breakfast', 'lunch', 'dinner'].every(k => icons.includes(k));
@@ -450,10 +522,8 @@ export default function ApartmentDetail() {
       <Navbar />
 
       <div style={s.container}>
-        {/* Back */}
         <button onClick={() => navigate(-1)} style={s.backBtn}><ChevronLeft size={16} style={{ marginRight: 2 }} />Back</button>
 
-        {/* Title row */}
         <div style={s.titleRow}>
           <div>
             <h1 style={s.title}>{apt.title}</h1>
@@ -474,7 +544,6 @@ export default function ApartmentDetail() {
         <Gallery images={apt.images} />
 
         <div style={s.body}>
-          {/* Left column */}
           <div style={s.left}>
             <div style={s.statsRow}>
               {[
@@ -590,50 +659,28 @@ export default function ApartmentDetail() {
 
 const s = {
   page: { minHeight: '100vh', fontFamily: "'Segoe UI', sans-serif", backgroundColor: '#FAFAF9' },
-
-  
   nav: { position: 'sticky', top: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 48px', backgroundColor: '#fff', borderBottom: '1px solid #ebebeb', boxShadow: '0 1px 8px rgba(15,76,92,0.06)' },
   brand: { fontSize: 22, fontWeight: 800, color: '#0F4C5C', textDecoration: 'none', letterSpacing: '-0.5px' },
   navLinks: { display: 'flex', alignItems: 'center', gap: 20 },
-  navGreeting: { color: '#666', fontSize: 14 },
-  navLink: { color: '#333', textDecoration: 'none', fontSize: 14, fontWeight: 500 },
-  navButtonLink: { background: '#0F4C5C', color: '#fff', textDecoration: 'none', borderRadius: 20, padding: '8px 20px', fontSize: 14, fontWeight: 600 },
-
-
   container: { maxWidth: 1100, margin: '0 auto', padding: '32px 24px 64px' },
   backBtn: { background: 'none', border: 'none', color: '#0F4C5C', fontSize: 14, fontWeight: 600, cursor: 'pointer', padding: '0 0 20px', fontFamily: "'Segoe UI', sans-serif" },
-
-  
   titleRow: { marginBottom: 20 },
   title: { fontSize: 30, fontWeight: 800, color: '#0F4C5C', margin: '0 0 10px', letterSpacing: '-0.5px' },
   meta: { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   metaItem: { display: 'flex', alignItems: 'center', fontSize: 14, color: '#444' },
   metaDot: { color: '#ccc' },
-
-  
   body: { display: 'grid', gridTemplateColumns: '1fr 380px', gap: 48, marginTop: 36, alignItems: 'start' },
   left: { minWidth: 0 },
   right: {},
-
-  
   statsRow: { display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 0 },
   statCard: { display: 'flex', alignItems: 'center', gap: 8, backgroundColor: '#fff', border: '1px solid #ebebeb', borderRadius: 12, padding: '10px 16px' },
-  statIcon: { fontSize: 18 },
   statLabel: { fontSize: 14, color: '#444', fontWeight: 500 },
-
   divider: { height: 1, backgroundColor: '#ebebeb', margin: '28px 0' },
-
-  
   sectionTitle: { fontSize: 20, fontWeight: 700, color: '#0F4C5C', margin: '0 0 14px' },
   description: { fontSize: 15, color: '#555', lineHeight: 1.75, margin: 0 },
-
-  
   amenitiesGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 },
   amenityItem: { display: 'flex', alignItems: 'center', gap: 10 },
-  amenityIcon: { fontSize: 20 },
   amenityName: { fontSize: 14, color: '#444' },
-
-  
   reviewsHeader: { marginBottom: 20 },
   reviewsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 },
   reviewCard: { backgroundColor: '#fff', border: '1px solid #ebebeb', borderRadius: 16, padding: 20 },
@@ -641,12 +688,8 @@ const s = {
   reviewName: { margin: 0, fontSize: 14, fontWeight: 700, color: '#222' },
   reviewDate: { margin: 0, fontSize: 12, color: '#aaa' },
   reviewComment: { margin: 0, fontSize: 14, color: '#555', lineHeight: 1.65 },
-
- 
   loadingPage: { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, fontFamily: "'Segoe UI', sans-serif" },
   spinner: { width: 36, height: 36, border: '3px solid #e0e0e0', borderTop: '3px solid #0F4C5C', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
-
-  
   footer: { borderTop: '1px solid #ebebeb', padding: 28, textAlign: 'center', backgroundColor: '#fff' },
   footerText: { fontSize: 13, color: '#bbb' },
 };

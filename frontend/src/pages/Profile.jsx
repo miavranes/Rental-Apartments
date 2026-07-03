@@ -3,10 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Home, Luggage, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import { useTranslation } from 'react-i18next';
 
 export default function Profile() {
   const { user, updateProfile, switchRole, logout, deleteAccount } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [form, setForm] = useState({
     name: user?.name || '',

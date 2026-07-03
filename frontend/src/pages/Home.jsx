@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import apartmentService from '../services/apartmentService';
 import ApartmentCard from '../components/ApartmentCard';
 import SearchBar from '../components/SearchBar';
@@ -8,6 +9,7 @@ import Navbar from '../components/Navbar';
 
 export default function Home() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,10 +31,8 @@ export default function Home() {
       <section style={styles.hero}>
         <div style={styles.heroOverlay} />
         <div style={styles.heroContent}>
-          <h1 style={styles.heroTitle}>Find your next stay</h1>
-          <p style={styles.heroSubtitle}>
-            Discover unique apartments in cities you'll love — book in seconds.
-          </p>
+          <h1 style={styles.heroTitle}>{t('home.heroTitle')}</h1>
+          <p style={styles.heroSubtitle}>{t('home.heroSubtitle')}</p>
           <SearchBar />
         </div>
       </section>
@@ -40,10 +40,10 @@ export default function Home() {
       <section style={styles.section}>
         <div style={styles.sectionHeader}>
           <div>
-            <h2 style={styles.sectionTitle}>Featured apartments</h2>
-            <p style={styles.sectionSub}>Handpicked stays our guests love</p>
+            <h2 style={styles.sectionTitle}>{t('home.featuredTitle')}</h2>
+            <p style={styles.sectionSub}>{t('home.featuredSub')}</p>
           </div>
-          <Link to="/apartments" style={styles.seeAll}>View all →</Link>
+          <Link to="/apartments" style={styles.seeAll}>{t('home.viewAll')}</Link>
         </div>
 
         {loading ? (
@@ -54,9 +54,9 @@ export default function Home() {
           </div>
         ) : featured.length === 0 ? (
           <div style={styles.empty}>
-            <p style={styles.emptyText}>No apartments available yet.</p>
+            <p style={styles.emptyText}>{t('home.noApartments')}</p>
             {user?.role === 'owner' && (
-              <Link to="/owner/new" style={styles.emptyLink}>Add your first listing →</Link>
+              <Link to="/owner/new" style={styles.emptyLink}>{t('home.addFirst')}</Link>
             )}
           </div>
         ) : (
@@ -71,12 +71,10 @@ export default function Home() {
       {!user && (
         <section style={styles.cta}>
           <div style={styles.ctaInner}>
-            <p style={styles.ctaEyebrow}>Join Rentura</p>
-            <h2 style={styles.ctaTitle}>Ready to find your perfect stay?</h2>
-            <p style={styles.ctaText}>
-              Thousands of travellers book unique apartments every day.
-            </p>
-            <Link to="/register" style={styles.ctaButton}>Get started — it's free</Link>
+            <p style={styles.ctaEyebrow}>{t('home.ctaEyebrow')}</p>
+            <h2 style={styles.ctaTitle}>{t('home.ctaTitle')}</h2>
+            <p style={styles.ctaText}>{t('home.ctaText')}</p>
+            <Link to="/register" style={styles.ctaButton}>{t('home.ctaBtn')}</Link>
           </div>
         </section>
       )}

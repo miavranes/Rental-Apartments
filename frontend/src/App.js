@@ -9,6 +9,8 @@ import Profile from './pages/Profile';
 import Owner from './pages/Owner';
 import MyReservations from './pages/MyReservations';
 import OwnerReservations from './pages/OwnerReservations';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 export default function App() {
   return (
@@ -24,6 +26,8 @@ export default function App() {
           <Route path="/owner" element={<Owner />} />
           <Route path="/reservations" element={<MyReservations />} />
           <Route path="/owner/reservations" element={<OwnerReservations />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
