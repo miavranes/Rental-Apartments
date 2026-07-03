@@ -1,9 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import apartmentService from '../services/apartmentService';
 import ApartmentCard from '../components/ApartmentCard';
 import SearchBar from '../components/SearchBar';
-import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import {
   Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint,
@@ -41,7 +40,6 @@ const parseAmenitiesParam = (raw) =>
 const emptyDraft = { minPrice: '', maxPrice: '', minBedrooms: 0, minRating: 0, petFriendly: false, amenities: [] };
 
 export default function Apartments() {
-  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [apartments, setApartments] = useState([]);
@@ -49,7 +47,7 @@ export default function Apartments() {
   const [showFilters, setShowFilters] = useState(true);
 
   const amenitiesParam = searchParams.get('amenities') ?? '';
-  const urlAmenities = parseAmenitiesParam(amenitiesParam);
+  const urlAmenities = useMemo(() => parseAmenitiesParam(amenitiesParam), [amenitiesParam]);
 
   // Draft state — what user is editing in the sidebar
   const [draft, setDraft] = useState(() => ({ ...emptyDraft, amenities: urlAmenities }));
@@ -78,7 +76,7 @@ export default function Apartments() {
       .then(setApartments)
       .catch(() => setApartments([]))
       .finally(() => setLoading(false));
-  }, [searchParams]);
+  }, [searchParams, urlAmenities]);
 
   const setUrlAmenities = (keys) => {
     const params = new URLSearchParams(searchParams);
@@ -96,8 +94,6 @@ export default function Apartments() {
     setApplied(d => ({ ...d, amenities: next }));
   };
 
-  const applyFilters = () => setApplied({ ...draft });
-
   const clearFilters = () => {
     const params = new URLSearchParams(searchParams);
     params.delete('amenities');
@@ -106,7 +102,6 @@ export default function Apartments() {
     setApplied(emptyDraft);
   };
 
-  const hasDraftChanges = JSON.stringify(draft) !== JSON.stringify(applied);
   const hasAppliedFilters = applied.minPrice || applied.maxPrice || applied.minBedrooms > 0 || applied.minRating > 0 || applied.petFriendly || urlAmenities.length > 0;
 
   const filtered = useMemo(() => {

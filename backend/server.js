@@ -23,6 +23,9 @@ app.use('/api/apartments', require('./routes/apartments'));
 app.use('/api/reservations', require('./routes/reservations'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/payments', require('./routes/payments'));
+app.use('/api/favorites', require('./routes/favorites'));
+app.use('/api/chat', require('./routes/chat'));
+app.use('/api/analytics', require('./routes/analytics'));
 
 // Run once on startup to catch any missed completions, then daily at 01:00
 completeExpiredReservations();

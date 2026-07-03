@@ -35,7 +35,7 @@ const AMENITIES_LIST = [
 ];
 
 export default function Owner() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -98,11 +98,6 @@ export default function Owner() {
     const files = Array.from(e.target.files);
     setImages(prev => [...prev, ...files]);
     setPreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
-  };
-
-  const removeNewImage = (index) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
-    setPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const removeNewImage = (index) => {

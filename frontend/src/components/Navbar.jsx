@@ -6,8 +6,9 @@ import { useTranslation } from 'react-i18next';
 
 const LANGUAGES = [
   { code: 'en', label: 'EN', name: 'English' },
-  { code: 'bs', label: 'BS', name: 'Bosanski' },
+  { code: 'sr', label: 'SR', name: 'Srpski' },
   { code: 'de', label: 'DE', name: 'Deutsch' },
+  { code: 'fr', label: 'FR', name: 'Francais' },
 ];
 
 export default function Navbar() {
