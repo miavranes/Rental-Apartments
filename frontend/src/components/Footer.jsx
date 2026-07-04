@@ -30,9 +30,9 @@ export default function Footer() {
               <Mail size={14} style={{ marginRight: 6 }} />hello@rentura.me
             </a>
             <div style={s.socials}>
-              <a href="#" style={s.socialIcon} aria-label="Instagram"><Instagram size={16} /></a>
-              <a href="#" style={s.socialIcon} aria-label="Facebook"><Facebook size={16} /></a>
-              <a href="#" style={s.socialIcon} aria-label="Twitter"><Twitter size={16} /></a>
+              <button type="button" style={s.socialIcon} aria-label="Instagram"><Instagram size={16} /></button>
+              <button type="button" style={s.socialIcon} aria-label="Facebook"><Facebook size={16} /></button>
+              <button type="button" style={s.socialIcon} aria-label="Twitter"><Twitter size={16} /></button>
             </div>
           </div>
         </div>
@@ -71,7 +71,8 @@ const s = {
     width: 32, height: 32, borderRadius: '50%',
     backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    textDecoration: 'none',
+    textDecoration: 'none', border: 'none', cursor: 'pointer',
+    padding: 0, fontFamily: "'Segoe UI', sans-serif",
   },
   divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.12)', margin: '32px 0 20px' },
   bottom: { display: 'flex', justifyContent: 'center' },

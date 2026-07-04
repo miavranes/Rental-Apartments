@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { Home, Star, Heart } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatLocation } from '../utils/locationUtils';
 import favoriteService from '../services/favoriteService';
 
 const BASE = 'http://localhost:5000/uploads/';
 
 export default function ApartmentCard({ apartment }) {
+  const { t } = useTranslation();
   const {
     id,
     title,
@@ -17,6 +19,7 @@ export default function ApartmentCard({ apartment }) {
   } = apartment;
 
   const [favorite, setFavorite] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const toggleFavorite = async (e) => {
     e.preventDefault();
@@ -34,8 +37,6 @@ export default function ApartmentCard({ apartment }) {
       console.error(err);
     }
   };
-
-const firstImage = images?.[0];
 
 const imgSrc =
   images && images.length > 0
@@ -57,14 +58,12 @@ const imgSrc =
           />
         </button>
 
-        {imgSrc ? (
+        {imgSrc && !imgError ? (
           <img
             src={imgSrc}
             alt={title}
             style={styles.image}
-            onError={(e) => {
-              e.target.style.display = 'none';
-            }}
+            onError={() => setImgError(true)}
           />
         ) : (
           <div style={styles.imagePlaceholder}>
@@ -89,7 +88,7 @@ const imgSrc =
 
         <p style={styles.price}>
           <strong style={styles.priceAmount}>${price_per_night}</strong>
-          <span style={styles.perNight}> / night</span>
+          <span style={styles.perNight}> {t('apartments.perNight')}</span>
         </p>
       </div>
     </Link>

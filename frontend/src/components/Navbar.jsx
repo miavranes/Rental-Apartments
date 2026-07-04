@@ -53,8 +53,15 @@ export default function Navbar() {
     <nav style={s.nav}>
       <style>{`
         .navbar-toggle { display: none; }
+        .navbar-backdrop { display: none; }
         @media (max-width: 860px) {
-          .navbar-toggle { display: flex; }
+          .navbar-toggle { display: flex; position: relative; z-index: 150; }
+          .navbar-backdrop {
+            display: block;
+            position: fixed; top: 60px; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.25);
+            z-index: 130;
+          }
           .navbar-links {
             display: none;
             position: absolute; top: 60px; left: 0; right: 0;
@@ -63,6 +70,7 @@ export default function Navbar() {
             padding: 10px 16px 18px; gap: 4px;
             box-shadow: 0 12px 24px rgba(0,0,0,0.08);
             max-height: calc(100vh - 60px); overflow-y: auto;
+            z-index: 140;
           }
           .navbar-links.open { display: flex; }
           .navbar-links .navbar-divider { display: none; }
@@ -78,9 +86,18 @@ export default function Navbar() {
         onClick={() => setMobileOpen(v => !v)}
         style={s.toggleBtn}
         aria-label="Menu"
+        type="button"
       >
         {mobileOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
+
+      {mobileOpen && (
+        <div
+          className="navbar-backdrop"
+          onClick={() => setMobileOpen(false)}
+          style={s.backdrop}
+        />
+      )}
 
       <div className={`navbar-links${mobileOpen ? ' open' : ''}`} style={s.links}>
         <Link to="/" style={{ ...s.link, ...(isActive('/') ? s.linkActive : {}) }}>
@@ -184,6 +201,7 @@ const s = {
     padding: '6px 8px', cursor: 'pointer', color: '#0F4C5C',
   },
   links: { display: 'flex', alignItems: 'center', gap: 4 },
+  backdrop: { border: 'none', padding: 0, margin: 0, cursor: 'default' },
   link: {
     display: 'flex', alignItems: 'center', gap: 5,
     padding: '6px 12px', borderRadius: 8,
