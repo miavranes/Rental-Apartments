@@ -78,10 +78,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      <footer style={styles.footer}>
-        <span style={styles.footerText}>© {new Date().getFullYear()} Rentura. All rights reserved.</span>
-      </footer>
     </div>
   );
 }
@@ -287,15 +283,5 @@ const styles = {
     fontSize: '16px',
     fontWeight: '700',
     letterSpacing: '0.2px',
-  },
-  footer: {
-    borderTop: '1px solid #ebebeb',
-    padding: '28px',
-    textAlign: 'center',
-    backgroundColor: '#fff',
-  },
-  footerText: {
-    fontSize: '13px',
-    color: '#bbb',
   },
 };

@@ -201,10 +201,6 @@ export default function Profile() {
           Delete account
         </button>
       </div>
-
-      <footer style={s.footer}>
-        <span style={s.footerText}>© {new Date().getFullYear()} Rentura. All rights reserved.</span>
-      </footer>
     </div>
   );
 }
@@ -440,16 +436,6 @@ const s = {
     fontSize: '15px',
     cursor: 'pointer',
     fontFamily: "'Segoe UI', sans-serif",
-  },
-  footer: {
-    borderTop: '1px solid #ebebeb',
-    padding: '28px',
-    textAlign: 'center',
-    backgroundColor: '#fff',
-  },
-  footerText: {
-    fontSize: '13px',
-    color: '#bbb',
   },
   deleteBtn: {
     width: '100%',

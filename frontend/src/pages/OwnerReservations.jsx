@@ -1,26 +1,36 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import reservationService from '../services/reservationService';
 import Navbar from '../components/Navbar';
 import { Calendar, Users, Phone, Mail, Check, X, CreditCard, Banknote, MessageCircle } from 'lucide-react';
 import chatService from '../services/chatService';
 
-const STATUS_COLORS = {
-  pending:   { bg: '#fff8e1', color: '#f59e0b', label: 'Pending' },
-  confirmed: { bg: '#f0fff4', color: '#22c55e', label: 'Confirmed' },
-  cancelled: { bg: '#fff0f0', color: '#ef4444', label: 'Cancelled' },
-  completed: { bg: '#f0f7f9', color: '#0F4C5C', label: 'Completed' },
-};
-
 export default function OwnerReservations() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [processing, setProcessing] = useState(null);
   const [messaging, setMessaging] = useState(null);
+
+  const STATUS_COLORS = {
+    pending:   { bg: '#fff8e1', color: '#f59e0b', label: t('reservations.pending') },
+    confirmed: { bg: '#f0fff4', color: '#22c55e', label: t('reservations.confirmed') },
+    cancelled: { bg: '#fff0f0', color: '#ef4444', label: t('reservations.cancelled') },
+    completed: { bg: '#f0f7f9', color: '#0F4C5C', label: t('reservations.completed') },
+  };
+
+  const FILTER_LABELS = {
+    all: t('ownerReservations.all'),
+    pending: t('reservations.pending'),
+    confirmed: t('reservations.confirmed'),
+    cancelled: t('reservations.cancelled'),
+    completed: t('reservations.completed'),
+  };
 
   useEffect(() => {
     if (!user || user.role !== 'owner') { navigate('/'); return; }
@@ -36,20 +46,20 @@ export default function OwnerReservations() {
       await reservationService.confirm(id);
       setReservations(prev => prev.map(r => r.id === id ? { ...r, status: 'confirmed' } : r));
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to confirm.');
+      alert(err.response?.data?.error || t('ownerReservations.confirmFailed'));
     } finally {
       setProcessing(null);
     }
   };
 
   const handleCancel = async (id) => {
-    if (!window.confirm('Cancel this reservation?')) return;
+    if (!window.confirm(t('reservations.cancelConfirm'))) return;
     setProcessing(id + '_cancel');
     try {
       await reservationService.cancel(id);
       setReservations(prev => prev.map(r => r.id === id ? { ...r, status: 'cancelled' } : r));
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to cancel.');
+      alert(err.response?.data?.error || t('reservations.cancelFailed'));
     } finally {
       setProcessing(null);
     }
@@ -64,7 +74,7 @@ export default function OwnerReservations() {
       });
       navigate(`/messages/${conversation.id}`);
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to open chat.');
+      alert(err.response?.data?.error || t('ownerReservations.chatFailed'));
     } finally {
       setMessaging(null);
     }
@@ -89,16 +99,16 @@ export default function OwnerReservations() {
       <Navbar />
 
       <div style={s.container}>
-        <div style={s.header}>
+        <div style={s.header} className="owner-res-header">
           <div>
-            <h1 style={s.pageTitle}>Bookings</h1>
-            <p style={s.pageSub}>Manage reservations for your listings</p>
+            <h1 style={s.pageTitle}>{t('ownerReservations.title')}</h1>
+            <p style={s.pageSub}>{t('ownerReservations.subtitle')}</p>
           </div>
-          <Link to="/owner" style={s.listingsLink}>My listings →</Link>
+          <Link to="/owner" style={s.listingsLink}>{t('ownerReservations.myListings')}</Link>
         </div>
 
         {/* Stats */}
-        <div style={s.statsRow}>
+        <div style={s.statsRow} className="owner-res-stats">
           {Object.entries(STATUS_COLORS).map(([key, val]) => (
             <div key={key} style={s.statCard}>
               <span style={{ ...s.statNum, color: val.color }}>{counts[key] || 0}</span>
@@ -108,11 +118,11 @@ export default function OwnerReservations() {
         </div>
 
         {/* Filter tabs */}
-        <div style={s.tabs}>
+        <div style={s.tabs} className="owner-res-tabs">
           {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map(f => (
             <button key={f} onClick={() => setFilter(f)}
               style={{ ...s.tab, ...(filter === f ? s.tabActive : {}) }}>
-              {f.charAt(0).toUpperCase() + f.slice(1)}
+              {FILTER_LABELS[f]}
               {f !== 'all' && counts[f] ? <span style={s.tabBadge}>{counts[f]}</span> : null}
             </button>
           ))}
@@ -121,7 +131,7 @@ export default function OwnerReservations() {
         {filtered.length === 0 ? (
           <div style={s.empty}>
             <Calendar size={48} color="#ddd" strokeWidth={1} style={{ marginBottom: 12 }} />
-            <p style={s.emptyText}>No {filter === 'all' ? '' : filter} reservations.</p>
+            <p style={s.emptyText}>{t('ownerReservations.noReservations')}</p>
           </div>
         ) : (
           <div style={s.list}>
@@ -139,27 +149,27 @@ export default function OwnerReservations() {
                     <span style={{ ...s.badge, backgroundColor: st.bg, color: st.color }}>{st.label}</span>
                   </div>
 
-                  <div style={s.cardGrid}>
+                  <div style={s.cardGrid} className="owner-res-card-grid">
                     <div style={s.infoBlock}>
-                      <span style={s.infoLabel}>Dates</span>
+                      <span style={s.infoLabel}>{t('ownerReservations.dates')}</span>
                       <span style={s.infoVal}>
                         <Calendar size={13} style={{ marginRight: 4 }} />
-                        {formatDate(r.check_in)} → {formatDate(r.check_out)} · {n} night{n !== 1 ? 's' : ''}
+                        {formatDate(r.check_in)} → {formatDate(r.check_out)} · {n} {n !== 1 ? t('booking.nights') : t('booking.night')}
                       </span>
                     </div>
                     <div style={s.infoBlock}>
-                      <span style={s.infoLabel}>Guests</span>
+                      <span style={s.infoLabel}>{t('ownerReservations.guestsLabel')}</span>
                       <span style={s.infoVal}><Users size={13} style={{ marginRight: 4 }} />{r.guests}</span>
                     </div>
                     <div style={s.infoBlock}>
-                      <span style={s.infoLabel}>Payment</span>
+                      <span style={s.infoLabel}>{t('ownerReservations.payment')}</span>
                       <span style={s.infoVal}>
                         {r.payment_method === 'online' ? <CreditCard size={13} style={{ marginRight: 4 }} /> : <Banknote size={13} style={{ marginRight: 4 }} />}
-                        {r.payment_method === 'online' ? 'Online' : 'On arrival'}
+                        {r.payment_method === 'online' ? t('ownerReservations.online') : t('ownerReservations.onArrival')}
                       </span>
                     </div>
                     <div style={s.infoBlock}>
-                      <span style={s.infoLabel}>Total</span>
+                      <span style={s.infoLabel}>{t('ownerReservations.total')}</span>
                       <span style={{ ...s.infoVal, fontWeight: 700, color: '#0F4C5C' }}>${Number(r.total_price).toFixed(2)}</span>
                     </div>
                   </div>
@@ -171,27 +181,27 @@ export default function OwnerReservations() {
                       {r.guest_phone && <a href={`tel:${r.guest_phone}`} style={s.guestContact}><Phone size={13} /> {r.guest_phone}</a>}
                     </div>
                     {(r.status === 'confirmed' || r.status === 'completed') && (
-                      <div style={{ display: 'flex', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         <button onClick={() => handleMessageGuest(r)} disabled={messaging === r.id} style={s.messageBtn}>
                           <MessageCircle size={14} style={{ marginRight: 4 }} />
-                          {messaging === r.id ? 'Opening...' : 'Message guest'}
+                          {messaging === r.id ? t('ownerReservations.opening') : t('ownerReservations.messageGuest')}
                         </button>
                         {r.status === 'confirmed' && (
                           <button onClick={() => handleCancel(r.id)} disabled={!!processing} style={s.declineBtn}>
-                            <X size={14} style={{ marginRight: 4 }} />Cancel
+                            <X size={14} style={{ marginRight: 4 }} />{t('ownerReservations.cancelBtn')}
                           </button>
                         )}
                       </div>
                     )}
                     {r.status === 'pending' && (
-                      <div style={{ display: 'flex', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         <button
                           onClick={() => handleConfirm(r.id)}
                           disabled={!!processing}
                           style={s.confirmBtn}
                         >
                           <Check size={14} style={{ marginRight: 4 }} />
-                          {processing === r.id + '_confirm' ? 'Confirming...' : 'Confirm'}
+                          {processing === r.id + '_confirm' ? t('ownerReservations.confirming') : t('ownerReservations.confirm')}
                         </button>
                         <button
                           onClick={() => handleCancel(r.id)}
@@ -199,7 +209,7 @@ export default function OwnerReservations() {
                           style={s.declineBtn}
                         >
                           <X size={14} style={{ marginRight: 4 }} />
-                          {processing === r.id + '_cancel' ? 'Declining...' : 'Decline'}
+                          {processing === r.id + '_cancel' ? t('ownerReservations.declining') : t('ownerReservations.decline')}
                         </button>
                       </div>
                     )}
@@ -210,6 +220,16 @@ export default function OwnerReservations() {
           </div>
         )}
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .owner-res-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+          .owner-res-stats { flex-wrap: wrap; }
+          .owner-res-stats > div { flex: 1 1 40%; }
+          .owner-res-tabs { overflow-x: auto; white-space: nowrap; }
+          .owner-res-card-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -228,7 +248,7 @@ const s = {
   statNum: { display: 'block', fontSize: 24, fontWeight: 800 },
   statLabel: { fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px' },
   tabs: { display: 'flex', gap: 4, marginBottom: 20, borderBottom: '1px solid #ebebeb', paddingBottom: 0 },
-  tab: { padding: '8px 16px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 14, color: '#888', fontWeight: 500, borderBottom: '2px solid transparent', fontFamily: "'Segoe UI', sans-serif", display: 'flex', alignItems: 'center', gap: 6 },
+  tab: { padding: '8px 16px', border: 'none', background: 'none', cursor: 'pointer', fontSize: 14, color: '#888', fontWeight: 500, borderBottom: '2px solid transparent', fontFamily: "'Segoe UI', sans-serif", display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 },
   tabActive: { color: '#0F4C5C', fontWeight: 700, borderBottomColor: '#0F4C5C' },
   tabBadge: { backgroundColor: '#0F4C5C', color: '#fff', fontSize: 11, fontWeight: 700, borderRadius: 10, padding: '1px 7px' },
   empty: { textAlign: 'center', padding: '60px 0' },

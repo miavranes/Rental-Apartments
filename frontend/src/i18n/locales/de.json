@@ -7,7 +7,10 @@
     "bookings": "Buchungen",
     "signOut": "Abmelden",
     "logIn": "Anmelden",
-    "signUp": "Registrieren"
+    "signUp": "Registrieren",
+    "messages": "Nachrichten",
+    "analytics": "Analysen",
+    "favorites": "Favoriten"
   },
   "home": {
     "heroTitle": "Finde deine nächste Unterkunft",
@@ -99,7 +102,8 @@
     "backToHome": "Zurück zur Startseite",
     "ownListing": "Das ist dein Angebot",
     "ownListingSub": "Du kannst dein eigenes Apartment nicht buchen.",
-    "pay": "Zahlen"
+    "pay": "Zahlen",
+    "guest": "Gast"
   },
   "auth": {
     "welcomeBack": "Willkommen zurück",
@@ -169,7 +173,11 @@
     "cancelConfirm": "Diese Reservierung stornieren?",
     "leaveReview": "Bewertung hinterlassen",
     "checkIn": "Anreise",
-    "checkOut": "Abreise"
+    "checkOut": "Abreise",
+    "messageHost": "Nachricht an Gastgeber",
+    "opening": "Öffne...",
+    "chatFailed": "Chat konnte nicht geöffnet werden.",
+    "cancelFailed": "Stornierung fehlgeschlagen."
   },
   "ownerReservations": {
     "title": "Buchungen",
@@ -187,7 +195,11 @@
     "declining": "Ablehne...",
     "cancelBtn": "Stornieren",
     "all": "Alle",
-    "noReservations": "Keine Reservierungen."
+    "noReservations": "Keine Reservierungen.",
+    "messageGuest": "Nachricht an Gast",
+    "opening": "Öffne...",
+    "chatFailed": "Chat konnte nicht geöffnet werden.",
+    "confirmFailed": "Bestätigung fehlgeschlagen."
   },
   "owner": {
     "myListings": "Meine Angebote",
@@ -238,7 +250,8 @@
     "comment": "Kommentar",
     "commentPlaceholder": "Teile deine Erfahrung...",
     "submit": "Bewertung abschicken",
-    "submitting": "Wird abgeschickt..."
+    "submitting": "Wird abgeschickt...",
+    "failed": "Bewertung konnte nicht gesendet werden."
   },
   "amenities": {
     "wifi": "WLAN",
@@ -265,5 +278,48 @@
   "common": {
     "error": "Etwas ist schiefgelaufen.",
     "copyright": "Rentura. Alle Rechte vorbehalten."
+  },
+  "chat": {
+    "title": "Nachrichten",
+    "noConversations": "Noch keine Unterhaltungen.",
+    "selectConversation": "Wähle eine Unterhaltung, um zu chatten.",
+    "noMessages": "Noch keine Nachrichten. Sag Hallo!",
+    "placeholder": "Nachricht schreiben...",
+    "sendFailed": "Nachricht konnte nicht gesendet werden.",
+    "back": "Zurück"
+  },
+  "analytics": {
+    "title": "Analysen",
+    "subtitle": "Behalte Einnahmen, Auslastung und Buchungstrends für alle Angebote im Blick.",
+    "totalEarnings": "Gesamteinnahmen",
+    "earningsHint": "aus nicht stornierten Buchungen",
+    "occupancyRate": "Auslastung",
+    "occupancyHint30d": "letzte 30 Tage, über",
+    "listingsSuffix": "Angebot",
+    "listingsSuffixPlural": "Angebote",
+    "avgNightlyRate": "Ø Preis pro Nacht",
+    "nightlyHint": "verdient pro gebuchter Nacht",
+    "totalBookings": "Buchungen gesamt",
+    "revenueByMonth": "Einnahmen pro Monat",
+    "bookingsByMonth": "Buchungen pro Monat",
+    "occupancyByMonth": "Auslastung pro Monat",
+    "listingPerformance": "Leistung der Angebote",
+    "noListings": "Noch keine Angebote.",
+    "colListing": "Angebot",
+    "colBookings": "Buchungen",
+    "colEarnings": "Einnahmen",
+    "colOccupancy": "Auslastung (30T)",
+    "colRating": "Bewertung",
+    "colFavorites": "Favoriten",
+    "loadFailed": "Analysen konnten nicht geladen werden.",
+    "statusBreakdown": "bestätigt · abgeschlossen · ausstehend · storniert"
+  },
+  "footer": {
+    "tagline": "Finde die perfekte Unterkunft für deine nächste Reise.",
+    "quickLinks": "Schnellzugriff",
+    "home": "Startseite",
+    "browse": "Wohnungen durchsuchen",
+    "contact": "Kontakt",
+    "rights": "Alle Rechte vorbehalten."
   }
 }

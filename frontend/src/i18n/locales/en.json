@@ -7,7 +7,10 @@
     "bookings": "Bookings",
     "signOut": "Sign out",
     "logIn": "Log in",
-    "signUp": "Sign up"
+    "signUp": "Sign up",
+    "messages": "Messages",
+    "analytics": "Analytics",
+    "favorites": "Favorites"
   },
   "home": {
     "heroTitle": "Find your next stay",
@@ -99,7 +102,8 @@
     "backToHome": "Back to home",
     "ownListing": "This is your listing",
     "ownListingSub": "You can't book your own apartment.",
-    "pay": "Pay"
+    "pay": "Pay",
+    "guest": "guest"
   },
   "auth": {
     "welcomeBack": "Welcome back",
@@ -169,7 +173,11 @@
     "cancelConfirm": "Cancel this reservation?",
     "leaveReview": "Leave review",
     "checkIn": "Check in",
-    "checkOut": "Check out"
+    "checkOut": "Check out",
+    "messageHost": "Message host",
+    "opening": "Opening...",
+    "chatFailed": "Failed to open chat.",
+    "cancelFailed": "Failed to cancel."
   },
   "ownerReservations": {
     "title": "Bookings",
@@ -187,7 +195,11 @@
     "declining": "Declining...",
     "cancelBtn": "Cancel",
     "all": "All",
-    "noReservations": "No reservations."
+    "noReservations": "No reservations.",
+    "messageGuest": "Message guest",
+    "opening": "Opening...",
+    "chatFailed": "Failed to open chat.",
+    "confirmFailed": "Failed to confirm."
   },
   "owner": {
     "myListings": "My listings",
@@ -238,7 +250,8 @@
     "comment": "Comment",
     "commentPlaceholder": "Share your experience...",
     "submit": "Submit review",
-    "submitting": "Submitting..."
+    "submitting": "Submitting...",
+    "failed": "Failed to submit review."
   },
   "amenities": {
     "wifi": "WiFi",
@@ -265,5 +278,48 @@
   "common": {
     "error": "Something went wrong.",
     "copyright": "Rentura. All rights reserved."
+  },
+  "chat": {
+    "title": "Messages",
+    "noConversations": "No conversations yet.",
+    "selectConversation": "Select a conversation to start chatting.",
+    "noMessages": "No messages yet. Say hello!",
+    "placeholder": "Write a message...",
+    "sendFailed": "Failed to send message.",
+    "back": "Back"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Track your earnings, occupancy, and booking trends across all listings.",
+    "totalEarnings": "Total earnings",
+    "earningsHint": "from non-cancelled bookings",
+    "occupancyRate": "Occupancy rate",
+    "occupancyHint30d": "last 30 days, across",
+    "listingsSuffix": "listing",
+    "listingsSuffixPlural": "listings",
+    "avgNightlyRate": "Avg. nightly rate",
+    "nightlyHint": "earned per booked night",
+    "totalBookings": "Total bookings",
+    "revenueByMonth": "Revenue by month",
+    "bookingsByMonth": "Bookings by month",
+    "occupancyByMonth": "Occupancy rate by month",
+    "listingPerformance": "Listing performance",
+    "noListings": "No listings yet.",
+    "colListing": "Listing",
+    "colBookings": "Bookings",
+    "colEarnings": "Earnings",
+    "colOccupancy": "Occupancy (30d)",
+    "colRating": "Rating",
+    "colFavorites": "Favorites",
+    "loadFailed": "Failed to load analytics.",
+    "statusBreakdown": "confirmed · completed · pending · cancelled"
+  },
+  "footer": {
+    "tagline": "Find the perfect stay for your next journey.",
+    "quickLinks": "Quick Links",
+    "home": "Home",
+    "browse": "Browse apartments",
+    "contact": "Contact",
+    "rights": "All rights reserved."
   }
 }

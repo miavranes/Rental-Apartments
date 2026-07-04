@@ -13,6 +13,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Favorites from './pages/Favorites';
 import Messages from './pages/Messages';
+import Analytics from './pages/Analytics';
+import Footer from './components/Footer';
 
 export default function App() {
   return (
@@ -30,10 +32,12 @@ export default function App() {
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/messages/:id" element={<Messages />} />
+          <Route path="/owner/analytics" element={<Analytics />} />
           <Route path="/owner/reservations" element={<OwnerReservations />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} /> 
         </Routes>
+        <Footer />
       </AuthProvider>
     </BrowserRouter>
   );

@@ -649,10 +649,6 @@ export default function ApartmentDetail() {
           </div>
         </div>
       </div>
-
-      <footer style={s.footer}>
-        <span style={s.footerText}>© {new Date().getFullYear()} Rentura. All rights reserved.</span>
-      </footer>
     </div>
   );
 }
@@ -690,6 +686,4 @@ const s = {
   reviewComment: { margin: 0, fontSize: 14, color: '#555', lineHeight: 1.65 },
   loadingPage: { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, fontFamily: "'Segoe UI', sans-serif" },
   spinner: { width: 36, height: 36, border: '3px solid #e0e0e0', borderTop: '3px solid #0F4C5C', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
-  footer: { borderTop: '1px solid #ebebeb', padding: 28, textAlign: 'center', backgroundColor: '#fff' },
-  footerText: { fontSize: 13, color: '#bbb' },
 };

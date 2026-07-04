@@ -44,11 +44,11 @@ export default function Login() {
           <h2 style={styles.title}>{t('auth.welcomeBack')}</h2>
           <p style={styles.subtitle}>{t('auth.signInAccount')}</p>
           {error && <div style={styles.error}>{error}</div>}
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
             <div style={styles.field}>
               <label style={styles.label}>{t('auth.email')}</label>
               <input type="email" name="email" value={form.email} onChange={handleChange}
-                placeholder="your@email.com" required style={styles.input}
+                placeholder="your@email.com" required style={styles.input} autoComplete="off"
                 onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                 onBlur={e => e.target.style.borderColor = '#ddd'} />
             </div>
@@ -57,7 +57,7 @@ export default function Login() {
               <div style={styles.inputWrapper}>
                 <input type={showPassword ? 'text' : 'password'} name="password"
                   value={form.password} onChange={handleChange}
-                  placeholder="••••••••" required style={styles.input}
+                  placeholder="••••••••" required style={styles.input} autoComplete="new-password"
                   onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                   onBlur={e => e.target.style.borderColor = '#ddd'} />
                 <button type="button" onClick={() => setShowPassword(v => !v)} style={styles.eyeBtn} tabIndex={-1}>

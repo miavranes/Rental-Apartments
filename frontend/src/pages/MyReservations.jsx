@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import reservationService from '../services/reservationService';
 import reviewService from '../services/reviewService';
@@ -9,14 +10,7 @@ import chatService from '../services/chatService';
 
 const BASE = 'http://localhost:5000/uploads/';
 
-const STATUS_COLORS = {
-  pending:   { bg: '#fff8e1', color: '#f59e0b', label: 'Pending' },
-  confirmed: { bg: '#f0fff4', color: '#22c55e', label: 'Confirmed' },
-  cancelled: { bg: '#fff0f0', color: '#ef4444', label: 'Cancelled' },
-  completed: { bg: '#f0f7f9', color: '#0F4C5C', label: 'Completed' },
-};
-
-function ReviewModal({ reservation, onClose, onSubmit }) {
+function ReviewModal({ reservation, onClose, onSubmit, t }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +23,7 @@ function ReviewModal({ reservation, onClose, onSubmit }) {
       await onSubmit({ reservation_id: reservation.id, apartment_id: reservation.apartment_id, rating, comment });
       onClose();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to submit review.');
+      setError(err.response?.data?.error || t('review.failed'));
     } finally {
       setLoading(false);
     }
@@ -39,7 +33,7 @@ function ReviewModal({ reservation, onClose, onSubmit }) {
     <div style={s.overlay} onClick={onClose}>
       <div style={s.modal} onClick={e => e.stopPropagation()}>
         <div style={s.modalHeader}>
-          <h3 style={s.modalTitle}>Leave a review</h3>
+          <h3 style={s.modalTitle}>{t('review.leaveReview')}</h3>
           <button onClick={onClose} style={s.closeBtn}><X size={20} /></button>
         </div>
         <p style={{ fontSize: 14, color: '#888', margin: '0 0 20px' }}>{reservation.title}</p>
@@ -48,7 +42,7 @@ function ReviewModal({ reservation, onClose, onSubmit }) {
 
         <form onSubmit={handleSubmit}>
           <div style={s.field}>
-            <label style={s.label}>Rating</label>
+            <label style={s.label}>{t('review.rating', 'Rating')}</label>
             <div style={{ display: 'flex', gap: 8 }}>
               {[1,2,3,4,5].map(n => (
                 <button key={n} type="button" onClick={() => setRating(n)}
@@ -59,11 +53,11 @@ function ReviewModal({ reservation, onClose, onSubmit }) {
             </div>
           </div>
           <div style={s.field}>
-            <label style={s.label}>Comment</label>
+            <label style={s.label}>{t('review.comment', 'Comment')}</label>
             <textarea
               value={comment}
               onChange={e => setComment(e.target.value)}
-              placeholder="Share your experience..."
+              placeholder={t('review.commentPlaceholder', 'Share your experience...')}
               required
               style={{ ...s.input, height: 100, resize: 'vertical' }}
               onFocus={e => e.target.style.borderColor = '#0F4C5C'}
@@ -71,7 +65,7 @@ function ReviewModal({ reservation, onClose, onSubmit }) {
             />
           </div>
           <button type="submit" disabled={loading} style={s.submitBtn}>
-            {loading ? 'Submitting...' : 'Submit review'}
+            {loading ? t('review.submitting', 'Submitting...') : t('review.submit', 'Submit review')}
           </button>
         </form>
       </div>
@@ -82,12 +76,20 @@ function ReviewModal({ reservation, onClose, onSubmit }) {
 export default function MyReservations() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reviewTarget, setReviewTarget] = useState(null);
   const [reviewed, setReviewed] = useState(new Set());
   const [cancelling, setCancelling] = useState(null);
   const [messaging, setMessaging] = useState(null);
+
+  const STATUS_COLORS = {
+    pending:   { bg: '#fff8e1', color: '#f59e0b', label: t('reservations.pending') },
+    confirmed: { bg: '#f0fff4', color: '#22c55e', label: t('reservations.confirmed') },
+    cancelled: { bg: '#fff0f0', color: '#ef4444', label: t('reservations.cancelled') },
+    completed: { bg: '#f0f7f9', color: '#0F4C5C', label: t('reservations.completed') },
+  };
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -98,13 +100,13 @@ export default function MyReservations() {
   }, [user, navigate]);
 
   const handleCancel = async (id) => {
-    if (!window.confirm('Cancel this reservation?')) return;
+    if (!window.confirm(t('reservations.cancelConfirm'))) return;
     setCancelling(id);
     try {
       await reservationService.cancel(id);
       setReservations(prev => prev.map(r => r.id === id ? { ...r, status: 'cancelled' } : r));
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to cancel.');
+      alert(err.response?.data?.error || t('reservations.cancelFailed'));
     } finally {
       setCancelling(null);
     }
@@ -121,7 +123,7 @@ export default function MyReservations() {
       const conversation = await chatService.startConversation({ apartment_id: r.apartment_id });
       navigate(`/messages/${conversation.id}`);
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to open chat.');
+      alert(err.response?.data?.error || t('reservations.chatFailed'));
     } finally {
       setMessaging(null);
     }
@@ -142,15 +144,17 @@ export default function MyReservations() {
       <Navbar />
 
       <div style={s.container}>
-        <h1 style={s.pageTitle}>My Bookings</h1>
-        <p style={s.pageSub}>{reservations.length} booking{reservations.length !== 1 ? 's' : ''} total</p>
+        <h1 style={s.pageTitle}>{t('reservations.myBookings')}</h1>
+        <p style={s.pageSub}>
+          {reservations.length} {reservations.length !== 1 ? t('reservations.bookingsTotalPlural') : t('reservations.bookingsTotal')}
+        </p>
 
         {reservations.length === 0 ? (
           <div style={s.empty}>
             <Calendar size={56} color="#ddd" strokeWidth={1} style={{ marginBottom: 16 }} />
-            <h3 style={s.emptyTitle}>No bookings yet</h3>
-            <p style={s.emptySub}>Find a place to stay and make your first reservation.</p>
-            <Link to="/apartments" style={s.browseBtn}>Browse apartments</Link>
+            <h3 style={s.emptyTitle}>{t('reservations.noBookings')}</h3>
+            <p style={s.emptySub}>{t('reservations.noBookingsSub')}</p>
+            <Link to="/apartments" style={s.browseBtn}>{t('reservations.browseApartments')}</Link>
           </div>
         ) : (
           <div style={s.list}>
@@ -162,8 +166,8 @@ export default function MyReservations() {
               const canMessage = r.status === 'confirmed' || r.status === 'completed';
 
               return (
-                <div key={r.id} style={s.card}>
-                  <div style={s.cardImg}>
+                <div key={r.id} style={s.card} className="my-res-card">
+                  <div style={s.cardImg} className="my-res-card-img">
                     {r.primary_image
                       ? <img src={BASE + r.primary_image} alt={r.title} style={s.img} />
                       : <div style={s.imgPlaceholder} />}
@@ -179,28 +183,28 @@ export default function MyReservations() {
 
                     <div style={s.metaRow}>
                       <span style={s.meta}><Calendar size={13} /> {formatDate(r.check_in)} → {formatDate(r.check_out)}</span>
-                      <span style={s.meta}><Users size={13} /> {r.guests} guest{r.guests !== 1 ? 's' : ''}</span>
+                      <span style={s.meta}><Users size={13} /> {r.guests} {r.guests !== 1 ? t('booking.guests').toLowerCase() : t('booking.guest')}</span>
                       <span style={s.meta}>
                         {r.payment_method === 'online' ? <CreditCard size={13} /> : <Banknote size={13} />}
-                        {' '}{r.payment_method === 'online' ? 'Online payment' : 'Pay on arrival'}
+                        {' '}{r.payment_method === 'online' ? t('reservations.online') : t('reservations.onArrival')}
                       </span>
                     </div>
 
-                    <div style={s.cardBottom}>
+                    <div style={s.cardBottom} className="my-res-card-bottom">
                       <div>
                         <span style={s.price}>${Number(r.total_price).toFixed(2)}</span>
-                        <span style={s.priceNights}> · {n} night{n !== 1 ? 's' : ''}</span>
+                        <span style={s.priceNights}> · {n} {n !== 1 ? t('booking.nights', 'nights') : t('booking.night', 'night')}</span>
                       </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         {canMessage && (
                           <button onClick={() => handleMessageHost(r)} disabled={messaging === r.id} style={s.messageBtn}>
                             <MessageCircle size={14} style={{ marginRight: 4 }} />
-                            {messaging === r.id ? 'Opening...' : 'Message host'}
+                            {messaging === r.id ? t('reservations.opening') : t('reservations.messageHost')}
                           </button>
                         )}
                         {canReview && (
                           <button onClick={() => setReviewTarget(r)} style={s.reviewBtn}>
-                            <Star size={14} style={{ marginRight: 4 }} />Leave review
+                            <Star size={14} style={{ marginRight: 4 }} />{t('reservations.leaveReview')}
                           </button>
                         )}
                         {canCancel && (
@@ -209,7 +213,7 @@ export default function MyReservations() {
                             disabled={cancelling === r.id}
                             style={s.cancelBtn}
                           >
-                            {cancelling === r.id ? 'Cancelling...' : 'Cancel'}
+                            {cancelling === r.id ? t('reservations.cancelling') : t('reservations.cancel')}
                           </button>
                         )}
                       </div>
@@ -227,8 +231,17 @@ export default function MyReservations() {
           reservation={reviewTarget}
           onClose={() => setReviewTarget(null)}
           onSubmit={handleReview}
+          t={t}
         />
       )}
+
+      <style>{`
+        @media (max-width: 640px) {
+          .my-res-card { flex-direction: column; }
+          .my-res-card-img { width: 100% !important; height: 180px; }
+          .my-res-card-bottom { flex-direction: column; align-items: flex-start !important; gap: 12px; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -249,14 +262,14 @@ const s = {
   cardImg: { width: 160, flexShrink: 0 },
   img: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
   imgPlaceholder: { width: '100%', height: '100%', backgroundColor: '#f0f0f0' },
-  cardBody: { flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10 },
+  cardBody: { flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 },
   cardTop: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
   aptTitle: { fontSize: 16, fontWeight: 700, color: '#0F4C5C', textDecoration: 'none', display: 'block', marginBottom: 4 },
   aptLocation: { fontSize: 13, color: '#888', display: 'flex', alignItems: 'center', margin: 0 },
   badge: { fontSize: 12, fontWeight: 700, padding: '4px 10px', borderRadius: 20, flexShrink: 0 },
   metaRow: { display: 'flex', gap: 16, flexWrap: 'wrap' },
   meta: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: '#666' },
-  cardBottom: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
+  cardBottom: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, flexWrap: 'wrap', gap: 12 },
   price: { fontSize: 18, fontWeight: 800, color: '#0F4C5C' },
   priceNights: { fontSize: 13, color: '#888' },
   reviewBtn: { display: 'flex', alignItems: 'center', padding: '8px 14px', backgroundColor: '#f0f7f9', color: '#0F4C5C', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
@@ -264,7 +277,7 @@ const s = {
   cancelBtn: { padding: '8px 14px', backgroundColor: '#fff0f0', color: '#ef4444', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
   // Modal
   overlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 },
-  modal: { backgroundColor: '#fff', borderRadius: 20, padding: 32, width: '100%', maxWidth: 480 },
+  modal: { backgroundColor: '#fff', borderRadius: 20, padding: 32, width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto', boxSizing: 'border-box' },
   modalHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
   modalTitle: { fontSize: 20, fontWeight: 800, color: '#0F4C5C', margin: 0 },
   closeBtn: { background: 'none', border: 'none', cursor: 'pointer', color: '#888', padding: 4 },

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import chatService from '../services/chatService';
 import Navbar from '../components/Navbar';
-import { Send, MessageCircle, MapPin } from 'lucide-react';
+import { Send, MessageCircle, MapPin, ArrowLeft } from 'lucide-react';
 
 const CONV_POLL_MS = 10000;
 const MSG_POLL_MS = 4000;
@@ -11,6 +12,7 @@ const MSG_POLL_MS = 4000;
 export default function Messages() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { id } = useParams();
   const activeId = id ? Number(id) : null;
 
@@ -74,7 +76,7 @@ export default function Messages() {
       setMessages(prev => [...prev, msg]);
       loadConversations();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to send message.');
+      alert(err.response?.data?.error || t('chat.sendFailed'));
       setDraft(body);
     } finally {
       setSending(false);
@@ -89,19 +91,28 @@ export default function Messages() {
   return (
     <div style={s.page}>
       <Navbar />
-      <div style={s.container}>
-        <div style={s.panel}>
+      <style>{`
+        @media (max-width: 760px) {
+          .messages-panel { height: calc(100vh - 60px) !important; border-radius: 0 !important; border-left: none !important; border-right: none !important; }
+          .messages-container { padding: 0 !important; max-width: 100% !important; }
+          .messages-sidebar { display: ${activeId ? 'none' : 'flex'} !important; width: 100% !important; border-right: none !important; }
+          .messages-thread { display: ${activeId ? 'flex' : 'none'} !important; width: 100% !important; }
+          .messages-back-btn { display: inline-flex !important; }
+        }
+      `}</style>
+      <div style={s.container} className="messages-container">
+        <div style={s.panel} className="messages-panel">
           {/* Conversation list */}
-          <div style={s.sidebar}>
+          <div style={s.sidebar} className="messages-sidebar">
             <div style={s.sidebarHeader}>
-              <h2 style={s.sidebarTitle}>Messages</h2>
+              <h2 style={s.sidebarTitle}>{t('chat.title')}</h2>
             </div>
             {loadingConvs ? (
               <div style={s.loading}><div style={s.spinner} /></div>
             ) : conversations.length === 0 ? (
               <div style={s.empty}>
                 <MessageCircle size={40} color="#ddd" strokeWidth={1} style={{ marginBottom: 10 }} />
-                <p style={s.emptyText}>No conversations yet.</p>
+                <p style={s.emptyText}>{t('chat.noConversations')}</p>
               </div>
             ) : (
               <div style={s.convList}>
@@ -128,15 +139,23 @@ export default function Messages() {
           </div>
 
           {/* Thread */}
-          <div style={s.thread}>
+          <div style={s.thread} className="messages-thread">
             {!activeConv ? (
               <div style={s.noThread}>
                 <MessageCircle size={48} color="#ddd" strokeWidth={1} />
-                <p style={s.noThreadText}>Select a conversation to start chatting.</p>
+                <p style={s.noThreadText}>{t('chat.selectConversation')}</p>
               </div>
             ) : (
               <>
                 <div style={s.threadHeader}>
+                  <button
+                    className="messages-back-btn"
+                    onClick={() => navigate('/messages')}
+                    style={s.backBtn}
+                    aria-label={t('chat.back')}
+                  >
+                    <ArrowLeft size={18} />
+                  </button>
                   <div>
                     <div style={s.threadName}>{otherPartyName(activeConv)}</div>
                     <Link to={`/apartments/${activeConv.apartment_id}`} style={s.threadApt}>
@@ -149,7 +168,7 @@ export default function Messages() {
                   {loadingMsgs ? (
                     <div style={s.loading}><div style={s.spinner} /></div>
                   ) : messages.length === 0 ? (
-                    <p style={s.noMsgs}>No messages yet. Say hello!</p>
+                    <p style={s.noMsgs}>{t('chat.noMessages')}</p>
                   ) : (
                     messages.map(m => {
                       const mine = m.sender_id === user.id;
@@ -172,7 +191,7 @@ export default function Messages() {
                   <input
                     value={draft}
                     onChange={e => setDraft(e.target.value)}
-                    placeholder="Write a message..."
+                    placeholder={t('chat.placeholder')}
                     style={s.input}
                   />
                   <button type="submit" disabled={!draft.trim() || sending} style={s.sendBtn}>
@@ -212,7 +231,8 @@ const s = {
   convApt: { fontSize: 12, color: '#999', display: 'flex', alignItems: 'center' },
   convPreview: { fontSize: 12.5, color: '#777', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   thread: { flex: 1, display: 'flex', flexDirection: 'column' },
-  threadHeader: { padding: '16px 24px', borderBottom: '1px solid #ebebeb' },
+  threadHeader: { padding: '16px 24px', borderBottom: '1px solid #ebebeb', display: 'flex', alignItems: 'center', gap: 12 },
+  backBtn: { display: 'none', background: 'none', border: 'none', cursor: 'pointer', color: '#0F4C5C', padding: 4, flexShrink: 0 },
   threadName: { fontSize: 15, fontWeight: 700, color: '#0F4C5C' },
   threadApt: { fontSize: 12.5, color: '#0F4C5C', textDecoration: 'none', borderBottom: '1px solid #E8A87C' },
   messagesArea: { flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10 },

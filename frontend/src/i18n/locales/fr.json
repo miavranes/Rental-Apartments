@@ -7,7 +7,10 @@
     "bookings": "Reservations",
     "signOut": "Se deconnecter",
     "logIn": "Connexion",
-    "signUp": "Inscription"
+    "signUp": "Inscription",
+    "messages": "Messages",
+    "analytics": "Analytique",
+    "favorites": "Favoris"
   },
   "home": {
     "heroTitle": "Trouvez votre prochain sejour",
@@ -99,7 +102,8 @@
     "backToHome": "Retour a l'accueil",
     "ownListing": "Ceci est votre annonce",
     "ownListingSub": "Vous ne pouvez pas reserver votre propre appartement.",
-    "pay": "Payer"
+    "pay": "Payer",
+    "guest": "voyageur"
   },
   "auth": {
     "welcomeBack": "Bon retour",
@@ -169,7 +173,11 @@
     "cancelConfirm": "Annuler cette reservation ?",
     "leaveReview": "Laisser un avis",
     "checkIn": "Arrivee",
-    "checkOut": "Depart"
+    "checkOut": "Depart",
+    "messageHost": "Message a l'hote",
+    "opening": "Ouverture...",
+    "chatFailed": "Impossible d'ouvrir la conversation.",
+    "cancelFailed": "Echec de l'annulation."
   },
   "ownerReservations": {
     "title": "Reservations",
@@ -187,7 +195,11 @@
     "declining": "Refus...",
     "cancelBtn": "Annuler",
     "all": "Toutes",
-    "noReservations": "Aucune reservation."
+    "noReservations": "Aucune reservation.",
+    "messageGuest": "Message a l'invite",
+    "opening": "Ouverture...",
+    "chatFailed": "Impossible d'ouvrir la conversation.",
+    "confirmFailed": "Echec de la confirmation."
   },
   "owner": {
     "myListings": "Mes annonces",
@@ -238,7 +250,8 @@
     "comment": "Commentaire",
     "commentPlaceholder": "Partagez votre experience...",
     "submit": "Envoyer l'avis",
-    "submitting": "Envoi..."
+    "submitting": "Envoi...",
+    "failed": "Echec de l'envoi de l'avis."
   },
   "amenities": {
     "wifi": "WiFi",
@@ -265,5 +278,48 @@
   "common": {
     "error": "Une erreur est survenue.",
     "copyright": "Rentura. Tous droits reserves."
+  },
+  "chat": {
+    "title": "Messages",
+    "noConversations": "Aucune conversation pour le moment.",
+    "selectConversation": "Selectionnez une conversation pour discuter.",
+    "noMessages": "Aucun message. Dites bonjour !",
+    "placeholder": "Ecrire un message...",
+    "sendFailed": "Echec de l'envoi du message.",
+    "back": "Retour"
+  },
+  "analytics": {
+    "title": "Analytique",
+    "subtitle": "Suivez vos revenus, votre taux d'occupation et les tendances de reservation.",
+    "totalEarnings": "Revenus totaux",
+    "earningsHint": "hors reservations annulees",
+    "occupancyRate": "Taux d'occupation",
+    "occupancyHint30d": "30 derniers jours, sur",
+    "listingsSuffix": "annonce",
+    "listingsSuffixPlural": "annonces",
+    "avgNightlyRate": "Tarif moyen/nuit",
+    "nightlyHint": "gagne par nuit reservee",
+    "totalBookings": "Total des reservations",
+    "revenueByMonth": "Revenus par mois",
+    "bookingsByMonth": "Reservations par mois",
+    "occupancyByMonth": "Taux d'occupation par mois",
+    "listingPerformance": "Performance des annonces",
+    "noListings": "Pas encore d'annonces.",
+    "colListing": "Annonce",
+    "colBookings": "Reservations",
+    "colEarnings": "Revenus",
+    "colOccupancy": "Occupation (30j)",
+    "colRating": "Note",
+    "colFavorites": "Favoris",
+    "loadFailed": "Echec du chargement des analyses.",
+    "statusBreakdown": "confirmees · terminees · en attente · annulees"
+  },
+  "footer": {
+    "tagline": "Trouvez le sejour parfait pour votre prochain voyage.",
+    "quickLinks": "Liens rapides",
+    "home": "Accueil",
+    "browse": "Parcourir les annonces",
+    "contact": "Contact",
+    "rights": "Tous droits reserves."
   }
 }

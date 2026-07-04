@@ -130,18 +130,18 @@ export default function Register() {
 
               {error && <div style={styles.error}>{error}</div>}
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} autoComplete="off">
                 <div style={styles.field}>
                   <label style={styles.label}>Full name</label>
                   <input type="text" name="name" value={form.name} onChange={handleChange}
-                    placeholder="Maria Peterson" required style={styles.input}
+                    placeholder="Maria Peterson" required style={styles.input} autoComplete="off"
                     onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                     onBlur={e => e.target.style.borderColor = '#ddd'} />
                 </div>
                 <div style={styles.field}>
                   <label style={styles.label}>Email address</label>
                   <input type="email" name="email" value={form.email} onChange={handleChange}
-                    placeholder="your@email.com" required style={styles.input}
+                    placeholder="your@email.com" required style={styles.input} autoComplete="off"
                     onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                     onBlur={e => e.target.style.borderColor = '#ddd'} />
                 </div>
@@ -195,6 +195,7 @@ export default function Register() {
                       onChange={handleChange}
                       placeholder="67 123 456"
                       style={{ ...styles.input, flex: 1 }}
+                      autoComplete="off"
                       onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                       onBlur={e => e.target.style.borderColor = '#ddd'}
                     />
@@ -205,7 +206,7 @@ export default function Register() {
                     <label style={styles.label}>Password</label>
                     <div style={styles.inputWrapper}>
                       <input type={showPassword ? 'text' : 'password'} name="password" value={form.password} onChange={handleChange}
-                        placeholder="••••••••" required style={styles.input}
+                        placeholder="••••••••" required style={styles.input} autoComplete="new-password"
                         onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                         onBlur={e => e.target.style.borderColor = '#ddd'} />
                       <button type="button" onClick={() => setShowPassword(v => !v)} style={styles.eyeBtn} tabIndex={-1}>
@@ -217,7 +218,7 @@ export default function Register() {
                     <label style={styles.label}>Confirm password</label>
                     <div style={styles.inputWrapper}>
                       <input type={showConfirm ? 'text' : 'password'} name="confirmPassword" value={form.confirmPassword} onChange={handleChange}
-                        placeholder="••••••••" required style={styles.input}
+                        placeholder="••••••••" required style={styles.input} autoComplete="new-password"
                         onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                         onBlur={e => e.target.style.borderColor = '#ddd'} />
                       <button type="button" onClick={() => setShowConfirm(v => !v)} style={styles.eyeBtn} tabIndex={-1}>

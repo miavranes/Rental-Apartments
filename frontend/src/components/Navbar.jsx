@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, BookOpen, Building, LogOut, LogIn, Globe, ChevronDown, Heart, MessageCircle } from 'lucide-react';
+import { Home, BookOpen, Building, LogOut, LogIn, Globe, ChevronDown, Heart, MessageCircle, BarChart3, Search, Menu, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import chatService from '../services/chatService';
 
@@ -18,6 +18,7 @@ export default function Navbar() {
   const { t, i18n } = useTranslation();
   const [langOpen, setLangOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const langRef = useRef(null);
 
   const isActive = (path) => location.pathname === path;
@@ -43,27 +44,63 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Close the mobile menu whenever the route changes.
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   return (
     <nav style={s.nav}>
+      <style>{`
+        .navbar-toggle { display: none; }
+        @media (max-width: 860px) {
+          .navbar-toggle { display: flex; }
+          .navbar-links {
+            display: none;
+            position: absolute; top: 60px; left: 0; right: 0;
+            flex-direction: column; align-items: stretch;
+            background: #fff; border-bottom: 1px solid #ebebeb;
+            padding: 10px 16px 18px; gap: 4px;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+            max-height: calc(100vh - 60px); overflow-y: auto;
+          }
+          .navbar-links.open { display: flex; }
+          .navbar-links .navbar-divider { display: none; }
+          .navbar-links .navbar-lang-wrap { align-self: flex-start; margin-top: 8px; }
+          .navbar-links .navbar-avatar-row { margin-top: 8px; }
+        }
+      `}</style>
+
       <Link to="/" style={s.brand}>Rentura</Link>
 
-      <div style={s.links}>
+      <button
+        className="navbar-toggle"
+        onClick={() => setMobileOpen(v => !v)}
+        style={s.toggleBtn}
+        aria-label="Menu"
+      >
+        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      <div className={`navbar-links${mobileOpen ? ' open' : ''}`} style={s.links}>
         <Link to="/" style={{ ...s.link, ...(isActive('/') ? s.linkActive : {}) }}>
           <Home size={15} style={s.linkIcon} /> {t('nav.home')}
         </Link>
         <Link to="/apartments" style={{ ...s.link, ...(isActive('/apartments') ? s.linkActive : {}) }}>
-          <Building size={15} style={s.linkIcon} /> {t('nav.browse')}
+          <Search size={15} style={s.linkIcon} /> {t('nav.browse')}
         </Link>
 
         {user ? (
           <>
             {user.role === 'tourist' && (
-              <Link to="/reservations" style={{ ...s.link, ...(isActive('/reservations') ? s.linkActive : {}) }}>
-                <BookOpen size={15} style={s.linkIcon} /> {t('nav.myBookings')}
-                <Link to="/favorites" style={{...s.link, ...(isActive('/favorites') ? s.linkActive : {}) }}>
-                  <Heart size={15} style={s.linkIcon}/> Favorites </Link>
-              </Link>
-              
+              <>
+                <Link to="/reservations" style={{ ...s.link, ...(isActive('/reservations') ? s.linkActive : {}) }}>
+                  <BookOpen size={15} style={s.linkIcon} /> {t('nav.myBookings')}
+                </Link>
+                <Link to="/favorites" style={{ ...s.link, ...(isActive('/favorites') ? s.linkActive : {}) }}>
+                  <Heart size={15} style={s.linkIcon} /> {t('nav.favorites')}
+                </Link>
+              </>
             )}
             {user.role === 'owner' && (
               <>
@@ -73,19 +110,24 @@ export default function Navbar() {
                 <Link to="/owner/reservations" style={{ ...s.link, ...(isActive('/owner/reservations') ? s.linkActive : {}) }}>
                   <BookOpen size={15} style={s.linkIcon} /> {t('nav.bookings')}
                 </Link>
+                <Link to="/owner/analytics" style={{ ...s.link, ...(isActive('/owner/analytics') ? s.linkActive : {}) }}>
+                  <BarChart3 size={15} style={s.linkIcon} /> {t('nav.analytics')}
+                </Link>
               </>
             )}
             <Link to="/messages" style={{ ...s.link, ...(isActive('/messages') ? s.linkActive : {}) }}>
-              <MessageCircle size={15} style={s.linkIcon} /> Messages
+              <MessageCircle size={15} style={s.linkIcon} /> {t('nav.messages')}
               {unreadCount > 0 && <span style={s.navBadge}>{unreadCount}</span>}
             </Link>
-            <div style={s.divider} />
-            <Link to="/profile" style={s.avatar} title={user.name}>
-              {user.name?.charAt(0).toUpperCase()}
-            </Link>
-            <button onClick={logout} style={s.logoutBtn} title={t('nav.signOut')}>
-              <LogOut size={16} />
-            </button>
+            <div className="navbar-divider" style={s.divider} />
+            <div className="navbar-avatar-row" style={s.avatarRow}>
+              <Link to="/profile" style={s.avatar} title={user.name}>
+                {user.name?.charAt(0).toUpperCase()}
+              </Link>
+              <button onClick={logout} style={s.logoutBtn} title={t('nav.signOut')}>
+                <LogOut size={16} />
+              </button>
+            </div>
           </>
         ) : (
           <>
@@ -94,10 +136,10 @@ export default function Navbar() {
           </>
         )}
 
-        <div style={s.divider} />
+        <div className="navbar-divider" style={s.divider} />
 
         {/* Language dropdown */}
-        <div ref={langRef} style={s.langWrap}>
+        <div className="navbar-lang-wrap" ref={langRef} style={s.langWrap}>
           <button onClick={() => setLangOpen(v => !v)} style={s.langTrigger}>
             <Globe size={14} color="#555" />
             <span style={s.langLabel}>{currentLang.label}</span>
@@ -136,6 +178,11 @@ const s = {
     fontFamily: "'Segoe UI', sans-serif",
   },
   brand: { fontSize: 20, fontWeight: 800, color: '#0F4C5C', textDecoration: 'none', letterSpacing: '-0.5px' },
+  toggleBtn: {
+    alignItems: 'center', justifyContent: 'center',
+    background: 'none', border: '1px solid #e0e0e0', borderRadius: 8,
+    padding: '6px 8px', cursor: 'pointer', color: '#0F4C5C',
+  },
   links: { display: 'flex', alignItems: 'center', gap: 4 },
   link: {
     display: 'flex', alignItems: 'center', gap: 5,
@@ -149,6 +196,7 @@ const s = {
     borderRadius: 20, padding: '1px 6px', marginLeft: 2,
   },
   divider: { width: 1, height: 24, backgroundColor: '#ebebeb', margin: '0 8px' },
+  avatarRow: { display: 'flex', alignItems: 'center', gap: 10 },
   avatar: {
     width: 32, height: 32, borderRadius: '50%',
     backgroundColor: '#0F4C5C', color: '#fff',

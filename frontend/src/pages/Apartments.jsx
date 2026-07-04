@@ -291,10 +291,6 @@ export default function Apartments() {
           )}
         </section>
       </div>
-
-      <footer style={s.footer}>
-        <span style={s.footerText}>© {new Date().getFullYear()} Rentura. All rights reserved.</span>
-      </footer>
     </div>
   );
 }
@@ -347,6 +343,4 @@ const s = {
   empty: { textAlign: 'center', padding: '80px 0' },
   emptyText: { color: '#888', fontSize: '16px', margin: '0 0 12px' },
   emptyLink: { color: '#0F4C5C', fontWeight: '600', fontSize: '15px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif", textDecoration: 'underline' },
-  footer: { borderTop: '1px solid #ebebeb', padding: '28px', textAlign: 'center', backgroundColor: '#fff' },
-  footerText: { fontSize: '13px', color: '#bbb' },
 };

@@ -431,10 +431,6 @@ export default function Owner() {
           </div>
         </div>
       )}
-
-      <footer style={s.footer}>
-        <span style={{ fontSize: 13, color: '#bbb' }}>© {new Date().getFullYear()} {t('common.copyright')}</span>
-      </footer>
     </div>
   );
 }
@@ -498,5 +494,4 @@ const s = {
   existingImg: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
   deleteImgBtn: { position: 'absolute', top: 4, right: 4, width: 20, height: 20, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', padding: 0 },
   submitBtn: { width: '100%', padding: 14, backgroundColor: '#0F4C5C', color: '#fff', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: 'pointer', marginTop: 8, fontFamily: "'Segoe UI', sans-serif" },
-  footer: { borderTop: '1px solid #ebebeb', padding: 28, textAlign: 'center', backgroundColor: '#fff' },
 };
