@@ -1,3 +1,4 @@
+const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
 
 const getReviews = async (req, res) => {
@@ -14,7 +15,7 @@ const getReviews = async (req, res) => {
 
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -56,7 +57,7 @@ const createReview = async (req, res) => {
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 

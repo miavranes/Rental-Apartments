@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const multer = require('multer');
 const path = require('path');
 const cron = require('node-cron');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 const completeExpiredReservations = require('./jobs/completeReservations');
 
@@ -10,7 +12,15 @@ const app = express();
 
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(helmet({
+  // Serving images cross-origin to the frontend needs this relaxed.
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
+
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map((o) => o.trim());
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -26,6 +36,24 @@ app.use('/api/payments', require('./routes/payments'));
 app.use('/api/favorites', require('./routes/favorites'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/analytics', require('./routes/analytics'));
+
+// 404 for unmatched API routes
+app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));
+
+// Global error handler — catches multer errors (bad file type, too large)
+// and any other error passed via next(err), so nothing ever falls through
+// to Express's default HTML error page or leaks a raw stack trace.
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ error: `Upload error: ${err.message}` });
+  }
+  if (err) {
+    console.error(err);
+    const isDev = process.env.NODE_ENV !== 'production';
+    return res.status(err.status || 500).json({ error: isDev ? err.message : 'Something went wrong. Please try again.' });
+  }
+  next();
+});
 
 // Run once on startup to catch any missed completions, then daily at 01:00
 completeExpiredReservations();

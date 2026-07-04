@@ -1,3 +1,4 @@
+const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
 
 const getOwnerAnalytics = async (req, res) => {
@@ -138,7 +139,7 @@ const getOwnerAnalytics = async (req, res) => {
       monthly: monthlyWithOccupancy,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 

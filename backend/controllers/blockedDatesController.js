@@ -1,3 +1,4 @@
+const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
 
 // GET /api/apartments/:id/blocked-dates
@@ -10,7 +11,7 @@ const getBlockedDates = async (req, res) => {
     );
     res.json(result.rows.map(r => r.date.toISOString().split('T')[0]));
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -32,7 +33,7 @@ const blockDates = async (req, res) => {
     }
     res.json({ message: 'Dates blocked.' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -52,7 +53,7 @@ const unblockDates = async (req, res) => {
     );
     res.json({ message: 'Dates unblocked.' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 

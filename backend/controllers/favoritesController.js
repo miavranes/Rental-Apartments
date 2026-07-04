@@ -1,3 +1,4 @@
+const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
 
 const getFavorites = async (req, res) => {
@@ -23,7 +24,7 @@ const getFavorites = async (req, res) => {
 
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -71,7 +72,7 @@ const removeFavorite = async (req, res) => {
     await pool.query('DELETE FROM favorites WHERE user_id = $1 AND apartment_id = $2', [req.user.id, apartmentId]);
     res.json({ apartment_id: Number(apartmentId), favorited: false });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -80,7 +81,7 @@ const getFavoriteIds = async (req, res) => {
     const result = await pool.query('SELECT apartment_id FROM favorites WHERE user_id = $1', [req.user.id]);
     res.json(result.rows.map(r => r.apartment_id));
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 

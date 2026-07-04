@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { formatLocation } from '../utils/locationUtils';
 import favoriteService from '../services/favoriteService';
 
-const BASE = 'http://localhost:5000/uploads/';
+import { UPLOADS_URL } from '../config';
+const BASE = UPLOADS_URL;
 
 export default function ApartmentCard({ apartment }) {
   const { t } = useTranslation();

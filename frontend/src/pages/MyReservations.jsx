@@ -8,7 +8,8 @@ import Navbar from '../components/Navbar';
 import { MapPin, Calendar, Users, Star, X, CreditCard, Banknote, MessageCircle } from 'lucide-react';
 import chatService from '../services/chatService';
 
-const BASE = 'http://localhost:5000/uploads/';
+import { UPLOADS_URL } from '../config';
+const BASE = UPLOADS_URL;
 
 function ReviewModal({ reservation, onClose, onSubmit, t }) {
   const [rating, setRating] = useState(5);

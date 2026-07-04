@@ -1,4 +1,5 @@
 const { formatLocation, parseNominatimResult } = require('../utils/locationUtils');
+const { serverError } = require('../utils/errors');
 
 const searchPlaces = async (req, res) => {
   const q = (req.query.q || '').trim();
@@ -31,7 +32,7 @@ const searchPlaces = async (req, res) => {
 
     res.json(places);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 

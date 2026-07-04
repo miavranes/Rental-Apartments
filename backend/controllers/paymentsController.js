@@ -1,4 +1,5 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
 const createPaymentIntent = async (req, res) => {
   const { reservation_id } = req.body;
@@ -34,7 +35,7 @@ const createPaymentIntent = async (req, res) => {
 
     res.json({ client_secret: paymentIntent.client_secret });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -62,7 +63,7 @@ const handleWebhook = async (req, res) => {
         ['confirmed', reservation_id]
       );
     } catch (err) {
-      return res.status(500).json({ error: err.message });
+      return serverError(res, err);
     }
   }
 

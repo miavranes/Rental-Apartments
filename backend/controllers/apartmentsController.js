@@ -1,3 +1,4 @@
+const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
 
 // Legacy DB icon values that should match frontend filter keys
@@ -109,7 +110,7 @@ const getApartments = async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -146,7 +147,7 @@ const getApartment = async (req, res) => {
       amenities: amenities.rows
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 const createApartment = async (req, res) => {
@@ -178,7 +179,7 @@ const createApartment = async (req, res) => {
 
     res.status(201).json(apartment);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -223,7 +224,7 @@ const updateApartment = async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -238,7 +239,7 @@ const deleteApartment = async (req, res) => {
     await pool.query('DELETE FROM apartments WHERE id = $1', [id]);
     res.json({ message: 'Smještaj obrisan.' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -264,7 +265,7 @@ const deleteImage = async (req, res) => {
 
     res.json({ message: 'Image deleted.' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -292,7 +293,7 @@ const getMyApartments = async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 

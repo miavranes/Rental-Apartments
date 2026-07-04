@@ -17,7 +17,8 @@ import {
   Star, ChevronLeft, Check, X, ChevronDown, CreditCard, Banknote
 } from 'lucide-react';
 
-const BASE = 'http://localhost:5000/uploads/';
+import { UPLOADS_URL } from '../config';
+const BASE = UPLOADS_URL;
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '');
 
 function Stars({ rating, size = 14 }) {

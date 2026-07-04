@@ -1,11 +1,24 @@
+const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
 const { sendReservationEmailToGuest, sendReservationEmailToOwner } = require('../utils/sendEmail');
 
 const createReservation = async (req, res) => {
   const { apartment_id, check_in, check_out, guests, payment_method = 'on_arrival' } = req.body;
 
+  // Everything below runs on a single dedicated client so we can use a
+  // transaction + advisory lock: this closes the race window where two
+  // guests could both pass the "dates free?" check for the same apartment
+  // at the same time and end up double-booked.
+  const client = await pool.connect();
+
   try {
-    const aptResult = await pool.query(
+    await client.query('BEGIN');
+
+    // Serialize all booking attempts for this specific apartment. The lock
+    // is automatically released when the transaction ends (COMMIT/ROLLBACK).
+    await client.query('SELECT pg_advisory_xact_lock($1)', [apartment_id]);
+
+    const aptResult = await client.query(
       `SELECT a.*, u.email AS owner_email, u.name AS owner_name
        FROM apartments a JOIN users u ON u.id = a.owner_id
        WHERE a.id = $1`,
@@ -13,12 +26,19 @@ const createReservation = async (req, res) => {
     );
 
     if (aptResult.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Apartment not found.' });
     }
 
     const apt = aptResult.rows[0];
 
+    if (apt.owner_id === req.user.id) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'You cannot book your own listing.' });
+    }
+
     if (guests > apt.max_guests) {
+      await client.query('ROLLBACK');
       return res.status(400).json({ error: `Maximum guests allowed: ${apt.max_guests}.` });
     }
 
@@ -27,11 +47,14 @@ const createReservation = async (req, res) => {
     );
 
     if (nights <= 0) {
+      await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Invalid dates.' });
     }
 
-    // Check for conflicts with existing confirmed/pending reservations
-    const conflict = await pool.query(
+    // Check for conflicts with existing confirmed/pending reservations.
+    // Safe now: no other request can be checking/inserting for this
+    // apartment_id concurrently thanks to the advisory lock above.
+    const conflict = await client.query(
       `SELECT id FROM reservations
        WHERE apartment_id = $1
          AND status IN ('pending', 'confirmed')
@@ -40,12 +63,13 @@ const createReservation = async (req, res) => {
     );
 
     if (conflict.rows.length > 0) {
+      await client.query('ROLLBACK');
       return res.status(409).json({ error: 'These dates are already booked.' });
     }
 
     const total_price = (apt.price_per_night * nights).toFixed(2);
 
-    const result = await pool.query(`
+    const result = await client.query(`
       INSERT INTO reservations (apartment_id, user_id, check_in, check_out, guests, total_price, payment_method)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
@@ -58,16 +82,19 @@ const createReservation = async (req, res) => {
     const end   = new Date(check_out);
     for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
       const dateStr = d.toISOString().split('T')[0];
-      await pool.query(
+      await client.query(
         'INSERT INTO blocked_dates (apartment_id, date) VALUES ($1, $2) ON CONFLICT DO NOTHING',
         [apartment_id, dateStr]
       );
     }
 
-    // Send confirmation emails
-    const guestResult = await pool.query('SELECT name, email FROM users WHERE id = $1', [req.user.id]);
+    const guestResult = await client.query('SELECT name, email FROM users WHERE id = $1', [req.user.id]);
     const guest = guestResult.rows[0];
 
+    await client.query('COMMIT');
+
+    // Emails are sent after commit — a slow/failed email must never roll
+    // back an otherwise-successful booking.
     const emailData = {
       title: apt.title,
       location: apt.location,
@@ -88,7 +115,14 @@ const createReservation = async (req, res) => {
 
     res.status(201).json(reservation);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    await client.query('ROLLBACK').catch(() => {});
+    // 23P01 = exclusion_violation (our reservations_no_overlap DB constraint)
+    if (err.code === '23P01') {
+      return res.status(409).json({ error: 'These dates are already booked.' });
+    }
+    serverError(res, err);
+  } finally {
+    client.release();
   }
 };
 
@@ -106,7 +140,7 @@ const getMyReservations = async (req, res) => {
 
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -124,7 +158,7 @@ const getOwnerReservations = async (req, res) => {
 
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -149,7 +183,7 @@ const confirmReservation = async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -191,7 +225,7 @@ const cancelReservation = async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 

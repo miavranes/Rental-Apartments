@@ -10,7 +10,8 @@ import LocationAutocomplete from '../components/LocationAutocomplete';
 import Navbar from '../components/Navbar';
 import { formatLocation } from '../utils/locationUtils';
 
-const BASE = 'http://localhost:5000/uploads/';
+import { UPLOADS_URL } from '../config';
+const BASE = UPLOADS_URL;
 
 const AMENITIES_LIST = [
   { key: 'wifi',            label: 'WiFi',            Icon: Wifi },

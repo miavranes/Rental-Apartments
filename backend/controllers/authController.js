@@ -1,3 +1,4 @@
+const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -37,7 +38,7 @@ const register = async (req, res) => {
 
     res.status(201).json({ message: 'Registration successful. Check your email for the verification code.', email });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -63,7 +64,7 @@ const login = async (req, res) => {
       token
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -75,7 +76,7 @@ const me = async (req, res) => {
     );
     res.json(toPublicUser(result.rows[0]));
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -89,7 +90,7 @@ const updateProfile = async (req, res) => {
     );
     res.json(toPublicUser(result.rows[0]));
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -108,7 +109,7 @@ const switchRole = async (req, res) => {
 
     res.json({ user: toPublicUser(user), token });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -117,7 +118,7 @@ const deleteAccount = async (req, res) => {
     await pool.query('DELETE FROM users WHERE id = $1', [req.user.id]);
     res.json({ message: 'Account is succesfully deleted.' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -148,7 +149,7 @@ const verifyEmail = async (req, res) => {
       token
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -176,7 +177,7 @@ const forgotPassword = async (req, res) => {
 
     res.json({ message: 'If that email exists, a reset link has been sent.' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -204,7 +205,7 @@ const resetPassword = async (req, res) => {
 
     res.json({ message: 'Password has been reset successfully.' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 

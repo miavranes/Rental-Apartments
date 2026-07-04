@@ -1,3 +1,4 @@
+const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
 
 const conversationSelect = `
@@ -46,7 +47,7 @@ const getConversations = async (req, res) => {
     `, [req.user.id]);
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -95,7 +96,7 @@ const startConversation = async (req, res) => {
 
     res.status(201).json(conversation);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -119,7 +120,7 @@ const getMessages = async (req, res) => {
     `, [id]);
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 
@@ -142,7 +143,7 @@ const sendMessage = async (req, res) => {
     await pool.query('UPDATE conversations SET updated_at = NOW() WHERE id = $1', [id]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    serverError(res, err);
   }
 };
 

@@ -25,15 +25,17 @@ cd backend
 npm install
 ```
 
-Create `backend/.env`:
+Create `backend/.env` (see `backend/.env.example`):
 ```env
 PORT=5000
+NODE_ENV=development
 DB_USER=postgres
 DB_HOST=localhost
 DB_NAME=rental_apartments
 DB_PASSWORD=your_password
 DB_PORT=5432
 JWT_SECRET=your_jwt_secret
+CORS_ORIGIN=http://localhost:3000
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 EMAIL_USER=your@gmail.com
@@ -49,6 +51,13 @@ psql -U postgres -d rental_apartments -f backend/db/seedAmenities.sql
 
 Or in **pgAdmin**: create database `rental_apartments`, then run both SQL files in Query Tool.
 
+Apply schema migrations (safe to re-run):
+```bash
+cd backend
+node scripts/runMigrations.js
+```
+> Migration `004_prevent_double_booking.sql` requires the `btree_gist` Postgres extension (installed automatically by the migration itself, requires a DB role with `CREATE EXTENSION` privilege — the default `postgres` superuser has this).
+
 Start backend:
 ```bash
 cd backend
@@ -62,9 +71,10 @@ npm install
 npm start
 ```
 
-Create `frontend/.env`:
+Create `frontend/.env` (see `frontend/.env.example`):
 ```env
 REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_test_...
+REACT_APP_API_URL=http://localhost:5000
 ```
 
 ---

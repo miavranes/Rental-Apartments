@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { Eye, EyeOff, ChevronDown } from 'lucide-react';
+import { API_URL } from '../config';
 
 const COUNTRIES = [
   { code: 'ME', name: 'Montenegro',      dial: '+382', flag: '🇲🇪' },
@@ -99,7 +100,7 @@ export default function Register() {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/verify-email', { email: form.email, code });
+      const res = await axios.post(`${API_URL}/api/auth/verify-email`, { email: form.email, code });
       loginWithToken(res.data.user, res.data.token);
       navigate('/');
     } catch (err) {
