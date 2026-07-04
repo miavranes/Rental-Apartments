@@ -51,7 +51,7 @@ const getConversations = async (req, res) => {
 };
 
 const startConversation = async (req, res) => {
-  const { apartment_id, message } = req.body;
+  const { apartment_id, message, tourist_id } = req.body;
 
   try {
     const apt = await pool.query(
@@ -59,7 +59,21 @@ const startConversation = async (req, res) => {
       [apartment_id]
     );
     if (apt.rows.length === 0) return res.status(404).json({ error: 'Apartment not found.' });
-    if (apt.rows[0].owner_id === req.user.id) {
+
+    const ownerId = apt.rows[0].owner_id;
+
+    // The owner of the apartment can open/create a conversation with a specific
+    // tourist (e.g. from the reservations list). Anyone else starts a
+    // conversation with the apartment's owner, as before.
+    let finalTouristId;
+    if (req.user.id === ownerId) {
+      if (!tourist_id) return res.status(400).json({ error: 'tourist_id is required.' });
+      finalTouristId = tourist_id;
+    } else {
+      finalTouristId = req.user.id;
+    }
+
+    if (finalTouristId === ownerId) {
       return res.status(400).json({ error: 'You cannot start a chat with yourself.' });
     }
 
@@ -69,7 +83,7 @@ const startConversation = async (req, res) => {
       ON CONFLICT (apartment_id, tourist_id, owner_id)
       DO UPDATE SET updated_at = NOW()
       RETURNING *
-    `, [apartment_id, req.user.id, apt.rows[0].owner_id]);
+    `, [apartment_id, finalTouristId, ownerId]);
 
     const conversation = result.rows[0];
     if (message && message.trim()) {

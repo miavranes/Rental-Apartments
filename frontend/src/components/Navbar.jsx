@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, BookOpen, Building, LogOut, LogIn, Globe, ChevronDown, Heart } from 'lucide-react';
+import { Home, BookOpen, Building, LogOut, LogIn, Globe, ChevronDown, Heart, MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import chatService from '../services/chatService';
 
 const LANGUAGES = [
   { code: 'en', label: 'EN', name: 'English' },
@@ -16,10 +17,23 @@ export default function Navbar() {
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const [langOpen, setLangOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const langRef = useRef(null);
 
   const isActive = (path) => location.pathname === path;
   const currentLang = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
+
+  useEffect(() => {
+    if (!user) { setUnreadCount(0); return; }
+    const fetchUnread = () => {
+      chatService.getConversations()
+        .then(convs => setUnreadCount(convs.reduce((sum, c) => sum + (c.unread_count || 0), 0)))
+        .catch(() => {});
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 15000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -61,6 +75,10 @@ export default function Navbar() {
                 </Link>
               </>
             )}
+            <Link to="/messages" style={{ ...s.link, ...(isActive('/messages') ? s.linkActive : {}) }}>
+              <MessageCircle size={15} style={s.linkIcon} /> Messages
+              {unreadCount > 0 && <span style={s.navBadge}>{unreadCount}</span>}
+            </Link>
             <div style={s.divider} />
             <Link to="/profile" style={s.avatar} title={user.name}>
               {user.name?.charAt(0).toUpperCase()}
@@ -126,6 +144,10 @@ const s = {
   },
   linkActive: { backgroundColor: '#f0f7f9', color: '#0F4C5C', fontWeight: 600 },
   linkIcon: { flexShrink: 0 },
+  navBadge: {
+    backgroundColor: '#E8A87C', color: '#fff', fontSize: 10, fontWeight: 700,
+    borderRadius: 20, padding: '1px 6px', marginLeft: 2,
+  },
   divider: { width: 1, height: 24, backgroundColor: '#ebebeb', margin: '0 8px' },
   avatar: {
     width: 32, height: 32, borderRadius: '50%',

@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import reservationService from '../services/reservationService';
 import reviewService from '../services/reviewService';
 import Navbar from '../components/Navbar';
-import { MapPin, Calendar, Users, Star, X, CreditCard, Banknote } from 'lucide-react';
+import { MapPin, Calendar, Users, Star, X, CreditCard, Banknote, MessageCircle } from 'lucide-react';
+import chatService from '../services/chatService';
 
 const BASE = 'http://localhost:5000/uploads/';
 
@@ -86,6 +87,7 @@ export default function MyReservations() {
   const [reviewTarget, setReviewTarget] = useState(null);
   const [reviewed, setReviewed] = useState(new Set());
   const [cancelling, setCancelling] = useState(null);
+  const [messaging, setMessaging] = useState(null);
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -111,6 +113,18 @@ export default function MyReservations() {
   const handleReview = async (payload) => {
     await reviewService.create(payload);
     setReviewed(prev => new Set([...prev, payload.reservation_id]));
+  };
+
+  const handleMessageHost = async (r) => {
+    setMessaging(r.id);
+    try {
+      const conversation = await chatService.startConversation({ apartment_id: r.apartment_id });
+      navigate(`/messages/${conversation.id}`);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to open chat.');
+    } finally {
+      setMessaging(null);
+    }
   };
 
   const formatDate = (str) => new Date(str).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -145,6 +159,7 @@ export default function MyReservations() {
               const n = nights(r);
               const canCancel = r.status === 'pending' || r.status === 'confirmed';
               const canReview = r.status === 'completed' && !reviewed.has(r.id);
+              const canMessage = r.status === 'confirmed' || r.status === 'completed';
 
               return (
                 <div key={r.id} style={s.card}>
@@ -177,6 +192,12 @@ export default function MyReservations() {
                         <span style={s.priceNights}> · {n} night{n !== 1 ? 's' : ''}</span>
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
+                        {canMessage && (
+                          <button onClick={() => handleMessageHost(r)} disabled={messaging === r.id} style={s.messageBtn}>
+                            <MessageCircle size={14} style={{ marginRight: 4 }} />
+                            {messaging === r.id ? 'Opening...' : 'Message host'}
+                          </button>
+                        )}
                         {canReview && (
                           <button onClick={() => setReviewTarget(r)} style={s.reviewBtn}>
                             <Star size={14} style={{ marginRight: 4 }} />Leave review
@@ -239,6 +260,7 @@ const s = {
   price: { fontSize: 18, fontWeight: 800, color: '#0F4C5C' },
   priceNights: { fontSize: 13, color: '#888' },
   reviewBtn: { display: 'flex', alignItems: 'center', padding: '8px 14px', backgroundColor: '#f0f7f9', color: '#0F4C5C', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
+  messageBtn: { display: 'flex', alignItems: 'center', padding: '8px 14px', backgroundColor: '#0F4C5C', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
   cancelBtn: { padding: '8px 14px', backgroundColor: '#fff0f0', color: '#ef4444', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
   // Modal
   overlay: { position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 },

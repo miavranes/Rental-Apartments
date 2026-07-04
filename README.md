@@ -279,8 +279,8 @@ apartment_ratings    -- (materialized view) apartment_id, avg_rating, review_cou
 ## Missing / Roadmap
 
 ### Medium Priority
-- [ ] **Messaging** — Direct chat between guest and host
-- [ ] **Wishlists** — Save apartments to a favourites list
+- [x] **Messaging** — Direct chat between guest and host
+- [x] **Wishlists** — Save apartments to a favourites list
 - [ ] **Profile photo upload** — Avatar image upload for users
 - [ ] **Weekly / monthly discounts** — Bulk pricing for longer stays
 - [ ] **Cleaning fee** — One-time charge per booking
@@ -288,9 +288,9 @@ apartment_ratings    -- (materialized view) apartment_id, avg_rating, review_cou
 
 ### Lower Priority
 - [ ] **Admin dashboard** — User management, listing moderation, analytics
-- [ ] **Host analytics** — Earnings, occupancy rate, booking trends
-- [ ] **Mobile responsive** — Full mobile layout optimization
-- [ ] **Multi-language** — i18n support
+- [x] **Host analytics** — Earnings, occupancy rate, booking trends
+- [x] **Mobile responsive** — Full mobile layout optimization
+- [x] **Multi-language** — i18n support
 
 ### Technical
 - [ ] **Rate limiting** — Brute force protection

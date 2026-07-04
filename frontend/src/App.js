@@ -12,6 +12,7 @@ import OwnerReservations from './pages/OwnerReservations';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Favorites from './pages/Favorites';
+import Messages from './pages/Messages';
 
 export default function App() {
   return (
@@ -27,6 +28,8 @@ export default function App() {
           <Route path="/owner" element={<Owner />} />
           <Route path="/reservations" element={<MyReservations />} />
           <Route path="/favorites" element={<Favorites />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/messages/:id" element={<Messages />} />
           <Route path="/owner/reservations" element={<OwnerReservations />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} /> 

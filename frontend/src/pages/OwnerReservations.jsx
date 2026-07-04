@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import reservationService from '../services/reservationService';
 import Navbar from '../components/Navbar';
-import { Calendar, Users, Phone, Mail, Check, X, CreditCard, Banknote } from 'lucide-react';
+import { Calendar, Users, Phone, Mail, Check, X, CreditCard, Banknote, MessageCircle } from 'lucide-react';
+import chatService from '../services/chatService';
 
 const STATUS_COLORS = {
   pending:   { bg: '#fff8e1', color: '#f59e0b', label: 'Pending' },
@@ -19,6 +20,7 @@ export default function OwnerReservations() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [processing, setProcessing] = useState(null);
+  const [messaging, setMessaging] = useState(null);
 
   useEffect(() => {
     if (!user || user.role !== 'owner') { navigate('/'); return; }
@@ -50,6 +52,21 @@ export default function OwnerReservations() {
       alert(err.response?.data?.error || 'Failed to cancel.');
     } finally {
       setProcessing(null);
+    }
+  };
+
+  const handleMessageGuest = async (r) => {
+    setMessaging(r.id);
+    try {
+      const conversation = await chatService.startConversation({
+        apartment_id: r.apartment_id,
+        tourist_id: r.user_id,
+      });
+      navigate(`/messages/${conversation.id}`);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to open chat.');
+    } finally {
+      setMessaging(null);
     }
   };
 
@@ -153,6 +170,19 @@ export default function OwnerReservations() {
                       <a href={`mailto:${r.guest_email}`} style={s.guestContact}><Mail size={13} /> {r.guest_email}</a>
                       {r.guest_phone && <a href={`tel:${r.guest_phone}`} style={s.guestContact}><Phone size={13} /> {r.guest_phone}</a>}
                     </div>
+                    {(r.status === 'confirmed' || r.status === 'completed') && (
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={() => handleMessageGuest(r)} disabled={messaging === r.id} style={s.messageBtn}>
+                          <MessageCircle size={14} style={{ marginRight: 4 }} />
+                          {messaging === r.id ? 'Opening...' : 'Message guest'}
+                        </button>
+                        {r.status === 'confirmed' && (
+                          <button onClick={() => handleCancel(r.id)} disabled={!!processing} style={s.declineBtn}>
+                            <X size={14} style={{ marginRight: 4 }} />Cancel
+                          </button>
+                        )}
+                      </div>
+                    )}
                     {r.status === 'pending' && (
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button
@@ -172,11 +202,6 @@ export default function OwnerReservations() {
                           {processing === r.id + '_cancel' ? 'Declining...' : 'Decline'}
                         </button>
                       </div>
-                    )}
-                    {r.status === 'confirmed' && (
-                      <button onClick={() => handleCancel(r.id)} disabled={!!processing} style={s.declineBtn}>
-                        <X size={14} style={{ marginRight: 4 }} />Cancel
-                      </button>
                     )}
                   </div>
                 </div>
@@ -225,4 +250,5 @@ const s = {
   guestContact: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#0F4C5C', textDecoration: 'none' },
   confirmBtn: { display: 'flex', alignItems: 'center', padding: '8px 16px', backgroundColor: '#f0fff4', color: '#22c55e', border: '1px solid #b7ebc8', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
   declineBtn: { display: 'flex', alignItems: 'center', padding: '8px 16px', backgroundColor: '#fff0f0', color: '#ef4444', border: '1px solid #ffd0d0', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
+  messageBtn: { display: 'flex', alignItems: 'center', padding: '8px 16px', backgroundColor: '#0F4C5C', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
 };

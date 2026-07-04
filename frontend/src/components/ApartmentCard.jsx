@@ -35,18 +35,16 @@ export default function ApartmentCard({ apartment }) {
     }
   };
 
-  // 🔥 FIX ZA SLIKE (object ili string)
-  const imgSrc = Array.isArray(images) && images.length > 0
-    ? (typeof images[0] === 'string'
-        ? `${BASE}${images[0]}`
-        : `${BASE}${images[0].image_url}`)
-    : null;
+const firstImage = images?.[0];
 
+const imgSrc =
+  images && images.length > 0
+    ? `${BASE}${images[0].image_url}`
+    : null;
   return (
     <Link to={`/apartments/${id}`} style={styles.card}>
       <div style={styles.imageWrapper}>
 
-        {/* ❤️ HEART - FIXED CLICK */}
         <button
           onClick={toggleFavorite}
           style={styles.heartBtn}
