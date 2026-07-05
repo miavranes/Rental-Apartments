@@ -292,7 +292,9 @@
   },
   "common": {
     "error": "Une erreur est survenue.",
-    "copyright": "Rentura. Tous droits reserves."
+    "copyright": "Rentura. Tous droits reserves.",
+    "min": "Min",
+    "max": "Max"
   },
   "chat": {
     "title": "Messages",

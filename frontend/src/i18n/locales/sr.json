@@ -292,7 +292,9 @@
   },
   "common": {
     "error": "Došlo je do greške.",
-    "copyright": "Rentura. Sva prava zadržana."
+    "copyright": "Rentura. Sva prava zadržana.",
+    "min": "Min",
+    "max": "Maks"
   },
   "chat": {
     "title": "Poruke",

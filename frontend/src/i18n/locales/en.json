@@ -292,7 +292,9 @@
   },
   "common": {
     "error": "Something went wrong.",
-    "copyright": "Rentura. All rights reserved."
+    "copyright": "Rentura. All rights reserved.",
+    "min": "Min",
+    "max": "Max"
   },
   "chat": {
     "title": "Messages",

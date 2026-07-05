@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import apartmentService from '../services/apartmentService';
 import ApartmentCard from '../components/ApartmentCard';
 import SearchBar from '../components/SearchBar';
@@ -11,25 +12,25 @@ import {
 } from 'lucide-react';
 
 const AMENITY_FILTERS = [
-  { key: 'wifi',            label: 'WiFi',             Icon: Wifi },
-  { key: 'car',             label: 'Parking',          Icon: Car },
-  { key: 'snowflake',       label: 'Air Conditioning', Icon: Snowflake },
-  { key: 'waves',           label: 'Pool',             Icon: Waves },
-  { key: 'utensils',        label: 'Kitchen',          Icon: UtensilsCrossed },
-  { key: 'washing-machine', label: 'Washing Machine',  Icon: WashingMachine },
-  { key: 'tv',              label: 'TV',               Icon: Tv },
-  { key: 'paw-print',       label: 'Pet Friendly',     Icon: PawPrint },
-  { key: 'flame',           label: 'Grill',            Icon: Flame },
-  { key: 'building',        label: 'Balcony',          Icon: Building },
-  { key: 'spa',             label: 'Spa',              Icon: Sparkles },
-  { key: 'gym',             label: 'Gym',              Icon: Dumbbell },
-  { key: 'room-service',    label: 'Room Service',     Icon: ConciergeBell },
-  { key: 'sea-view',        label: 'Sea View',         Icon: Sailboat },
-  { key: 'mountain-view',   label: 'Mountain View',    Icon: Mountain },
-  { key: 'kettle',          label: 'Kettle',           Icon: Coffee },
-  { key: 'breakfast',       label: 'Breakfast',        Icon: Sunrise },
-  { key: 'lunch',           label: 'Lunch',            Icon: Sun },
-  { key: 'dinner',          label: 'Dinner',           Icon: MoonStar },
+  { key: 'wifi',            Icon: Wifi },
+  { key: 'car',             Icon: Car },
+  { key: 'snowflake',       Icon: Snowflake },
+  { key: 'waves',           Icon: Waves },
+  { key: 'utensils',        Icon: UtensilsCrossed },
+  { key: 'washing-machine', Icon: WashingMachine },
+  { key: 'tv',              Icon: Tv },
+  { key: 'paw-print',       Icon: PawPrint },
+  { key: 'flame',           Icon: Flame },
+  { key: 'building',        Icon: Building },
+  { key: 'spa',             Icon: Sparkles },
+  { key: 'gym',             Icon: Dumbbell },
+  { key: 'room-service',    Icon: ConciergeBell },
+  { key: 'sea-view',        Icon: Sailboat },
+  { key: 'mountain-view',   Icon: Mountain },
+  { key: 'kettle',          Icon: Coffee },
+  { key: 'breakfast',       Icon: Sunrise },
+  { key: 'lunch',           Icon: Sun },
+  { key: 'dinner',          Icon: MoonStar },
 ];
 
 const AMENITY_KEYS = new Set(AMENITY_FILTERS.map(a => a.key));
@@ -37,9 +38,10 @@ const AMENITY_KEYS = new Set(AMENITY_FILTERS.map(a => a.key));
 const parseAmenitiesParam = (raw) =>
   (raw ? raw.split(',').map(k => k.trim()).filter(k => AMENITY_KEYS.has(k)) : []);
 
-const emptyDraft = { minPrice: '', maxPrice: '', minBedrooms: 0, minRating: 0, petFriendly: false, amenities: [] };
+const emptyFilters = { minPrice: '', maxPrice: '', minBedrooms: 0, minRating: 0, petFriendly: false };
 
 export default function Apartments() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [apartments, setApartments] = useState([]);
@@ -49,18 +51,8 @@ export default function Apartments() {
   const amenitiesParam = searchParams.get('amenities') ?? '';
   const urlAmenities = useMemo(() => parseAmenitiesParam(amenitiesParam), [amenitiesParam]);
 
-  // Draft state — what user is editing in the sidebar
-  const [draft, setDraft] = useState(() => ({ ...emptyDraft, amenities: urlAmenities }));
-
-  // Applied state — what's actually filtering the results (non-amenity fields)
-  const [applied, setApplied] = useState(() => ({ ...emptyDraft, amenities: urlAmenities }));
-
-  // Keep sidebar checkboxes in sync when URL amenities change (e.g. after search)
-  useEffect(() => {
-    const parsed = parseAmenitiesParam(amenitiesParam);
-    setDraft(d => ({ ...d, amenities: parsed }));
-    setApplied(d => ({ ...d, amenities: parsed }));
-  }, [amenitiesParam]);
+  // Single filters state — applied live, same as amenities (no separate "draft" step)
+  const [filters, setFilters] = useState(emptyFilters);
 
   useEffect(() => {
     setLoading(true);
@@ -90,33 +82,30 @@ export default function Apartments() {
       ? urlAmenities.filter(k => k !== key)
       : [...urlAmenities, key];
     setUrlAmenities(next);
-    setDraft(d => ({ ...d, amenities: next }));
-    setApplied(d => ({ ...d, amenities: next }));
   };
 
   const clearFilters = () => {
     const params = new URLSearchParams(searchParams);
     params.delete('amenities');
     setSearchParams(params, { replace: true });
-    setDraft(emptyDraft);
-    setApplied(emptyDraft);
+    setFilters(emptyFilters);
   };
 
-  const hasAppliedFilters = applied.minPrice || applied.maxPrice || applied.minBedrooms > 0 || applied.minRating > 0 || applied.petFriendly || urlAmenities.length > 0;
+  const hasAppliedFilters = filters.minPrice || filters.maxPrice || filters.minBedrooms > 0 || filters.minRating > 0 || filters.petFriendly || urlAmenities.length > 0;
 
   const filtered = useMemo(() => {
     return apartments.filter(a => {
-      if (applied.minPrice && a.price_per_night < Number(applied.minPrice)) return false;
-      if (applied.maxPrice && a.price_per_night > Number(applied.maxPrice)) return false;
-      if (applied.minBedrooms > 0 && a.bedrooms < applied.minBedrooms) return false;
-      if (applied.minRating > 0 && (a.avg_rating || 0) < applied.minRating) return false;
-      if (applied.petFriendly) {
+      if (filters.minPrice && a.price_per_night < Number(filters.minPrice)) return false;
+      if (filters.maxPrice && a.price_per_night > Number(filters.maxPrice)) return false;
+      if (filters.minBedrooms > 0 && a.bedrooms < filters.minBedrooms) return false;
+      if (filters.minRating > 0 && (a.avg_rating || 0) < filters.minRating) return false;
+      if (filters.petFriendly) {
         const icons = (a.amenities || []).map(am => am.icon || am);
         if (!icons.includes('paw-print')) return false;
       }
       return true;
     });
-  }, [apartments, applied]);
+  }, [apartments, filters]);
 
   const hasSearchFilters = searchParams.get('location') || searchParams.get('checkIn') || searchParams.get('checkOut') || searchParams.get('guests');
 
@@ -133,25 +122,25 @@ export default function Apartments() {
         {showFilters && (
           <aside style={s.sidebar}>
             <div style={s.sidebarHeader}>
-              <span style={s.sidebarTitle}>Filters</span>
+              <span style={s.sidebarTitle}>{t('filters.filters')}</span>
               {hasAppliedFilters && (
-                <button onClick={clearFilters} style={s.resetBtn}>Clear all</button>
+                <button onClick={clearFilters} style={s.resetBtn}>{t('filters.clearAll')}</button>
               )}
             </div>
 
             {/* Price */}
             <div style={s.filterSection}>
-              <p style={s.filterLabel}>Price per night ($)</p>
+              <p style={s.filterLabel}>{t('filters.pricePerNight')}</p>
               <div style={s.priceRow}>
                 <input
-                  type="number" min="0" placeholder="Min"
-                  value={draft.minPrice} onChange={e => setDraft(d => ({ ...d, minPrice: e.target.value }))}
+                  type="number" min="0" placeholder={t('common.min')}
+                  value={filters.minPrice} onChange={e => setFilters(f => ({ ...f, minPrice: e.target.value }))}
                   style={s.priceInput}
                 />
                 <span style={{ color: '#ccc', fontSize: 14 }}>—</span>
                 <input
-                  type="number" min="0" placeholder="Max"
-                  value={draft.maxPrice} onChange={e => setDraft(d => ({ ...d, maxPrice: e.target.value }))}
+                  type="number" min="0" placeholder={t('common.max')}
+                  value={filters.maxPrice} onChange={e => setFilters(f => ({ ...f, maxPrice: e.target.value }))}
                   style={s.priceInput}
                 />
               </div>
@@ -161,15 +150,15 @@ export default function Apartments() {
 
             {/* Bedrooms */}
             <div style={s.filterSection}>
-              <p style={s.filterLabel}>Bedrooms (min)</p>
+              <p style={s.filterLabel}>{t('filters.bedrooms')}</p>
               <div style={s.bedroomRow}>
                 {[0, 1, 2, 3, 4, 5].map(n => (
                   <button
                     key={n}
-                    onClick={() => setDraft(d => ({ ...d, minBedrooms: n }))}
-                    style={{ ...s.bedroomBtn, ...(draft.minBedrooms === n ? s.bedroomBtnActive : {}) }}
+                    onClick={() => setFilters(f => ({ ...f, minBedrooms: n }))}
+                    style={{ ...s.bedroomBtn, ...(filters.minBedrooms === n ? s.bedroomBtnActive : {}) }}
                   >
-                    {n === 0 ? 'Any' : n === 5 ? '5+' : n}
+                    {n === 0 ? t('filters.any') : n === 5 ? '5+' : n}
                   </button>
                 ))}
               </div>
@@ -179,15 +168,15 @@ export default function Apartments() {
 
             {/* Rating */}
             <div style={s.filterSection}>
-              <p style={s.filterLabel}>Minimum rating</p>
+              <p style={s.filterLabel}>{t('filters.minRating')}</p>
               <div style={s.bedroomRow}>
                 {[0, 3, 3.5, 4, 4.5].map(n => (
                   <button
                     key={n}
-                    onClick={() => setDraft(d => ({ ...d, minRating: n }))}
-                    style={{ ...s.bedroomBtn, ...(draft.minRating === n ? s.bedroomBtnActive : {}) }}
+                    onClick={() => setFilters(f => ({ ...f, minRating: n }))}
+                    style={{ ...s.bedroomBtn, ...(filters.minRating === n ? s.bedroomBtnActive : {}) }}
                   >
-                    {n === 0 ? 'Any' : `${n}★`}
+                    {n === 0 ? t('filters.any') : `${n}★`}
                   </button>
                 ))}
               </div>
@@ -200,11 +189,11 @@ export default function Apartments() {
               <label style={s.checkRow}>
                 <input
                   type="checkbox"
-                  checked={draft.petFriendly}
-                  onChange={e => setDraft(d => ({ ...d, petFriendly: e.target.checked }))}
+                  checked={filters.petFriendly}
+                  onChange={e => setFilters(f => ({ ...f, petFriendly: e.target.checked }))}
                   style={{ accentColor: '#0F4C5C', width: 16, height: 16 }}
                 />
-                <span style={s.checkLabel}>Pet Friendly only</span>
+                <span style={s.checkLabel}>{t('filters.petFriendly')}</span>
               </label>
             </div>
 
@@ -212,9 +201,9 @@ export default function Apartments() {
 
             {/* Amenities */}
             <div style={s.filterSection}>
-              <p style={s.filterLabel}>Amenities</p>
+              <p style={s.filterLabel}>{t('filters.amenities')}</p>
               <div style={s.amenityList}>
-                {AMENITY_FILTERS.map(({ key, label, Icon }) => (
+                {AMENITY_FILTERS.map(({ key, Icon }) => (
                   <label key={key} style={s.amenityRow}>
                     <input
                       type="checkbox"
@@ -223,7 +212,7 @@ export default function Apartments() {
                       style={{ accentColor: '#0F4C5C', width: 15, height: 15, flexShrink: 0 }}
                     />
                     <Icon size={15} color="#0F4C5C" strokeWidth={1.8} style={{ flexShrink: 0 }} />
-                    <span style={s.amenityLabel}>{label}</span>
+                    <span style={s.amenityLabel}>{t(`amenities.${key}`)}</span>
                   </label>
                 ))}
               </div>
@@ -232,7 +221,7 @@ export default function Apartments() {
             <div style={s.filterActions}>
               {hasAppliedFilters && (
                 <button onClick={clearFilters} style={s.clearBtn}>
-                  Remove filters
+                  {t('filters.removeFilters')}
                 </button>
               )}
             </div>
@@ -244,11 +233,11 @@ export default function Apartments() {
           <div style={s.resultsHeader}>
             <div>
               <h2 style={s.sectionTitle}>
-                {hasSearchFilters ? 'Search results' : 'All apartments'}
+                {hasSearchFilters ? t('apartments.searchResults') : t('apartments.allApartments')}
               </h2>
               <p style={s.sectionSub}>
-                {loading ? 'Searching...' : `${filtered.length} place${filtered.length !== 1 ? 's' : ''} found`}
-                {hasAppliedFilters && !loading && <span style={s.filterBadge}> · filters active</span>}
+                {loading ? t('apartments.searching') : `${filtered.length} ${filtered.length !== 1 ? t('apartments.placesFoundPlural') : t('apartments.placesFound')}`}
+                {hasAppliedFilters && !loading && <span style={s.filterBadge}> {t('filters.filtersActive')}</span>}
               </p>
             </div>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -262,7 +251,7 @@ export default function Apartments() {
                     navigate(`/apartments${params.toString() ? `?${params}` : ''}`);
                   }}
                 >
-                  Clear search
+                  {t('filters.clearSearch')}
                 </button>
               )}
               <button
@@ -270,7 +259,7 @@ export default function Apartments() {
                 style={s.toggleFiltersBtn}
               >
                 <SlidersHorizontal size={15} style={{ marginRight: 6 }} />
-                {showFilters ? 'Hide filters' : 'Show filters'}
+                {showFilters ? t('filters.hideFilters') : t('filters.showFilters')}
               </button>
             </div>
           </div>
@@ -281,8 +270,8 @@ export default function Apartments() {
             </div>
           ) : filtered.length === 0 ? (
             <div style={s.empty}>
-              <p style={s.emptyText}>No apartments match your filters.</p>
-              <button onClick={clearFilters} style={s.emptyLink}>Clear filters</button>
+              <p style={s.emptyText}>{t('apartments.noResults')}</p>
+              <button onClick={clearFilters} style={s.emptyLink}>{t('apartments.clearFilters')}</button>
             </div>
           ) : (
             <div style={s.grid}>

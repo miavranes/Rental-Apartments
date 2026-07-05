@@ -71,6 +71,23 @@ const createReservation = async (req, res) => {
       return res.status(409).json({ error: 'These dates are already booked.' });
     }
 
+    // Also reject if any date in the range was manually blocked by the owner
+    // (blocked_dates rows with no reservation behind them — e.g. owner keeping
+    // the apartment for personal use). The reservations check above only
+    // catches overlaps with other bookings, not manual blocks.
+    const blockedCheck = await client.query(
+      `SELECT date FROM blocked_dates
+       WHERE apartment_id = $1
+         AND date >= $2 AND date < $3
+       LIMIT 1`,
+      [apartment_id, check_in, check_out]
+    );
+
+    if (blockedCheck.rows.length > 0) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'These dates are not available.' });
+    }
+
     const total_price = (apt.price_per_night * nights).toFixed(2);
 
     const result = await client.query(`

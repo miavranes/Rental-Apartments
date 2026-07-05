@@ -196,6 +196,13 @@ const resetPassword = async (req, res) => {
     }
 
     const user = result.rows[0];
+
+    // Prevent setting the same password as the current one
+    const isSamePassword = await bcrypt.compare(password, user.password_hash);
+    if (isSamePassword) {
+      return res.status(400).json({ error: 'New password must be different from your current password.' });
+    }
+
     const password_hash = await bcrypt.hash(password, 10);
 
     await pool.query(

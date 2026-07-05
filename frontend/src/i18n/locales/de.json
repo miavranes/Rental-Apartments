@@ -292,7 +292,9 @@
   },
   "common": {
     "error": "Etwas ist schiefgelaufen.",
-    "copyright": "Rentura. Alle Rechte vorbehalten."
+    "copyright": "Rentura. Alle Rechte vorbehalten.",
+    "min": "Min",
+    "max": "Max"
   },
   "chat": {
     "title": "Nachrichten",

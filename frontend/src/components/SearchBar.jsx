@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Calendar from './Calendar';
 import LocationAutocomplete from './LocationAutocomplete';
 import { formatLocation } from '../utils/locationUtils';
@@ -31,6 +32,7 @@ const drop = {
 
 // ─── Main SearchBar ──────────────────────────────────────────────────────────
 export default function SearchBar() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [active, setActive] = useState(null); // 'location' | 'checkin' | 'checkout' | 'guests'
@@ -79,17 +81,17 @@ export default function SearchBar() {
       {/* Location */}
       <div style={{ ...sb.segment, ...(isActive('location') ? sb.segmentActive : {}) }}
         onClick={() => toggle('location')}>
-        <span style={sb.label}>Location</span>
+        <span style={sb.label}>{t('search.location')}</span>
         <span style={{ ...sb.value, color: place.location ? '#111' : '#aaa' }}>
-          {formatLocation(place) || 'Where are you going?'}
+          {formatLocation(place) || t('search.locationPlaceholder')}
         </span>
         <Dropdown open={isActive('location')} style={{ left: '0', transform: 'none', minWidth: '300px' }}>
           <div style={{ padding: '16px' }} onClick={e => e.stopPropagation()}>
-            <p style={sb.dropLabel}>Search destination</p>
+            <p style={sb.dropLabel}>{t('search.searchDestination')}</p>
             <LocationAutocomplete
               value={place}
               onChange={setPlace}
-              placeholder="City, municipality, country..."
+              placeholder={t('search.cityPlaceholder')}
             />
           </div>
         </Dropdown>
@@ -100,9 +102,9 @@ export default function SearchBar() {
       {/* Check in */}
       <div style={{ ...sb.segment, ...(isActive('checkin') ? sb.segmentActive : {}) }}
         onClick={() => toggle('checkin')}>
-        <span style={sb.label}>Check in</span>
+        <span style={sb.label}>{t('search.checkIn')}</span>
         <span style={{ ...sb.value, color: checkIn ? '#111' : '#aaa' }}>
-          {formatDate(checkIn) || 'Add date'}
+          {formatDate(checkIn) || t('search.addDate')}
         </span>
         <Dropdown open={isActive('checkin')}>
           <Calendar
@@ -118,9 +120,9 @@ export default function SearchBar() {
       {/* Check out */}
       <div style={{ ...sb.segment, ...(isActive('checkout') ? sb.segmentActive : {}) }}
         onClick={() => toggle('checkout')}>
-        <span style={sb.label}>Check out</span>
+        <span style={sb.label}>{t('search.checkOut')}</span>
         <span style={{ ...sb.value, color: checkOut ? '#111' : '#aaa' }}>
-          {formatDate(checkOut) || 'Add date'}
+          {formatDate(checkOut) || t('search.addDate')}
         </span>
         <Dropdown open={isActive('checkout')}>
           <Calendar
@@ -136,13 +138,13 @@ export default function SearchBar() {
       {/* Guests */}
       <div style={{ ...sb.segment, ...(isActive('guests') ? sb.segmentActive : {}) }}
         onClick={() => toggle('guests')}>
-        <span style={sb.label}>Guests</span>
+        <span style={sb.label}>{t('search.guests')}</span>
         <span style={{ ...sb.value, color: '#111' }}>
-          {guests} {guests === 1 ? 'guest' : 'guests'}
+          {guests} {guests === 1 ? t('search.guest') : t('search.guestsPlural')}
         </span>
         <Dropdown open={isActive('guests')} style={{ right: '0', left: 'auto', transform: 'none' }}>
           <div style={sb.guestPanel} onClick={e => e.stopPropagation()}>
-            <span style={sb.guestLabel}>Number of guests</span>
+            <span style={sb.guestLabel}>{t('search.numberOfGuests')}</span>
             <div style={sb.guestControls}>
               <button type="button" style={{ ...sb.guestBtn, opacity: guests <= 1 ? 0.3 : 1 }}
                 onClick={() => setGuests(g => Math.max(1, g - 1))}>−</button>
@@ -159,7 +161,7 @@ export default function SearchBar() {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        Search
+        {t('search.searchBtn')}
       </button>
     </form>
   );
