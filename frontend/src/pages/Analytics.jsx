@@ -153,9 +153,9 @@ export default function Analytics() {
                   <tr>
                     <th style={s.th}>{t('analytics.colListing')}</th>
                     <th style={s.th}>{t('analytics.colBookings')}</th>
+                    <th style={s.th}>{t('analytics.colRating')}</th>
                     <th style={s.th}>{t('analytics.colEarnings')}</th>
                     <th style={s.th}>{t('analytics.colOccupancy')}</th>
-                    <th style={s.th}>{t('analytics.colRating')}</th>
                     <th style={s.th}>{t('analytics.colFavorites')}</th>
                   </tr>
                 </thead>
@@ -164,8 +164,6 @@ export default function Analytics() {
                     <tr key={l.id}>
                       <td style={s.tdTitle}>{l.title}</td>
                       <td style={s.td}>{l.reservations}</td>
-                      <td style={s.td}>{money(l.revenue)}</td>
-                      <td style={s.td}>{l.occupancy_rate_30d}%</td>
                       <td style={s.td}>
                         {l.review_count > 0 ? (
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
@@ -173,6 +171,8 @@ export default function Analytics() {
                           </span>
                         ) : '—'}
                       </td>
+                      <td style={s.td}>{money(l.revenue)}</td>
+                      <td style={s.td}>{l.occupancy_rate_30d}%</td>
                       <td style={s.td}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                           <Heart size={13} color="#E8A87C" /> {l.favorites}
