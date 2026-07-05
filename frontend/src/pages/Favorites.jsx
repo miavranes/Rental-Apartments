@@ -72,10 +72,11 @@ export default function Favorites() {
           </div>
         ) : (
           <div style={styles.grid}>
-            {favorites.map(apartment => (
+            {favorites.map((apartment, i) => (
               <ApartmentCard
                 key={apartment.id}
                 apartment={apartment}
+                index={i}
               />
             ))}
           </div>

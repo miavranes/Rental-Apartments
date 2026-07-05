@@ -92,6 +92,8 @@ export default function Messages() {
     <div style={s.page}>
       <Navbar />
       <style>{`
+        .conv-item-anim { transition: background-color 0.2s ease, transform 0.15s ease; }
+        .conv-item-anim:hover { transform: translateX(2px); }
         @media (max-width: 760px) {
           .messages-panel { height: calc(100vh - 60px) !important; border-radius: 0 !important; border-left: none !important; border-right: none !important; }
           .messages-container { padding: 0 !important; max-width: 100% !important; }
@@ -121,6 +123,7 @@ export default function Messages() {
                     key={c.id}
                     onClick={() => navigate(`/messages/${c.id}`)}
                     style={{ ...s.convItem, ...(c.id === activeId ? s.convItemActive : {}) }}
+                    className="conv-item-anim"
                   >
                     <div style={s.convRow}>
                       <span style={s.convName}>{otherPartyName(c)}</span>
@@ -173,7 +176,7 @@ export default function Messages() {
                     messages.map(m => {
                       const mine = m.sender_id === user.id;
                       return (
-                        <div key={m.id} style={{ ...s.msgRow, justifyContent: mine ? 'flex-end' : 'flex-start' }}>
+                        <div key={m.id} style={{ ...s.msgRow, justifyContent: mine ? 'flex-end' : 'flex-start' }} className="anim-fade-in-up">
                           <div style={{ ...s.bubble, ...(mine ? s.bubbleMine : s.bubbleTheirs) }}>
                             <span style={s.bubbleBody}>{m.body}</span>
                             <span style={{ ...s.bubbleTime, color: mine ? 'rgba(255,255,255,0.7)' : '#999' }}>
@@ -194,7 +197,7 @@ export default function Messages() {
                     placeholder={t('chat.placeholder')}
                     style={s.input}
                   />
-                  <button type="submit" disabled={!draft.trim() || sending} style={s.sendBtn}>
+                  <button type="submit" disabled={!draft.trim() || sending} style={s.sendBtn} className="btn-press">
                     <Send size={16} />
                   </button>
                 </form>

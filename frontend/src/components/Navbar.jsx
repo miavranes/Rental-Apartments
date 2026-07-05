@@ -63,9 +63,24 @@ export default function Navbar() {
           .navbar-links .navbar-lang-wrap { align-self: flex-start; margin-top: 8px; }
           .navbar-links .navbar-avatar-row { margin-top: 8px; }
         }
+
+        @keyframes navBadgePulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.15); }
+        }
+        .nav-link { transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease; }
+        .nav-link:hover { background-color: #f5fafb; transform: translateY(-1px); }
+        .nav-badge-pulse { animation: navBadgePulse 1.8s ease-in-out infinite; }
+        .brand-anim { transition: transform 0.2s ease; display: inline-block; }
+        .brand-anim:hover { transform: scale(1.05); }
+        .avatar-anim { transition: transform 0.2s ease; }
+        .avatar-anim:hover { transform: scale(1.08); }
+        @media (prefers-reduced-motion: reduce) {
+          .nav-link, .nav-badge-pulse, .brand-anim, .avatar-anim { animation: none !important; transition: none !important; }
+        }
       `}</style>
 
-      <Link to="/" style={s.brand}>Rentura</Link>
+      <Link to="/" style={s.brand} className="brand-anim">Rentura</Link>
 
       <button
         className="navbar-toggle"
@@ -86,10 +101,10 @@ export default function Navbar() {
       )}
 
       <div className={`navbar-links${mobileOpen ? ' open' : ''}`}>
-        <Link to="/" style={{ ...s.link, ...(isActive('/') ? s.linkActive : {}) }}>
+        <Link to="/" style={{ ...s.link, ...(isActive('/') ? s.linkActive : {}) }} className="nav-link">
           <Home size={15} style={s.linkIcon} /> {t('nav.home')}
         </Link>
-        <Link to="/apartments" style={{ ...s.link, ...(isActive('/apartments') ? s.linkActive : {}) }}>
+        <Link to="/apartments" style={{ ...s.link, ...(isActive('/apartments') ? s.linkActive : {}) }} className="nav-link">
           <Search size={15} style={s.linkIcon} /> {t('nav.browse')}
         </Link>
 
@@ -97,34 +112,34 @@ export default function Navbar() {
           <>
             {user.role === 'tourist' && (
               <>
-                <Link to="/reservations" style={{ ...s.link, ...(isActive('/reservations') ? s.linkActive : {}) }}>
+                <Link to="/reservations" style={{ ...s.link, ...(isActive('/reservations') ? s.linkActive : {}) }} className="nav-link">
                   <BookOpen size={15} style={s.linkIcon} /> {t('nav.myBookings')}
                 </Link>
-                <Link to="/favorites" style={{ ...s.link, ...(isActive('/favorites') ? s.linkActive : {}) }}>
+                <Link to="/favorites" style={{ ...s.link, ...(isActive('/favorites') ? s.linkActive : {}) }} className="nav-link">
                   <Heart size={15} style={s.linkIcon} /> {t('nav.favorites')}
                 </Link>
               </>
             )}
             {user.role === 'owner' && (
               <>
-                <Link to="/owner" style={{ ...s.link, ...(isActive('/owner') ? s.linkActive : {}) }}>
+                <Link to="/owner" style={{ ...s.link, ...(isActive('/owner') ? s.linkActive : {}) }} className="nav-link">
                   <Building size={15} style={s.linkIcon} /> {t('nav.myListings')}
                 </Link>
-                <Link to="/owner/reservations" style={{ ...s.link, ...(isActive('/owner/reservations') ? s.linkActive : {}) }}>
+                <Link to="/owner/reservations" style={{ ...s.link, ...(isActive('/owner/reservations') ? s.linkActive : {}) }} className="nav-link">
                   <BookOpen size={15} style={s.linkIcon} /> {t('nav.bookings')}
                 </Link>
-                <Link to="/owner/analytics" style={{ ...s.link, ...(isActive('/owner/analytics') ? s.linkActive : {}) }}>
+                <Link to="/owner/analytics" style={{ ...s.link, ...(isActive('/owner/analytics') ? s.linkActive : {}) }} className="nav-link">
                   <BarChart3 size={15} style={s.linkIcon} /> {t('nav.analytics')}
                 </Link>
               </>
             )}
-            <Link to="/messages" style={{ ...s.link, ...(isActive('/messages') ? s.linkActive : {}) }}>
+            <Link to="/messages" style={{ ...s.link, ...(isActive('/messages') ? s.linkActive : {}) }} className="nav-link">
               <MessageCircle size={15} style={s.linkIcon} /> {t('nav.messages')}
-              {unreadCount > 0 && <span style={s.navBadge}>{unreadCount}</span>}
+              {unreadCount > 0 && <span style={s.navBadge} className="nav-badge-pulse">{unreadCount}</span>}
             </Link>
             <div className="navbar-divider" style={s.divider} />
             <div className="navbar-avatar-row" style={s.avatarRow}>
-              <Link to="/profile" style={s.avatar} title={user.name}>
+              <Link to="/profile" style={s.avatar} title={user.name} className="avatar-anim">
                 {user.name?.charAt(0).toUpperCase()}
               </Link>
               <button onClick={logout} style={s.logoutBtn} title={t('nav.signOut')}>
@@ -134,8 +149,8 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Link to="/login" style={s.link}><LogIn size={15} style={s.linkIcon} />{t('nav.logIn')}</Link>
-            <Link to="/register" style={s.signupBtn}>{t('nav.signUp')}</Link>
+            <Link to="/login" style={s.link} className="nav-link"><LogIn size={15} style={s.linkIcon} />{t('nav.logIn')}</Link>
+            <Link to="/register" style={s.signupBtn} className="btn-press">{t('nav.signUp')}</Link>
           </>
         )}
 

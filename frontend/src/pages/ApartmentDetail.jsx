@@ -159,7 +159,7 @@ function StripePaymentForm({ reservationId, total, onSuccess, onError }) {
       <div style={bp.cardElementWrap}>
         <CardElement options={{ style: { base: { fontSize: '15px', color: '#222', fontFamily: "'Segoe UI', sans-serif", '::placeholder': { color: '#aaa' } } } }} />
       </div>
-      <button type="submit" disabled={!stripe || loading} style={{ ...bp.btn, marginTop: 12 }}>
+      <button type="submit" disabled={!stripe || loading} style={{ ...bp.btn, marginTop: 12 }} className="btn-press">
         {loading ? 'Processing...' : `Pay $${Number(total).toFixed(2)}`}
       </button>
     </form>
@@ -241,15 +241,15 @@ function BookingPanel({ apartment, blockedDates = [] }) {
   // ── Success screen ──
   if (step === 'done') {
     return (
-      <div style={bp.card}>
-        <div style={bp.successIcon}><Check size={28} strokeWidth={2.5} color="#0F4C5C" /></div>
+      <div style={bp.card} className="anim-fade-in-up">
+        <div style={bp.successIcon} className="anim-pop-in"><Check size={28} strokeWidth={2.5} color="#0F4C5C" /></div>
         <h3 style={{ ...bp.price, textAlign: 'center', marginBottom: 8 }}>Booking confirmed!</h3>
         <p style={{ color: '#888', fontSize: 14, textAlign: 'center', margin: '0 0 20px' }}>
           {paymentMethod === 'online'
             ? 'Payment successful. Your reservation is confirmed.'
             : 'Your reservation is pending approval from the host.'}
         </p>
-        <Link to="/reservations" style={{ ...bp.btn, display: 'block', textAlign: 'center', textDecoration: 'none' }}>
+        <Link to="/reservations" style={{ ...bp.btn, display: 'block', textAlign: 'center', textDecoration: 'none' }} className="btn-press">
           View my bookings
         </Link>
       </div>
@@ -273,7 +273,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
             onError={(msg) => setError(msg)}
           />
         </Elements>
-        <button onClick={() => { setStep('done'); }} style={{ ...bp.btn, marginTop: 10, backgroundColor: '#f5f5f5', color: '#888', fontSize: 13 }}>
+        <button onClick={() => { setStep('done'); }} style={{ ...bp.btn, marginTop: 10, backgroundColor: '#f5f5f5', color: '#888', fontSize: 13 }} className="btn-press">
           Skip — I'll pay later
         </button>
       </div>
@@ -385,7 +385,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
           </div>
         </div>
 
-        <button type="submit" disabled={loading || !checkIn || !checkOut} style={{ ...bp.btn, opacity: (!checkIn || !checkOut) ? 0.6 : 1 }}>
+        <button type="submit" disabled={loading || !checkIn || !checkOut} style={{ ...bp.btn, opacity: (!checkIn || !checkOut) ? 0.6 : 1 }} className="btn-press">
           {loading ? 'Booking...' : user ? 'Reserve' : 'Log in to book'}
         </button>
 

@@ -277,7 +277,7 @@ export default function Apartments() {
 
           {loading ? (
             <div style={s.grid}>
-              {Array.from({ length: 6 }).map((_, i) => <div key={i} style={s.skeleton} />)}
+              {Array.from({ length: 6 }).map((_, i) => <div key={i} style={s.skeleton} className="skeleton-shimmer" />)}
             </div>
           ) : filtered.length === 0 ? (
             <div style={s.empty}>
@@ -286,7 +286,7 @@ export default function Apartments() {
             </div>
           ) : (
             <div style={s.grid}>
-              {filtered.map(a => <ApartmentCard key={a.id} apartment={a} />)}
+              {filtered.map((a, i) => <ApartmentCard key={a.id} apartment={a} index={i} />)}
             </div>
           )}
         </section>
@@ -339,7 +339,7 @@ const s = {
   clearLink: { fontSize: '14px', fontWeight: '600', color: '#0F4C5C', textDecoration: 'none', borderBottom: '1px solid #E8A87C', paddingBottom: '1px' },
   toggleFiltersBtn: { display: 'flex', alignItems: 'center', padding: '8px 16px', border: '1px solid #ddd', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', background: '#fff', color: '#333', fontFamily: "'Segoe UI', sans-serif" },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' },
-  skeleton: { borderRadius: '16px', backgroundColor: '#e8e8e8', height: '280px' },
+  skeleton: { borderRadius: '16px', height: '280px' },
   empty: { textAlign: 'center', padding: '80px 0' },
   emptyText: { color: '#888', fontSize: '16px', margin: '0 0 12px' },
   emptyLink: { color: '#0F4C5C', fontWeight: '600', fontSize: '15px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif", textDecoration: 'underline' },

@@ -159,7 +159,7 @@ export default function MyReservations() {
           </div>
         ) : (
           <div style={s.list}>
-            {reservations.map(r => {
+            {reservations.map((r, i) => {
               const st = STATUS_COLORS[r.status] || STATUS_COLORS.pending;
               const n = nights(r);
               const canCancel = r.status === 'pending' || r.status === 'confirmed';
@@ -167,7 +167,7 @@ export default function MyReservations() {
               const canMessage = r.status === 'confirmed' || r.status === 'completed';
 
               return (
-                <div key={r.id} style={s.card} className="my-res-card">
+                <div key={r.id} style={{ ...s.card, animationDelay: `${Math.min(i, 8) * 60}ms` }} className="my-res-card anim-fade-in-up card-hover">
                   <div style={s.cardImg} className="my-res-card-img">
                     {r.primary_image
                       ? <img src={BASE + r.primary_image} alt={r.title} style={s.img} />
@@ -198,13 +198,13 @@ export default function MyReservations() {
                       </div>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         {canMessage && (
-                          <button onClick={() => handleMessageHost(r)} disabled={messaging === r.id} style={s.messageBtn}>
+                          <button onClick={() => handleMessageHost(r)} disabled={messaging === r.id} style={s.messageBtn} className="btn-press">
                             <MessageCircle size={14} style={{ marginRight: 4 }} />
                             {messaging === r.id ? t('reservations.opening') : t('reservations.messageHost')}
                           </button>
                         )}
                         {canReview && (
-                          <button onClick={() => setReviewTarget(r)} style={s.reviewBtn}>
+                          <button onClick={() => setReviewTarget(r)} style={s.reviewBtn} className="btn-press">
                             <Star size={14} style={{ marginRight: 4 }} />{t('reservations.leaveReview')}
                           </button>
                         )}
@@ -213,6 +213,7 @@ export default function MyReservations() {
                             onClick={() => handleCancel(r.id)}
                             disabled={cancelling === r.id}
                             style={s.cancelBtn}
+                            className="btn-press"
                           >
                             {cancelling === r.id ? t('reservations.cancelling') : t('reservations.cancel')}
                           </button>
@@ -242,6 +243,7 @@ export default function MyReservations() {
           .my-res-card-img { width: 100% !important; height: 180px; }
           .my-res-card-bottom { flex-direction: column; align-items: flex-start !important; gap: 12px; }
         }
+        .my-res-card.card-hover:hover { box-shadow: 0 10px 24px rgba(15,76,92,0.12); }
       `}</style>
     </div>
   );

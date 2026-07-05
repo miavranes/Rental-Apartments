@@ -251,7 +251,12 @@
     "availabilityHint": "Cliquez sur une date pour la bloquer ou la debloquer. Les dates bloquees (rouges) ne seront pas disponibles a la reservation.",
     "loading": "Chargement...",
     "checkInTime": "Heure d'arrivee",
-    "checkOutTime": "Heure de depart"
+    "checkOutTime": "Heure de depart",
+    "paymentMethodLabel": "Mode de paiement",
+    "paymentOnArrival": "Paiement a l'arrivee",
+    "paymentOnArrivalSub": "Les voyageurs paient en especes ou par carte sur place",
+    "paymentOnline": "Paiement en ligne",
+    "paymentOnlineSub": "Les voyageurs paient par carte via Stripe lors de la reservation"
   },
   "review": {
     "leaveReview": "Laisser un avis",

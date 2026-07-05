@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS apartments (
   price_per_night NUMERIC(10,2) NOT NULL            CHECK (price_per_night >= 0),
   lat             NUMERIC(10,7),
   lng             NUMERIC(10,7),
+  payment_method  VARCHAR(20)   NOT NULL DEFAULT 'on_arrival'
+                    CHECK (payment_method IN ('on_arrival', 'online')),
   created_at      TIMESTAMPTZ   NOT NULL DEFAULT NOW()
 );
 

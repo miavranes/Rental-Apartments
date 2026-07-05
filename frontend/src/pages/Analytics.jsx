@@ -97,25 +97,25 @@ export default function Analytics() {
 
         {/* Summary cards */}
         <div style={s.cardsRow}>
-          <div style={s.card} className="analytics-card">
+          <div style={{ ...s.card, animationDelay: "0ms" }} className="analytics-card anim-fade-in-up">
             <div style={{ ...s.cardIcon, backgroundColor: '#eafaf1' }}><DollarSign size={18} color="#22c55e" /></div>
             <span style={s.cardLabel}>{t('analytics.totalEarnings')}</span>
             <span style={s.cardValue}>{money(summary.revenue)}</span>
             <span style={s.cardHint}>{t('analytics.earningsHint')}</span>
           </div>
-          <div style={s.card} className="analytics-card">
+          <div style={{ ...s.card, animationDelay: "60ms" }} className="analytics-card anim-fade-in-up">
             <div style={{ ...s.cardIcon, backgroundColor: '#f0f7f9' }}><Percent size={18} color="#0F4C5C" /></div>
             <span style={s.cardLabel}>{t('analytics.occupancyRate')}</span>
             <span style={s.cardValue}>{summary.occupancy_rate_30d}%</span>
             <span style={s.cardHint}>{t('analytics.occupancyHint30d')} {summary.listings} {listingsSuffix}</span>
           </div>
-          <div style={s.card} className="analytics-card">
+          <div style={{ ...s.card, animationDelay: "120ms" }} className="analytics-card anim-fade-in-up">
             <div style={{ ...s.cardIcon, backgroundColor: '#fff7ed' }}><TrendingUp size={18} color="#f97316" /></div>
             <span style={s.cardLabel}>{t('analytics.avgNightlyRate')}</span>
             <span style={s.cardValue}>{money(summary.avg_nightly_rate)}</span>
             <span style={s.cardHint}>{t('analytics.nightlyHint')}</span>
           </div>
-          <div style={s.card} className="analytics-card">
+          <div style={{ ...s.card, animationDelay: "180ms" }} className="analytics-card anim-fade-in-up">
             <div style={{ ...s.cardIcon, backgroundColor: '#fdf2f8' }}><CalendarCheck size={18} color="#ec4899" /></div>
             <span style={s.cardLabel}>{t('analytics.totalBookings')}</span>
             <span style={s.cardValue}>{summary.reservations}</span>
@@ -127,11 +127,11 @@ export default function Analytics() {
 
         {/* Booking trends */}
         <div style={s.chartsRow}>
-          <div style={s.chartCard} className="analytics-card">
+          <div style={{ ...s.chartCard, animationDelay: "240ms" }} className="analytics-card anim-fade-in-up">
             <h3 style={s.chartTitle}>{t('analytics.revenueByMonth')}</h3>
             <BarChart data={revenueData} labels={labels} format={money} color="#0F4C5C" />
           </div>
-          <div style={s.chartCard} className="analytics-card">
+          <div style={{ ...s.chartCard, animationDelay: "300ms" }} className="analytics-card anim-fade-in-up">
             <h3 style={s.chartTitle}>{t('analytics.bookingsByMonth')}</h3>
             <BarChart data={reservationsData} labels={labels} format={(v) => `${v}`} color="#E8A87C" />
           </div>

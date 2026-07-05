@@ -43,11 +43,11 @@ export default function ResetPassword() {
 
   return (
     <div style={s.page}>
-      <div style={s.card}>
+      <div style={s.card} className="anim-fade-in-up">
         <h1 style={s.title}>Set new password</h1>
 
         {done ? (
-          <div style={s.success}>
+          <div style={s.success} className="anim-pop-in">
             <p style={{ margin: 0, fontSize: 15, color: '#2e7d32' }}>✓ Password reset! Redirecting to login...</p>
           </div>
         ) : (
@@ -81,7 +81,7 @@ export default function ResetPassword() {
                 onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                 onBlur={e => e.target.style.borderColor = '#ddd'}
               />
-              <button type="submit" disabled={loading} style={s.btn}>
+              <button type="submit" disabled={loading} style={s.btn} className="btn-press">
                 {loading ? 'Saving...' : 'Reset password'}
               </button>
             </form>

@@ -251,7 +251,12 @@
     "availabilityHint": "Click a date to block or unblock it. Blocked dates (red) won't be available for booking.",
     "loading": "Loading...",
     "checkInTime": "Check-in time",
-    "checkOutTime": "Check-out time"
+    "checkOutTime": "Check-out time",
+    "paymentMethodLabel": "Payment method",
+    "paymentOnArrival": "Pay on arrival",
+    "paymentOnArrivalSub": "Guests pay cash or card at the property",
+    "paymentOnline": "Pay online",
+    "paymentOnlineSub": "Guests pay by card via Stripe when booking"
   },
   "review": {
     "leaveReview": "Leave a review",

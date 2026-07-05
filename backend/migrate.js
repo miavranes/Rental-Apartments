@@ -10,6 +10,9 @@ async function migrate() {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(100);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ;
     `);
+    await pool.query(`
+      ALTER TABLE apartments ADD COLUMN IF NOT EXISTS payment_method VARCHAR(20) NOT NULL DEFAULT 'on_arrival';
+    `);
     console.log('Migration complete.');
     process.exit(0);
   } catch (err) {

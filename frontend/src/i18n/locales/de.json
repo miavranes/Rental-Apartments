@@ -251,7 +251,12 @@
     "availabilityHint": "Klicke auf ein Datum, um es zu sperren oder freizugeben. Gesperrte Daten (rot) sind nicht buchbar.",
     "loading": "Lade...",
     "checkInTime": "Check-in-Zeit",
-    "checkOutTime": "Check-out-Zeit"
+    "checkOutTime": "Check-out-Zeit",
+    "paymentMethodLabel": "Zahlungsmethode",
+    "paymentOnArrival": "Zahlung bei Ankunft",
+    "paymentOnArrivalSub": "Gäste zahlen bar oder mit Karte vor Ort",
+    "paymentOnline": "Online bezahlen",
+    "paymentOnlineSub": "Gäste zahlen bei der Buchung per Karte über Stripe"
   },
   "review": {
     "leaveReview": "Bewertung hinterlassen",

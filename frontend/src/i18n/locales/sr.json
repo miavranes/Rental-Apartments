@@ -251,7 +251,12 @@
     "availabilityHint": "Kliknite datum da ga blokirate ili odblokirate. Blokirani datumi (crveni) neće biti dostupni za rezervaciju.",
     "loading": "Učitavanje...",
     "checkInTime": "Vrijeme prijave",
-    "checkOutTime": "Vrijeme odjave"
+    "checkOutTime": "Vrijeme odjave",
+    "paymentMethodLabel": "Način plaćanja",
+    "paymentOnArrival": "Plaćanje po dolasku",
+    "paymentOnArrivalSub": "Gosti plaćaju gotovinom ili karticom u smještaju",
+    "paymentOnline": "Plaćanje online",
+    "paymentOnlineSub": "Gosti plaćaju karticom putem Stripe-a prilikom rezervacije"
   },
   "review": {
     "leaveReview": "Ostavi recenziju",

@@ -189,7 +189,7 @@ export default function Owner() {
             <h1 style={s.pageTitle}>{t('owner.myListings')}</h1>
             <p style={s.pageSub}>{t('owner.manageSub')}</p>
           </div>
-          <button onClick={openNew} style={s.addBtn}><Plus size={16} strokeWidth={2.5} style={{ marginRight: 6 }} />{t('owner.newListing')}</button>
+          <button onClick={openNew} style={s.addBtn} className="btn-press"><Plus size={16} strokeWidth={2.5} style={{ marginRight: 6 }} />{t('owner.newListing')}</button>
         </div>
 
         {success && <div style={s.successBanner}>{success}</div>}
@@ -205,8 +205,8 @@ export default function Owner() {
           </div>
         ) : (
           <div style={s.grid}>
-            {apartments.map(apt => (
-              <div key={apt.id} style={s.card}>
+            {apartments.map((apt, i) => (
+              <div key={apt.id} style={{ ...s.card, animationDelay: `${Math.min(i, 8) * 60}ms` }} className="anim-fade-in-up card-hover">
                 <div style={s.cardImg}>
                   {apt.images?.length > 0
                     ? <img src={BASE + apt.images[0].image_url} alt={apt.title} style={s.cardImgEl} />
@@ -234,8 +234,8 @@ export default function Owner() {
       </div>
 
       {showForm && (
-        <div style={s.overlay} onClick={() => setShowForm(false)}>
-          <div style={s.modal} onClick={e => e.stopPropagation()}>
+        <div style={s.overlay} className="anim-overlay-in" onClick={() => setShowForm(false)}>
+          <div style={s.modal} className="anim-modal-in" onClick={e => e.stopPropagation()}>
             <div style={s.modalHeader}>
               <h2 style={s.modalTitle}>{editTarget ? t('owner.editListing') : t('owner.createListing')}</h2>
               <button onClick={() => setShowForm(false)} style={s.closeBtn}><X size={20} /></button>
@@ -424,7 +424,7 @@ export default function Owner() {
                 )}
               </div>
 
-              <button type="submit" disabled={saving} style={s.submitBtn}
+              <button type="submit" disabled={saving} style={s.submitBtn} className="btn-press"
                 onMouseEnter={e => e.target.style.backgroundColor = '#0a3a47'}
                 onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}>
                 {saving ? t('owner.saving') : editTarget ? t('owner.saveChanges') : t('owner.newListing')}
@@ -435,8 +435,8 @@ export default function Owner() {
       )}
 
       {deleteId && (
-        <div style={s.overlay}>
-          <div style={{ ...s.modal, maxWidth: 400 }}>
+        <div style={s.overlay} className="anim-overlay-in">
+          <div style={{ ...s.modal, maxWidth: 400 }} className="anim-modal-in">
             <h2 style={s.modalTitle}>{t('owner.deleteListing')}</h2>
             <p style={{ color: '#888', fontSize: 15, margin: '12px 0 24px' }}>{t('owner.deleteConfirm')}</p>
             <div style={{ display: 'flex', gap: 12 }}>
@@ -449,8 +449,8 @@ export default function Owner() {
 
       {/* Availability modal */}
       {availApt && (
-        <div style={s.overlay} onClick={() => setAvailApt(null)}>
-          <div style={{ ...s.modal, maxWidth: 380 }} onClick={e => e.stopPropagation()}>
+        <div style={s.overlay} className="anim-overlay-in" onClick={() => setAvailApt(null)}>
+          <div style={{ ...s.modal, maxWidth: 380 }} className="anim-modal-in" onClick={e => e.stopPropagation()}>
             <div style={s.modalHeader}>
               <h2 style={s.modalTitle}>{t('owner.availability')}</h2>
               <button onClick={() => setAvailApt(null)} style={s.closeBtn}><X size={20} /></button>

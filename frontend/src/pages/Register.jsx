@@ -126,7 +126,7 @@ export default function Register() {
       </div>
 
       <div style={styles.right}>
-        <div style={styles.formBox}>
+        <div style={styles.formBox} className="anim-fade-in-up">
 
           {step === 'register' ? (
             <>
@@ -232,7 +232,7 @@ export default function Register() {
                     </div>
                   </div>
                 </div>
-                <button type="submit" disabled={loading} style={styles.button}
+                <button type="submit" disabled={loading} style={styles.button} className="btn-press"
                   onMouseEnter={e => e.target.style.backgroundColor = '#0a3a47'}
                   onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}>
                   {loading ? t('auth.creating') : t('auth.createAccountBtn')}

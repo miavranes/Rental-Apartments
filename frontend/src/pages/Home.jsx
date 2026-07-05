@@ -30,7 +30,7 @@ export default function Home() {
 
       <section style={styles.hero}>
         <div style={styles.heroOverlay} />
-        <div style={styles.heroContent}>
+        <div style={styles.heroContent} className="anim-fade-in-up">
           <h1 style={styles.heroTitle}>{t('home.heroTitle')}</h1>
           <p style={styles.heroSubtitle}>{t('home.heroSubtitle')}</p>
           <SearchBar />
@@ -43,13 +43,13 @@ export default function Home() {
             <h2 style={styles.sectionTitle}>{t('home.featuredTitle')}</h2>
             <p style={styles.sectionSub}>{t('home.featuredSub')}</p>
           </div>
-          <Link to="/apartments" style={styles.seeAll}>{t('home.viewAll')}</Link>
+          <Link to="/apartments" style={styles.seeAll} className="btn-press">{t('home.viewAll')}</Link>
         </div>
 
         {loading ? (
           <div style={styles.grid}>
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} style={styles.skeleton} />
+              <div key={i} style={styles.skeleton} className="skeleton-shimmer" />
             ))}
           </div>
         ) : featured.length === 0 ? (
@@ -61,8 +61,8 @@ export default function Home() {
           </div>
         ) : (
           <div style={styles.grid}>
-            {featured.map((a) => (
-              <ApartmentCard key={a.id} apartment={a} />
+            {featured.map((a, i) => (
+              <ApartmentCard key={a.id} apartment={a} index={i} />
             ))}
           </div>
         )}
@@ -225,7 +225,6 @@ const styles = {
   },
   skeleton: {
     borderRadius: '16px',
-    backgroundColor: '#e8e8e8',
     height: '280px',
   },
   empty: {

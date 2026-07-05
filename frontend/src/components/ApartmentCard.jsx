@@ -6,7 +6,7 @@ import { formatLocation } from '../utils/locationUtils';
 import favoriteService from '../services/favoriteService';
 import { UPLOADS_URL } from '../config';
 
-export default function ApartmentCard({ apartment }) {
+export default function ApartmentCard({ apartment, index = 0 }) {
   const { t } = useTranslation();
   const {
     id,
@@ -19,10 +19,12 @@ export default function ApartmentCard({ apartment }) {
 
   const [favorite, setFavorite] = useState(false);
   const [imgStatus, setImgStatus] = useState('loading'); // 'loading' | 'ok' | 'error'
+  const [heartPop, setHeartPop] = useState(false);
 
   const toggleFavorite = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    setHeartPop(true);
     try {
       if (favorite) {
         await favoriteService.remove(id);
@@ -46,10 +48,25 @@ export default function ApartmentCard({ apartment }) {
   };
 
   return (
-    <Link to={`/apartments/${id}`} style={styles.card}>
+    <Link
+      to={`/apartments/${id}`}
+      style={{ ...styles.card, animationDelay: `${Math.min(index, 10) * 45}ms` }}
+      className="card-hover anim-fade-in-up"
+    >
       <div style={styles.imageWrapper}>
-        <button onClick={toggleFavorite} style={styles.heartBtn} type="button">
-          <Heart size={18} fill={favorite ? '#ef4444' : 'transparent'} color={favorite ? '#ef4444' : '#fff'} />
+        <button
+          onClick={toggleFavorite}
+          onAnimationEnd={() => setHeartPop(false)}
+          style={styles.heartBtn}
+          className="btn-press"
+          type="button"
+        >
+          <Heart
+            size={18}
+            fill={favorite ? '#ef4444' : 'transparent'}
+            color={favorite ? '#ef4444' : '#fff'}
+            className={heartPop ? 'anim-heart-pop' : ''}
+          />
         </button>
 
         {imgSrc && (
@@ -58,6 +75,7 @@ export default function ApartmentCard({ apartment }) {
             src={imgSrc}
             alt={title}
             loading="eager"
+            className="card-hover-img"
             style={{
               ...styles.image,
               display: imgStatus === 'error' ? 'none' : 'block',

@@ -42,7 +42,7 @@ export default function Login() {
         </div>
       </div>
       <div style={styles.right}>
-        <div style={styles.formBox}>
+        <div style={styles.formBox} className="anim-fade-in-up">
           <h2 style={styles.title}>{t('auth.welcomeBack')}</h2>
           <p style={styles.subtitle}>{t('auth.signInAccount')}</p>
           {error && <div style={styles.error}>{error}</div>}
@@ -67,7 +67,7 @@ export default function Login() {
                 </button>
               </div>
             </div>
-            <button type="submit" disabled={loading} style={styles.button}
+            <button type="submit" disabled={loading} style={styles.button} className="btn-press"
               onMouseEnter={e => e.target.style.backgroundColor = '#0a3a47'}
               onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}>
               {loading ? t('auth.signingIn') : t('auth.signIn')}

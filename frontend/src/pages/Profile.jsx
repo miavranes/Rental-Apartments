@@ -93,7 +93,7 @@ export default function Profile() {
         </div>
 
         <div style={s.grid}>
-          <div style={s.card}>
+          <div style={s.card} className="anim-fade-in-up">
             <h2 style={s.cardTitle}>Account type</h2>
             <p style={s.cardSub}>
               {user?.role === 'tourist'
@@ -115,6 +115,7 @@ export default function Profile() {
               onClick={handleSwitchRole}
               disabled={switchLoading}
               style={s.switchBtn}
+              className="btn-press"
               onMouseEnter={e => e.target.style.backgroundColor = '#0a3a47'}
               onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}
             >
@@ -124,10 +125,10 @@ export default function Profile() {
             </button>
           </div>
 
-          <div style={s.card}>
+          <div style={{ ...s.card, animationDelay: '80ms' }} className="anim-fade-in-up">
             <h2 style={s.cardTitle}>Edit profile</h2>
 
-            {success && <div style={s.success}>{success}</div>}
+            {success && <div style={s.success} className="anim-pop-in">{success}</div>}
             {error && <div style={s.error}>{error}</div>}
 
             <form onSubmit={handleSubmit}>
@@ -175,6 +176,7 @@ export default function Profile() {
                 type="submit"
                 disabled={loading}
                 style={s.saveBtn}
+                className="btn-press"
                 onMouseEnter={e => e.target.style.backgroundColor = '#0a3a47'}
                 onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}
               >

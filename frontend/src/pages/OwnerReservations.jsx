@@ -135,12 +135,12 @@ export default function OwnerReservations() {
           </div>
         ) : (
           <div style={s.list}>
-            {filtered.map(r => {
+            {filtered.map((r, i) => {
               const st = STATUS_COLORS[r.status] || STATUS_COLORS.pending;
               const n = nights(r);
 
               return (
-                <div key={r.id} style={s.card}>
+                <div key={r.id} style={{ ...s.card, animationDelay: `${Math.min(i, 8) * 60}ms` }} className="anim-fade-in-up card-hover">
                   <div style={s.cardMain}>
                     <div style={s.cardLeft}>
                       <Link to={`/apartments/${r.apartment_id}`} style={s.aptName}>{r.title}</Link>
@@ -182,12 +182,12 @@ export default function OwnerReservations() {
                     </div>
                     {(r.status === 'confirmed' || r.status === 'completed') && (
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                        <button onClick={() => handleMessageGuest(r)} disabled={messaging === r.id} style={s.messageBtn}>
+                        <button onClick={() => handleMessageGuest(r)} disabled={messaging === r.id} style={s.messageBtn} className="btn-press">
                           <MessageCircle size={14} style={{ marginRight: 4 }} />
                           {messaging === r.id ? t('ownerReservations.opening') : t('ownerReservations.messageGuest')}
                         </button>
                         {r.status === 'confirmed' && (
-                          <button onClick={() => handleCancel(r.id)} disabled={!!processing} style={s.declineBtn}>
+                          <button onClick={() => handleCancel(r.id)} disabled={!!processing} style={s.declineBtn} className="btn-press">
                             <X size={14} style={{ marginRight: 4 }} />{t('ownerReservations.cancelBtn')}
                           </button>
                         )}
@@ -199,6 +199,7 @@ export default function OwnerReservations() {
                           onClick={() => handleConfirm(r.id)}
                           disabled={!!processing}
                           style={s.confirmBtn}
+                          className="btn-press"
                         >
                           <Check size={14} style={{ marginRight: 4 }} />
                           {processing === r.id + '_confirm' ? t('ownerReservations.confirming') : t('ownerReservations.confirm')}
@@ -207,6 +208,7 @@ export default function OwnerReservations() {
                           onClick={() => handleCancel(r.id)}
                           disabled={!!processing}
                           style={s.declineBtn}
+                          className="btn-press"
                         >
                           <X size={14} style={{ marginRight: 4 }} />
                           {processing === r.id + '_cancel' ? t('ownerReservations.declining') : t('ownerReservations.decline')}
@@ -229,6 +231,7 @@ export default function OwnerReservations() {
           .owner-res-tabs { overflow-x: auto; white-space: nowrap; }
           .owner-res-card-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
+        .card-hover:hover { box-shadow: 0 10px 24px rgba(15,76,92,0.12); }
       `}</style>
     </div>
   );
