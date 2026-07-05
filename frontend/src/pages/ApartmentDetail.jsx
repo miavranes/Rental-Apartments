@@ -205,6 +205,13 @@ function BookingPanel({ apartment, blockedDates = [] }) {
     : 0;
   const total = nights * apartment.price_per_night;
 
+  // The earliest date, after check-in, that's already occupied by another
+  // reservation. Checkout is allowed to land exactly on that date (the guest
+  // leaves that morning before the next one arrives) but not go past it.
+  const checkoutMaxDate = checkIn
+    ? [...blockedDates].filter(d => d > checkIn).sort()[0] || null
+    : null;
+
   const handleBook = async (e) => {
     e.preventDefault();
     if (!user) return navigate('/login');
@@ -342,6 +349,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
                   <Calendar
                     value={checkOut}
                     minDate={checkIn || new Date().toISOString().split('T')[0]}
+                    maxDate={checkoutMaxDate}
                     blockedDates={blockedDates}
                     onChange={(d) => { setCheckOut(d); setOpenCal(null); }}
                   />

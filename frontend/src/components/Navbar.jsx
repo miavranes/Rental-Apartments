@@ -37,6 +37,9 @@ export default function Navbar() {
       <style>{`
         .navbar-toggle { display: none; }
         .navbar-backdrop { display: none; }
+        .navbar-links {
+          display: flex; align-items: center; gap: 4px;
+        }
         @media (max-width: 860px) {
           .navbar-toggle { display: flex; position: relative; z-index: 150; }
           .navbar-backdrop {
@@ -82,7 +85,7 @@ export default function Navbar() {
         />
       )}
 
-      <div className={`navbar-links${mobileOpen ? ' open' : ''}`} style={s.links}>
+      <div className={`navbar-links${mobileOpen ? ' open' : ''}`}>
         <Link to="/" style={{ ...s.link, ...(isActive('/') ? s.linkActive : {}) }}>
           <Home size={15} style={s.linkIcon} /> {t('nav.home')}
         </Link>
@@ -162,7 +165,6 @@ const s = {
     background: 'none', border: '1px solid #e0e0e0', borderRadius: 8,
     padding: '6px 8px', cursor: 'pointer', color: '#0F4C5C',
   },
-  links: { display: 'flex', alignItems: 'center', gap: 4 },
   backdrop: { border: 'none', padding: 0, margin: 0, cursor: 'default' },
   link: {
     display: 'flex', alignItems: 'center', gap: 5,

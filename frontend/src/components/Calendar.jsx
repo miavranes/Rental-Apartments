@@ -3,7 +3,7 @@ import { useState } from 'react';
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
-export default function Calendar({ value, onChange, minDate, blockedDates = [], toggleMode = false }) {
+export default function Calendar({ value, onChange, minDate, maxDate, blockedDates = [], toggleMode = false }) {
   const today = new Date();
   const initial = value ? new Date(value + 'T00:00:00') : (minDate ? new Date(minDate + 'T00:00:00') : today);
   const [viewYear, setViewYear] = useState(initial.getFullYear());
@@ -27,16 +27,22 @@ export default function Calendar({ value, onChange, minDate, blockedDates = [], 
 
   const toStr = (d) => new Date(viewYear, viewMonth, d).toISOString().split('T')[0];
   const isSelected = (d) => d && value === toStr(d);
+  // A date that's the check-in day of ANOTHER reservation is technically
+  // "blocked" (it appears in blockedDates), but it's still a perfectly valid
+  // CHECK-OUT date for this booking — the previous guest leaves that morning
+  // before the next one arrives. `maxDate` (when supplied) marks that exact
+  // boundary date as selectable even though it's in blockedDates.
   const isDisabled = (d) => {
     if (!d) return true;
     const str = toStr(d);
     if (toggleMode) return false; // in toggle mode, all dates are clickable
     if (minDate && str < minDate) return true;
-    if (blockedDates.includes(str)) return true;
+    if (maxDate && str > maxDate) return true;
+    if (blockedDates.includes(str) && str !== maxDate) return true;
     return false;
   };
   const isToday = (d) => d && toStr(d) === today.toISOString().split('T')[0];
-  const isBlocked = (d) => d && blockedDates.includes(toStr(d));
+  const isBlocked = (d) => d && blockedDates.includes(toStr(d)) && toStr(d) !== maxDate;
 
   return (
     <div style={cal.wrapper}>
