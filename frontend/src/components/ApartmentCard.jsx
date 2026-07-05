@@ -4,9 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatLocation } from '../utils/locationUtils';
 import favoriteService from '../services/favoriteService';
-
 import { UPLOADS_URL } from '../config';
-const BASE = UPLOADS_URL;
 
 export default function ApartmentCard({ apartment }) {
   const { t } = useTranslation();
@@ -16,16 +14,15 @@ export default function ApartmentCard({ apartment }) {
     price_per_night,
     images,
     avg_rating,
-    review_count
+    review_count,
   } = apartment;
 
   const [favorite, setFavorite] = useState(false);
-  const [imgError, setImgError] = useState(false);
+  const [imgStatus, setImgStatus] = useState('loading'); // 'loading' | 'ok' | 'error'
 
   const toggleFavorite = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     try {
       if (favorite) {
         await favoriteService.remove(id);
@@ -39,34 +36,38 @@ export default function ApartmentCard({ apartment }) {
     }
   };
 
-const imgSrc =
-  images && images.length > 0
-    ? `${BASE}${images[0].image_url}`
-    : null;
+  const imgSrc = images && images.length > 0 ? `${UPLOADS_URL}${images[0].image_url}` : null;
+
+  const handleImgError = (e) => {
+    // Debug helper: open the browser console (F12) to see exactly which
+    // URL failed and why, instead of just guessing.
+    console.error('[ApartmentCard] Image failed to load:', imgSrc, e);
+    setImgStatus('error');
+  };
+
   return (
     <Link to={`/apartments/${id}`} style={styles.card}>
       <div style={styles.imageWrapper}>
-
-        <button
-          onClick={toggleFavorite}
-          style={styles.heartBtn}
-          type="button"
-        >
-          <Heart
-            size={18}
-            fill={favorite ? "#ef4444" : "transparent"}
-            color={favorite ? "#ef4444" : "#fff"}
-          />
+        <button onClick={toggleFavorite} style={styles.heartBtn} type="button">
+          <Heart size={18} fill={favorite ? '#ef4444' : 'transparent'} color={favorite ? '#ef4444' : '#fff'} />
         </button>
 
-        {imgSrc && !imgError ? (
+        {imgSrc && (
           <img
+            key={imgSrc}
             src={imgSrc}
             alt={title}
-            style={styles.image}
-            onError={() => setImgError(true)}
+            loading="eager"
+            style={{
+              ...styles.image,
+              display: imgStatus === 'error' ? 'none' : 'block',
+            }}
+            onLoad={() => setImgStatus('ok')}
+            onError={handleImgError}
           />
-        ) : (
+        )}
+
+        {(!imgSrc || imgStatus === 'error') && (
           <div style={styles.imagePlaceholder}>
             <Home size={48} color="#ccc" />
           </div>
@@ -76,9 +77,7 @@ const imgSrc =
           <div style={styles.badge}>
             <Star size={11} fill="#fff" color="#fff" style={{ marginRight: 3 }} />
             {Number(avg_rating).toFixed(1)}
-            {review_count > 0 && (
-              <span style={styles.reviewCount}> ({review_count})</span>
-            )}
+            {review_count > 0 && <span style={styles.reviewCount}> ({review_count})</span>}
           </div>
         )}
       </div>
@@ -86,7 +85,6 @@ const imgSrc =
       <div style={styles.body}>
         <p style={styles.location}>{formatLocation(apartment)}</p>
         <h3 style={styles.title}>{title}</h3>
-
         <p style={styles.price}>
           <strong style={styles.priceAmount}>${price_per_night}</strong>
           <span style={styles.perNight}> {t('apartments.perNight')}</span>
@@ -112,8 +110,9 @@ const styles = {
   imageWrapper: {
     position: 'relative',
     width: '100%',
-    paddingTop: '66%',
+    aspectRatio: '3 / 2',
     overflow: 'hidden',
+    backgroundColor: '#f3f3f3',
   },
 
   heartBtn: {
@@ -128,12 +127,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 50,
+    zIndex: 5,
     cursor: 'pointer',
   },
 
   image: {
-    position: 'absolute',
     width: '100%',
     height: '100%',
     objectFit: 'cover',
@@ -141,6 +139,8 @@ const styles = {
 
   imagePlaceholder: {
     position: 'absolute',
+    top: 0,
+    left: 0,
     width: '100%',
     height: '100%',
     display: 'flex',

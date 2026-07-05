@@ -133,7 +133,14 @@
     "goBack": "Zurück",
     "wrongCredentials": "Falsche E-Mail oder Passwort",
     "passwordMismatch": "Passwörter stimmen nicht überein",
-    "passwordTooShort": "Passwort muss mindestens 6 Zeichen lang sein"
+    "passwordTooShort": "Passwort muss mindestens 6 Zeichen lang sein",
+    "loginTagline": "Finde den perfekten Aufenthalt fur deine nachste Reise",
+    "registerTagline": "Dein nachster Lieblingsort wartet auf dich",
+    "registerVerifyTagline": "Nur noch ein Schritt zu deinem Konto",
+    "createAccountBtn": "Konto erstellen",
+    "registrationError": "Bei der Registrierung ist ein Fehler aufgetreten.",
+    "enterCode": "Bitte gib den 6-stelligen Code ein.",
+    "invalidCode": "Ungultiger oder abgelaufener Code."
   },
   "profile": {
     "title": "Profil",

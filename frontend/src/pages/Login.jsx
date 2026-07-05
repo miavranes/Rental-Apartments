@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 export default function Login() {
   const { login } = useAuth();
@@ -33,10 +34,11 @@ export default function Login() {
 
   return (
     <div style={styles.page}>
+      <LanguageSwitcher variant="floating" />
       <div style={styles.left}>
         <div style={styles.overlay}>
           <h1 style={styles.brand}>Rentura</h1>
-          <p style={styles.tagline}>Find the perfect stay for your next journey</p>
+          <p style={styles.tagline}>{t('auth.loginTagline')}</p>
         </div>
       </div>
       <div style={styles.right}>
@@ -92,6 +94,7 @@ const styles = {
     minHeight: '100vh',
     alignItems: 'stretch',
     fontFamily: "'Segoe UI', sans-serif",
+    position: 'relative',
   },
   left: {
     flex: 1,

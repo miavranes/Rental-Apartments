@@ -133,7 +133,14 @@
     "goBack": "Nazad",
     "wrongCredentials": "Pogrešan e-mail ili lozinka",
     "passwordMismatch": "Lozinke se ne poklapaju",
-    "passwordTooShort": "Lozinka mora imati najmanje 6 karaktera"
+    "passwordTooShort": "Lozinka mora imati najmanje 6 karaktera",
+    "loginTagline": "Pronađi savršen smještaj za svoje sljedeće putovanje",
+    "registerTagline": "Tvoje sljedeće omiljeno mjesto te čeka",
+    "registerVerifyTagline": "Samo još jedan korak do naloga",
+    "createAccountBtn": "Kreiraj nalog",
+    "registrationError": "Došlo je do greške prilikom registracije.",
+    "enterCode": "Unesite 6-cifreni kod.",
+    "invalidCode": "Nevažeći ili istekao kod."
   },
   "profile": {
     "title": "Profil",

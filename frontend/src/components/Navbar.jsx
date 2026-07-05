@@ -1,28 +1,19 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, BookOpen, Building, LogOut, LogIn, Globe, ChevronDown, Heart, MessageCircle, BarChart3, Search, Menu, X } from 'lucide-react';
+import { Home, BookOpen, Building, LogOut, LogIn, Heart, MessageCircle, BarChart3, Search, Menu, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import chatService from '../services/chatService';
-
-const LANGUAGES = [
-  { code: 'en', label: 'EN', name: 'English' },
-  { code: 'sr', label: 'SR', name: 'Srpski' },
-  { code: 'de', label: 'DE', name: 'Deutsch' },
-  { code: 'fr', label: 'FR', name: 'Francais' },
-];
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const { t, i18n } = useTranslation();
-  const [langOpen, setLangOpen] = useState(false);
+  const { t } = useTranslation();
   const [unreadCount, setUnreadCount] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const langRef = useRef(null);
 
   const isActive = (path) => location.pathname === path;
-  const currentLang = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
 
   useEffect(() => {
     if (!user) { setUnreadCount(0); return; }
@@ -35,14 +26,6 @@ export default function Navbar() {
     const interval = setInterval(fetchUnread, 15000);
     return () => clearInterval(interval);
   }, [user]);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
 
   // Close the mobile menu whenever the route changes.
   useEffect(() => {
@@ -156,29 +139,8 @@ export default function Navbar() {
         <div className="navbar-divider" style={s.divider} />
 
         {/* Language dropdown */}
-        <div className="navbar-lang-wrap" ref={langRef} style={s.langWrap}>
-          <button onClick={() => setLangOpen(v => !v)} style={s.langTrigger}>
-            <Globe size={14} color="#555" />
-            <span style={s.langLabel}>{currentLang.label}</span>
-            <ChevronDown size={12} color="#888" style={{ transform: langOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
-          </button>
-          {langOpen && (
-            <div style={s.langDropdown}>
-              {LANGUAGES.map(lang => (
-                <button
-                  key={lang.code}
-                  onClick={() => { i18n.changeLanguage(lang.code); setLangOpen(false); }}
-                  style={{
-                    ...s.langOption,
-                    ...(i18n.language === lang.code ? s.langOptionActive : {}),
-                  }}
-                >
-                  <span style={s.langCode}>{lang.label}</span>
-                  <span style={s.langName}>{lang.name}</span>
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="navbar-lang-wrap">
+          <LanguageSwitcher />
         </div>
       </div>
     </nav>
@@ -232,28 +194,4 @@ const s = {
     textDecoration: 'none', borderRadius: 20,
     padding: '7px 18px', fontSize: 14, fontWeight: 600, marginLeft: 4,
   },
-  // Language dropdown
-  langWrap: { position: 'relative' },
-  langTrigger: {
-    display: 'flex', alignItems: 'center', gap: 5,
-    padding: '6px 10px', borderRadius: 8,
-    background: 'none', border: '1px solid #e0e0e0',
-    cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif",
-  },
-  langLabel: { fontSize: 13, fontWeight: 600, color: '#333' },
-  langDropdown: {
-    position: 'absolute', top: 'calc(100% + 6px)', right: 0,
-    backgroundColor: '#fff', border: '1px solid #ebebeb',
-    borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
-    overflow: 'hidden', minWidth: 140, zIndex: 200,
-  },
-  langOption: {
-    width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-    padding: '10px 14px', background: 'none', border: 'none',
-    cursor: 'pointer', textAlign: 'left', fontFamily: "'Segoe UI', sans-serif",
-    transition: 'background 0.1s',
-  },
-  langOptionActive: { backgroundColor: '#f0f7f9' },
-  langCode: { fontSize: 12, fontWeight: 700, color: '#0F4C5C', minWidth: 24 },
-  langName: { fontSize: 13, color: '#444' },
 };

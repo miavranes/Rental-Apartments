@@ -133,7 +133,14 @@
     "goBack": "Go back",
     "wrongCredentials": "Wrong email or password",
     "passwordMismatch": "Passwords do not match",
-    "passwordTooShort": "Password must be at least 6 characters long"
+    "passwordTooShort": "Password must be at least 6 characters long",
+    "loginTagline": "Find the perfect stay for your next journey",
+    "registerTagline": "Your next favourite place is waiting",
+    "registerVerifyTagline": "One step away from your account",
+    "createAccountBtn": "Create account",
+    "registrationError": "An error occurred during registration.",
+    "enterCode": "Please enter the 6-digit code.",
+    "invalidCode": "Invalid or expired code."
   },
   "profile": {
     "title": "Profile",

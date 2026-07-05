@@ -133,7 +133,14 @@
     "goBack": "Retour",
     "wrongCredentials": "E-mail ou mot de passe incorrect",
     "passwordMismatch": "Les mots de passe ne correspondent pas",
-    "passwordTooShort": "Le mot de passe doit contenir au moins 6 caracteres"
+    "passwordTooShort": "Le mot de passe doit contenir au moins 6 caracteres",
+    "loginTagline": "Trouvez le sejour parfait pour votre prochain voyage",
+    "registerTagline": "Votre prochain endroit prefere vous attend",
+    "registerVerifyTagline": "Plus qu'une etape avant votre compte",
+    "createAccountBtn": "Creer un compte",
+    "registrationError": "Une erreur est survenue lors de l'inscription.",
+    "enterCode": "Veuillez saisir le code a 6 chiffres.",
+    "invalidCode": "Code invalide ou expire."
   },
   "profile": {
     "title": "Profil",

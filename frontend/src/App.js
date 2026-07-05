@@ -15,27 +15,31 @@ import Favorites from './pages/Favorites';
 import Messages from './pages/Messages';
 import Analytics from './pages/Analytics';
 import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/apartments" element={<Apartments />} />
-          <Route path="/apartments/:id" element={<ApartmentDetail />} />
+          {/* Public routes - accessible without login */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/owner" element={<Owner />} />
-          <Route path="/reservations" element={<MyReservations />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/messages/:id" element={<Messages />} />
-          <Route path="/owner/analytics" element={<Analytics />} />
-          <Route path="/owner/reservations" element={<OwnerReservations />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} /> 
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* Protected routes - require login */}
+          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/apartments" element={<ProtectedRoute><Apartments /></ProtectedRoute>} />
+          <Route path="/apartments/:id" element={<ProtectedRoute><ApartmentDetail /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/owner" element={<ProtectedRoute><Owner /></ProtectedRoute>} />
+          <Route path="/reservations" element={<ProtectedRoute><MyReservations /></ProtectedRoute>} />
+          <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+          <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+          <Route path="/messages/:id" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+          <Route path="/owner/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+          <Route path="/owner/reservations" element={<ProtectedRoute><OwnerReservations /></ProtectedRoute>} />
         </Routes>
         <Footer />
       </AuthProvider>

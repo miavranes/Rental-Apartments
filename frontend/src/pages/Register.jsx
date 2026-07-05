@@ -3,7 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { Eye, EyeOff, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { API_URL } from '../config';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const COUNTRIES = [
   { code: 'ME', name: 'Montenegro',      dial: '+382', flag: '🇲🇪' },
@@ -44,6 +46,7 @@ const COUNTRIES = [
 export default function Register() {
   const { register, loginWithToken } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [step, setStep] = useState('register'); // 'register' | 'verify'
   const [form, setForm] = useState({
@@ -81,22 +84,22 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (form.password !== form.confirmPassword) return setError('Passwords do not match');
-    if (form.password.length < 6) return setError('Password must be at least 6 characters long');
+    if (form.password !== form.confirmPassword) return setError(t('auth.passwordMismatch'));
+    if (form.password.length < 6) return setError(t('auth.passwordTooShort'));
 
     setLoading(true);
     try {
       await register({ name: form.name, email: form.email, password: form.password, phone: `${dialCode.dial}${form.phone}` });
       setStep('verify');
     } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred during registration.');
+      setError(err.response?.data?.error || t('auth.registrationError'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerify = async () => {
-    if (code.length !== 6) return setError('Please enter the 6-digit code.');
+    if (code.length !== 6) return setError(t('auth.enterCode'));
     setLoading(true);
     setError('');
     try {
@@ -104,7 +107,7 @@ export default function Register() {
       loginWithToken(res.data.user, res.data.token);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.error || 'Invalid or expired code.');
+      setError(err.response?.data?.error || t('auth.invalidCode'));
     } finally {
       setLoading(false);
     }
@@ -112,11 +115,12 @@ export default function Register() {
 
   return (
     <div style={styles.page}>
+      <LanguageSwitcher variant="floating" />
       <div style={styles.left}>
         <div style={styles.overlay}>
           <h1 style={styles.brand}>Rentura</h1>
           <p style={styles.tagline}>
-            {step === 'register' ? 'Your next favourite place is waiting' : 'One step away from your account'}
+            {step === 'register' ? t('auth.registerTagline') : t('auth.registerVerifyTagline')}
           </p>
         </div>
       </div>
@@ -126,28 +130,28 @@ export default function Register() {
 
           {step === 'register' ? (
             <>
-              <h2 style={styles.title}>Create an account</h2>
-              <p style={styles.subtitle}>Join Rentura today — it's free</p>
+              <h2 style={styles.title}>{t('auth.createAccount')}</h2>
+              <p style={styles.subtitle}>{t('auth.joinFree')}</p>
 
               {error && <div style={styles.error}>{error}</div>}
 
               <form onSubmit={handleSubmit} autoComplete="off">
                 <div style={styles.field}>
-                  <label style={styles.label}>Full name</label>
+                  <label style={styles.label}>{t('auth.fullName')}</label>
                   <input type="text" name="name" value={form.name} onChange={handleChange}
                     placeholder="Maria Peterson" required style={styles.input} autoComplete="off"
                     onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                     onBlur={e => e.target.style.borderColor = '#ddd'} />
                 </div>
                 <div style={styles.field}>
-                  <label style={styles.label}>Email address</label>
+                  <label style={styles.label}>{t('auth.emailAddress')}</label>
                   <input type="email" name="email" value={form.email} onChange={handleChange}
                     placeholder="your@email.com" required style={styles.input} autoComplete="off"
                     onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                     onBlur={e => e.target.style.borderColor = '#ddd'} />
                 </div>
                 <div style={styles.field}>
-                  <label style={styles.label}>Phone number</label>
+                  <label style={styles.label}>{t('auth.phoneNumber')}</label>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <div ref={dropdownRef} style={{ position: 'relative' }}>
                       <button
@@ -204,7 +208,7 @@ export default function Register() {
                 </div>
                 <div style={styles.row}>
                   <div style={{ ...styles.field, flex: 1 }}>
-                    <label style={styles.label}>Password</label>
+                    <label style={styles.label}>{t('auth.password')}</label>
                     <div style={styles.inputWrapper}>
                       <input type={showPassword ? 'text' : 'password'} name="password" value={form.password} onChange={handleChange}
                         placeholder="••••••••" required style={styles.input} autoComplete="new-password"
@@ -216,7 +220,7 @@ export default function Register() {
                     </div>
                   </div>
                   <div style={{ ...styles.field, flex: 1 }}>
-                    <label style={styles.label}>Confirm password</label>
+                    <label style={styles.label}>{t('auth.confirmPassword')}</label>
                     <div style={styles.inputWrapper}>
                       <input type={showConfirm ? 'text' : 'password'} name="confirmPassword" value={form.confirmPassword} onChange={handleChange}
                         placeholder="••••••••" required style={styles.input} autoComplete="new-password"
@@ -231,26 +235,26 @@ export default function Register() {
                 <button type="submit" disabled={loading} style={styles.button}
                   onMouseEnter={e => e.target.style.backgroundColor = '#0a3a47'}
                   onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}>
-                  {loading ? 'Creating account...' : 'Create account'}
+                  {loading ? t('auth.creating') : t('auth.createAccountBtn')}
                 </button>
               </form>
 
               <p style={styles.footer}>
-                Already have an account?{' '}
-                <Link to="/login" style={styles.link}>Login</Link>
+                {t('auth.alreadyAccount')}{' '}
+                <Link to="/login" style={styles.link}>{t('auth.login')}</Link>
               </p>
             </>
           ) : (
             <>
-              <h2 style={styles.title}>Verify your email</h2>
+              <h2 style={styles.title}>{t('auth.verifyEmail')}</h2>
               <p style={styles.subtitle}>
-                We sent a 6-digit code to <strong>{form.email}</strong>. Check your inbox.
+                {t('auth.sentCode')} <strong>{form.email}</strong>. {t('auth.checkInbox')}
               </p>
 
               {error && <div style={styles.error}>{error}</div>}
 
               <div style={styles.field}>
-                <label style={styles.label}>Verification code</label>
+                <label style={styles.label}>{t('auth.verificationCode')}</label>
                 <input
                   type="text"
                   maxLength={6}
@@ -266,13 +270,13 @@ export default function Register() {
               <button onClick={handleVerify} disabled={loading} style={styles.button}
                 onMouseEnter={e => e.target.style.backgroundColor = '#0a3a47'}
                 onMouseLeave={e => e.target.style.backgroundColor = '#0F4C5C'}>
-                {loading ? 'Verifying...' : 'Verify email'}
+                {loading ? t('auth.verifying') : t('auth.verify')}
               </button>
 
               <p style={styles.footer}>
-                Didn't receive the code?{' '}
+                {t('auth.didntReceive')}{' '}
                 <span style={styles.link} onClick={() => { setStep('register'); setError(''); setCode(''); }}>
-                  Go back
+                  {t('auth.goBack')}
                 </span>
               </p>
             </>
@@ -285,7 +289,7 @@ export default function Register() {
 }
 
 const styles = {
-  page: { display: 'flex', minHeight: '100vh', alignItems: 'stretch', fontFamily: "'Segoe UI', sans-serif" },
+  page: { display: 'flex', minHeight: '100vh', alignItems: 'stretch', fontFamily: "'Segoe UI', sans-serif", position: 'relative' },
   left: {
     flex: 1,
     backgroundImage: `linear-gradient(135deg, rgba(15,76,92,0.72) 0%, rgba(14,54,66,0.80) 100%), url('/pristaniste.jpg')`,
