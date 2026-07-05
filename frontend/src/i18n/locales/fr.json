@@ -249,7 +249,9 @@
     "photosSelected": "photos selectionnees",
     "availability": "Disponibilite",
     "availabilityHint": "Cliquez sur une date pour la bloquer ou la debloquer. Les dates bloquees (rouges) ne seront pas disponibles a la reservation.",
-    "loading": "Chargement..."
+    "loading": "Chargement...",
+    "checkInTime": "Heure d'arrivee",
+    "checkOutTime": "Heure de depart"
   },
   "review": {
     "leaveReview": "Laisser un avis",
@@ -258,7 +260,8 @@
     "commentPlaceholder": "Partagez votre experience...",
     "submit": "Envoyer l'avis",
     "submitting": "Envoi...",
-    "failed": "Echec de l'envoi de l'avis."
+    "failed": "Echec de l'envoi de l'avis.",
+    "optional": "facultatif"
   },
   "amenities": {
     "wifi": "WiFi",

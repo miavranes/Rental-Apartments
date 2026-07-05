@@ -249,7 +249,9 @@
     "photosSelected": "Fotos ausgewählt",
     "availability": "Verfügbarkeit",
     "availabilityHint": "Klicke auf ein Datum, um es zu sperren oder freizugeben. Gesperrte Daten (rot) sind nicht buchbar.",
-    "loading": "Lade..."
+    "loading": "Lade...",
+    "checkInTime": "Check-in-Zeit",
+    "checkOutTime": "Check-out-Zeit"
   },
   "review": {
     "leaveReview": "Bewertung hinterlassen",
@@ -258,7 +260,8 @@
     "commentPlaceholder": "Teile deine Erfahrung...",
     "submit": "Bewertung abschicken",
     "submitting": "Wird abgeschickt...",
-    "failed": "Bewertung konnte nicht gesendet werden."
+    "failed": "Bewertung konnte nicht gesendet werden.",
+    "optional": "optional"
   },
   "amenities": {
     "wifi": "WLAN",

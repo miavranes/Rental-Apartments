@@ -48,7 +48,7 @@ export default function Owner() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const emptyForm = { title: '', location: '', municipality: '', country: '', address: '', description: '', price_per_night: '', bedrooms: 1, beds: 1, max_guests: 1 };
+  const emptyForm = { title: '', location: '', municipality: '', country: '', address: '', description: '', price_per_night: '', bedrooms: 1, beds: 1, max_guests: 1, check_in_time: '14:00', check_out_time: '11:00' };
   const [form, setForm] = useState(emptyForm);
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -78,7 +78,7 @@ export default function Owner() {
   };
   const openEdit = (apt) => {
     setEditTarget(apt);
-    setForm({ title: apt.title || '', location: apt.location || '', municipality: apt.municipality || '', country: apt.country || '', address: apt.address || '', description: apt.description || '', price_per_night: apt.price_per_night || '', bedrooms: apt.bedrooms || 1, beds: apt.beds || 1, max_guests: apt.max_guests || 1 });
+    setForm({ title: apt.title || '', location: apt.location || '', municipality: apt.municipality || '', country: apt.country || '', address: apt.address || '', description: apt.description || '', price_per_night: apt.price_per_night || '', bedrooms: apt.bedrooms || 1, beds: apt.beds || 1, max_guests: apt.max_guests || 1, check_in_time: (apt.check_in_time || '14:00:00').slice(0, 5), check_out_time: (apt.check_out_time || '11:00:00').slice(0, 5) });
     setImages([]); setPreviews([]);
     setExistingImages(apt.images || []);
     setAmenities(apt.amenities?.map(a => a.icon || a.key) || []);
@@ -320,6 +320,23 @@ export default function Owner() {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              <div style={s.row}>
+                <div style={{ ...s.field, flex: 1 }}>
+                  <label style={s.label}>{t('owner.checkInTime')}</label>
+                  <input style={s.input} type="time" required value={form.check_in_time}
+                    onChange={e => setForm({ ...form, check_in_time: e.target.value })}
+                    onFocus={e => e.target.style.borderColor = '#0F4C5C'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'} />
+                </div>
+                <div style={{ ...s.field, flex: 1 }}>
+                  <label style={s.label}>{t('owner.checkOutTime')}</label>
+                  <input style={s.input} type="time" required value={form.check_out_time}
+                    onChange={e => setForm({ ...form, check_out_time: e.target.value })}
+                    onFocus={e => e.target.style.borderColor = '#0F4C5C'}
+                    onBlur={e => e.target.style.borderColor = '#ddd'} />
+                </div>
               </div>
 
               <div style={s.field}>

@@ -249,7 +249,9 @@
     "photosSelected": "photos selected",
     "availability": "Availability",
     "availabilityHint": "Click a date to block or unblock it. Blocked dates (red) won't be available for booking.",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "checkInTime": "Check-in time",
+    "checkOutTime": "Check-out time"
   },
   "review": {
     "leaveReview": "Leave a review",
@@ -258,7 +260,8 @@
     "commentPlaceholder": "Share your experience...",
     "submit": "Submit review",
     "submitting": "Submitting...",
-    "failed": "Failed to submit review."
+    "failed": "Failed to submit review.",
+    "optional": "optional"
   },
   "amenities": {
     "wifi": "WiFi",

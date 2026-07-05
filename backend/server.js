@@ -55,9 +55,11 @@ app.use((err, req, res, next) => {
   next();
 });
 
-// Run once on startup to catch any missed completions, then daily at 01:00
+// Run once on startup to catch any missed completions, then every 10 minutes
+// so a stay is marked "completed" (and reviewable) shortly after its actual
+// check-out time, not just once a day.
 completeExpiredReservations();
-cron.schedule('0 1 * * *', completeExpiredReservations);
+cron.schedule('*/10 * * * *', completeExpiredReservations);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server pokrenut na portu ${PORT}`));

@@ -249,7 +249,9 @@
     "photosSelected": "fotografija izabrano",
     "availability": "Dostupnost",
     "availabilityHint": "Kliknite datum da ga blokirate ili odblokirate. Blokirani datumi (crveni) neće biti dostupni za rezervaciju.",
-    "loading": "Učitavanje..."
+    "loading": "Učitavanje...",
+    "checkInTime": "Vrijeme prijave",
+    "checkOutTime": "Vrijeme odjave"
   },
   "review": {
     "leaveReview": "Ostavi recenziju",
@@ -258,7 +260,8 @@
     "commentPlaceholder": "Podijelite svoje iskustvo...",
     "submit": "Objavi recenziju",
     "submitting": "Objavljivanje...",
-    "failed": "Slanje recenzije nije uspjelo."
+    "failed": "Slanje recenzije nije uspjelo.",
+    "optional": "opciono"
   },
   "amenities": {
     "wifi": "WiFi",
