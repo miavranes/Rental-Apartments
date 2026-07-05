@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building, Home, BedDouble, Users, Plus, X, Sparkles, Dumbbell, ConciergeBell, Sailboat, Mountain, Coffee, Sunrise, Sun, MoonStar, CalendarDays } from 'lucide-react';
+import { Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building, Home, BedDouble, Users, Plus, X, Sparkles, Dumbbell, ConciergeBell, Sailboat, Mountain, Coffee, Sunrise, Sun, MoonStar, CalendarDays, Banknote, CreditCard } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -48,7 +48,7 @@ export default function Owner() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const emptyForm = { title: '', location: '', municipality: '', country: '', address: '', description: '', price_per_night: '', bedrooms: 1, beds: 1, max_guests: 1, check_in_time: '14:00', check_out_time: '11:00' };
+  const emptyForm = { title: '', location: '', municipality: '', country: '', address: '', description: '', price_per_night: '', bedrooms: 1, beds: 1, max_guests: 1, check_in_time: '14:00', check_out_time: '11:00', payment_method: 'on_arrival' };
   const [form, setForm] = useState(emptyForm);
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -78,7 +78,7 @@ export default function Owner() {
   };
   const openEdit = (apt) => {
     setEditTarget(apt);
-    setForm({ title: apt.title || '', location: apt.location || '', municipality: apt.municipality || '', country: apt.country || '', address: apt.address || '', description: apt.description || '', price_per_night: apt.price_per_night || '', bedrooms: apt.bedrooms || 1, beds: apt.beds || 1, max_guests: apt.max_guests || 1, check_in_time: (apt.check_in_time || '14:00:00').slice(0, 5), check_out_time: (apt.check_out_time || '11:00:00').slice(0, 5) });
+    setForm({ title: apt.title || '', location: apt.location || '', municipality: apt.municipality || '', country: apt.country || '', address: apt.address || '', description: apt.description || '', price_per_night: apt.price_per_night || '', bedrooms: apt.bedrooms || 1, beds: apt.beds || 1, max_guests: apt.max_guests || 1, check_in_time: (apt.check_in_time || '14:00:00').slice(0, 5), check_out_time: (apt.check_out_time || '11:00:00').slice(0, 5), payment_method: apt.payment_method || 'on_arrival' });
     setImages([]); setPreviews([]);
     setExistingImages(apt.images || []);
     setAmenities(apt.amenities?.map(a => a.icon || a.key) || []);
@@ -340,6 +340,28 @@ export default function Owner() {
               </div>
 
               <div style={s.field}>
+                <label style={s.label}>{t('owner.paymentMethodLabel')}</label>
+                <div style={s.payMethodRow}>
+                  <div onClick={() => setForm(f => ({ ...f, payment_method: 'on_arrival' }))}
+                    style={{ ...s.payMethodOption, ...(form.payment_method === 'on_arrival' ? s.payMethodOptionActive : {}) }}>
+                    <Banknote size={18} color={form.payment_method === 'on_arrival' ? '#0F4C5C' : '#aaa'} />
+                    <div>
+                      <p style={s.payMethodLabel}>{t('owner.paymentOnArrival')}</p>
+                      <p style={s.payMethodSub}>{t('owner.paymentOnArrivalSub')}</p>
+                    </div>
+                  </div>
+                  <div onClick={() => setForm(f => ({ ...f, payment_method: 'online' }))}
+                    style={{ ...s.payMethodOption, ...(form.payment_method === 'online' ? s.payMethodOptionActive : {}) }}>
+                    <CreditCard size={18} color={form.payment_method === 'online' ? '#0F4C5C' : '#aaa'} />
+                    <div>
+                      <p style={s.payMethodLabel}>{t('owner.paymentOnline')}</p>
+                      <p style={s.payMethodSub}>{t('owner.paymentOnlineSub')}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={s.field}>
                 <label style={s.label}>{t('owner.amenitiesLabel')}</label>
                 <div style={s.amenitiesGrid}>
                   {AMENITIES_LIST.map(({ key, label, Icon }) => (
@@ -503,6 +525,11 @@ const s = {
   amenitiesGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 },
   amenityChip: { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 10, cursor: 'pointer', fontSize: 13, color: '#555', userSelect: 'none', transition: 'all 0.15s' },
   amenityChipActive: { border: '1.5px solid #0F4C5C', backgroundColor: '#f0f7f9', color: '#0F4C5C', fontWeight: 600 },
+  payMethodRow: { display: 'flex', gap: 10 },
+  payMethodOption: { flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: '1px solid #ddd', borderRadius: 10, cursor: 'pointer', userSelect: 'none', transition: 'all 0.15s' },
+  payMethodOptionActive: { border: '1.5px solid #0F4C5C', backgroundColor: '#f0f7f9' },
+  payMethodLabel: { margin: 0, fontSize: 13, fontWeight: 600, color: '#333' },
+  payMethodSub: { margin: 0, fontSize: 11.5, color: '#888' },
   uploadBtn: { display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', backgroundColor: '#f0f7f9', color: '#0F4C5C', border: '1.5px dashed #0F4C5C', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' },
   previewRow: { display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' },
   previewImg: { width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8, display: 'block' },

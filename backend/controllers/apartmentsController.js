@@ -151,14 +151,14 @@ const getApartment = async (req, res) => {
   }
 };
 const createApartment = async (req, res) => {
-  const { title, description, location, municipality, country, address, max_guests, bedrooms, beds, price_per_night, amenities, lat, lng, check_in_time, check_out_time } = req.body;
+  const { title, description, location, municipality, country, address, max_guests, bedrooms, beds, price_per_night, amenities, lat, lng, check_in_time, check_out_time, payment_method } = req.body;
 
   try {
     const result = await pool.query(`
-      INSERT INTO apartments (owner_id, title, description, location, municipality, country, address, max_guests, bedrooms, beds, price_per_night, lat, lng, check_in_time, check_out_time)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, COALESCE($14, '14:00'), COALESCE($15, '11:00'))
+      INSERT INTO apartments (owner_id, title, description, location, municipality, country, address, max_guests, bedrooms, beds, price_per_night, lat, lng, check_in_time, check_out_time, payment_method)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, COALESCE($14, '14:00'), COALESCE($15, '11:00'), COALESCE($16, 'on_arrival'))
       RETURNING *
-    `, [req.user.id, title, description, location, municipality || null, country || null, address, max_guests, bedrooms, beds, price_per_night, lat || null, lng || null, check_in_time || null, check_out_time || null]);
+    `, [req.user.id, title, description, location, municipality || null, country || null, address, max_guests, bedrooms, beds, price_per_night, lat || null, lng || null, check_in_time || null, check_out_time || null, payment_method || null]);
 
     const apartment = result.rows[0];
 
@@ -185,7 +185,7 @@ const createApartment = async (req, res) => {
 
 const updateApartment = async (req, res) => {
   const { id } = req.params;
-  const { title, description, location, municipality, country, address, max_guests, bedrooms, beds, price_per_night, amenities, lat, lng, check_in_time, check_out_time } = req.body;
+  const { title, description, location, municipality, country, address, max_guests, bedrooms, beds, price_per_night, amenities, lat, lng, check_in_time, check_out_time, payment_method } = req.body;
 
   try {
     const check = await pool.query('SELECT owner_id FROM apartments WHERE id = $1', [id]);
@@ -196,10 +196,11 @@ const updateApartment = async (req, res) => {
       UPDATE apartments
       SET title=$1, description=$2, location=$3, municipality=$4, country=$5, address=$6,
           max_guests=$7, bedrooms=$8, beds=$9, price_per_night=$10,
-          lat=$11, lng=$12, check_in_time=COALESCE($13, check_in_time), check_out_time=COALESCE($14, check_out_time)
-      WHERE id=$15
+          lat=$11, lng=$12, check_in_time=COALESCE($13, check_in_time), check_out_time=COALESCE($14, check_out_time),
+          payment_method=COALESCE($15, payment_method)
+      WHERE id=$16
       RETURNING *
-    `, [title, description, location, municipality || null, country || null, address, max_guests, bedrooms, beds, price_per_night, lat || null, lng || null, check_in_time || null, check_out_time || null, id]);
+    `, [title, description, location, municipality || null, country || null, address, max_guests, bedrooms, beds, price_per_night, lat || null, lng || null, check_in_time || null, check_out_time || null, payment_method || null, id]);
 
     // Append new images (don't delete existing ones - managed separately)
     if (req.files && req.files.length > 0) {

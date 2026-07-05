@@ -184,7 +184,8 @@ function BookingPanel({ apartment, blockedDates = [] }) {
   const [step, setStep]                 = useState('form'); // 'form' | 'pay' | 'done'
   const [createdReservation, setCreatedReservation] = useState(null);
   const [openCal, setOpenCal]           = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState('on_arrival');
+  // Payment method is set by the host on the listing — guests don't choose it.
+  const paymentMethod = apartment.payment_method || 'on_arrival';
   const panelRef = useRef(null);
 
   useEffect(() => {
@@ -372,29 +373,16 @@ function BookingPanel({ apartment, blockedDates = [] }) {
 
         {error && <p style={bp.error}>{error}</p>}
 
-        <div style={bp.payRow}>
-          <button
-            type="button"
-            onClick={() => setPaymentMethod('on_arrival')}
-            style={{ ...bp.payOption, ...(paymentMethod === 'on_arrival' ? bp.payOptionActive : {}) }}
-          >
-            <Banknote size={20} color={paymentMethod === 'on_arrival' ? '#0F4C5C' : '#aaa'} />
-            <div>
-              <p style={bp.payLabel}>Pay on arrival</p>
-              <p style={bp.paySub}>Cash or card at the property</p>
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => setPaymentMethod('online')}
-            style={{ ...bp.payOption, ...(paymentMethod === 'online' ? bp.payOptionActive : {}) }}
-          >
-            <CreditCard size={20} color={paymentMethod === 'online' ? '#0F4C5C' : '#aaa'} />
-            <div>
-              <p style={bp.payLabel}>Pay online</p>
-              <p style={bp.paySub}>Secure card payment via Stripe</p>
-            </div>
-          </button>
+        <div style={{ ...bp.payOption, ...bp.payOptionActive, cursor: 'default' }}>
+          {paymentMethod === 'online'
+            ? <CreditCard size={20} color="#0F4C5C" />
+            : <Banknote size={20} color="#0F4C5C" />}
+          <div>
+            <p style={bp.payLabel}>{paymentMethod === 'online' ? 'Pay online' : 'Pay on arrival'}</p>
+            <p style={bp.paySub}>
+              {paymentMethod === 'online' ? 'Secure card payment via Stripe' : 'Cash or card at the property'}
+            </p>
+          </div>
         </div>
 
         <button type="submit" disabled={loading || !checkIn || !checkOut} style={{ ...bp.btn, opacity: (!checkIn || !checkOut) ? 0.6 : 1 }}>

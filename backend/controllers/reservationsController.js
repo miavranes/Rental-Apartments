@@ -3,7 +3,10 @@ const pool = require('../config/db');
 const { sendReservationEmailToGuest, sendReservationEmailToOwner } = require('../utils/sendEmail');
 
 const createReservation = async (req, res) => {
-  const { apartment_id, check_in, check_out, guests, payment_method = 'on_arrival' } = req.body;
+  // The payment method is decided by the host on the listing itself, not by
+  // the guest at booking time — any payment_method sent by the client is
+  // ignored in favor of apartments.payment_method below.
+  const { apartment_id, check_in, check_out, guests } = req.body;
 
   // Everything below runs on a single dedicated client so we can use a
   // transaction + advisory lock: this closes the race window where two
@@ -31,6 +34,7 @@ const createReservation = async (req, res) => {
     }
 
     const apt = aptResult.rows[0];
+    const payment_method = apt.payment_method || 'on_arrival';
 
     if (apt.owner_id === req.user.id) {
       await client.query('ROLLBACK');

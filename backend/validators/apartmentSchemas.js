@@ -18,6 +18,7 @@ const createApartment = Joi.object({
   amenities: Joi.string().allow('', null), // JSON-encoded array, parsed in controller
   lat: Joi.number().min(-90).max(90).allow(null, ''),
   lng: Joi.number().min(-180).max(180).allow(null, ''),
+  payment_method: Joi.string().valid('on_arrival', 'online').default('on_arrival'),
 });
 
 const updateApartment = createApartment;
