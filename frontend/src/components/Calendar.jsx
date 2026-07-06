@@ -27,11 +27,6 @@ export default function Calendar({ value, onChange, minDate, maxDate, blockedDat
 
   const toStr = (d) => new Date(viewYear, viewMonth, d).toISOString().split('T')[0];
   const isSelected = (d) => d && value === toStr(d);
-  // A date that's the check-in day of ANOTHER reservation is technically
-  // "blocked" (it appears in blockedDates), but it's still a perfectly valid
-  // CHECK-OUT date for this booking — the previous guest leaves that morning
-  // before the next one arrives. `maxDate` (when supplied) marks that exact
-  // boundary date as selectable even though it's in blockedDates.
   const isDisabled = (d) => {
     if (!d) return true;
     const str = toStr(d);

@@ -5,7 +5,6 @@ import Calendar from './Calendar';
 import LocationAutocomplete from './LocationAutocomplete';
 import { formatLocation } from '../utils/locationUtils';
 
-// ─── Dropdown wrapper ────────────────────────────────────────────────────────
 function Dropdown({ children, open, style }) {
   return open ? (
     <div style={{ ...drop.panel, ...style }} onClick={e => e.stopPropagation()}>
@@ -30,7 +29,6 @@ const drop = {
   },
 };
 
-// ─── Main SearchBar ──────────────────────────────────────────────────────────
 export default function SearchBar() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -42,7 +40,6 @@ export default function SearchBar() {
   const [guests, setGuests] = useState(1);
   const ref = useRef(null);
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e) => {
       if (ref.current && !ref.current.contains(e.target)) setActive(null);
@@ -78,7 +75,6 @@ export default function SearchBar() {
   return (
     <form onSubmit={handleSearch} ref={ref} style={sb.form}>
 
-      {/* Location */}
       <div style={{ ...sb.segment, ...(isActive('location') ? sb.segmentActive : {}) }}
         onClick={() => toggle('location')}>
         <span style={sb.label}>{t('search.location')}</span>
@@ -98,8 +94,6 @@ export default function SearchBar() {
       </div>
 
       <div style={sb.divider} />
-
-      {/* Check in */}
       <div style={{ ...sb.segment, ...(isActive('checkin') ? sb.segmentActive : {}) }}
         onClick={() => toggle('checkin')}>
         <span style={sb.label}>{t('search.checkIn')}</span>
@@ -117,7 +111,6 @@ export default function SearchBar() {
 
       <div style={sb.divider} />
 
-      {/* Check out */}
       <div style={{ ...sb.segment, ...(isActive('checkout') ? sb.segmentActive : {}) }}
         onClick={() => toggle('checkout')}>
         <span style={sb.label}>{t('search.checkOut')}</span>
@@ -135,7 +128,6 @@ export default function SearchBar() {
 
       <div style={sb.divider} />
 
-      {/* Guests */}
       <div style={{ ...sb.segment, ...(isActive('guests') ? sb.segmentActive : {}) }}
         onClick={() => toggle('guests')}>
         <span style={sb.label}>{t('search.guests')}</span>
@@ -156,7 +148,7 @@ export default function SearchBar() {
         </Dropdown>
       </div>
 
-      {/* Search button */}
+    
       <button type="submit" style={sb.button}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -230,7 +222,6 @@ const sb = {
     fontFamily: "'Segoe UI', sans-serif",
     letterSpacing: '0.2px',
   },
-  // Location dropdown
   dropLabel: {
     fontSize: '11px',
     fontWeight: '700',
@@ -251,7 +242,6 @@ const sb = {
     color: '#222',
     transition: 'border-color 0.2s',
   },
-  // Guests dropdown
   guestPanel: {
     padding: '20px 24px',
     display: 'flex',

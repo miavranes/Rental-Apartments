@@ -107,7 +107,6 @@ export default function OwnerReservations() {
           <Link to="/owner" style={s.listingsLink}>{t('ownerReservations.myListings')}</Link>
         </div>
 
-        {/* Stats */}
         <div style={s.statsRow} className="owner-res-stats">
           {Object.entries(STATUS_COLORS).map(([key, val]) => (
             <div key={key} style={s.statCard}>
@@ -117,7 +116,6 @@ export default function OwnerReservations() {
           ))}
         </div>
 
-        {/* Filter tabs */}
         <div style={s.tabs} className="owner-res-tabs">
           {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map(f => (
             <button key={f} onClick={() => setFilter(f)}

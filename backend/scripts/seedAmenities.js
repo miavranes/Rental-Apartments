@@ -1,7 +1,3 @@
-/**
- * Run once to align amenities.icon values with frontend filter keys:
- *   node scripts/seedAmenities.js
- */
 const fs = require('fs');
 const path = require('path');
 const pool = require('../config/db');

@@ -192,7 +192,6 @@ export default function Register() {
                         </div>
                       )}
                     </div>
-                    {/* Phone number input */}
                     <input
                       type="tel"
                       name="phone"

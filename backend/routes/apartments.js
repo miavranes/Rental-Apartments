@@ -12,15 +12,13 @@ const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'i
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
-  // Random filename (not derived from user input) to avoid path traversal /
-  // filename collisions, while keeping the original extension.
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${crypto.randomBytes(8).toString('hex')}${path.extname(file.originalname)}`),
+ filename: (req, file, cb) => cb(null, `${Date.now()}-${crypto.randomBytes(8).toString('hex')}${path.extname(file.originalname)}`),
 });
 
 const upload = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5 MB per image
+    fileSize: 5 * 1024 * 1024, 
     files: 10,
   },
   fileFilter: (req, file, cb) => {
@@ -41,7 +39,6 @@ router.put('/:id', authenticate, authorize('owner', 'admin'), upload.array('imag
 router.delete('/:id', authenticate, authorize('owner', 'admin'), deleteApartment);
 router.delete('/:id/images/:imageId', authenticate, authorize('owner', 'admin'), require('../controllers/apartmentsController').deleteImage);
 
-// Blocked dates
 const { getBlockedDates, blockDates, unblockDates } = require('../controllers/blockedDatesController');
 router.get('/:id/blocked-dates', getBlockedDates);
 router.post('/:id/blocked-dates', authenticate, authorize('owner', 'admin'), blockDates);

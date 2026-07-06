@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 
-// Fix default marker icons broken by webpack
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -17,7 +16,6 @@ export default function MapView({ address, title, lat, lng }) {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // If we already have pinned coords, skip geocoding
     if (lat && lng) {
       setCoords([parseFloat(lat), parseFloat(lng)]);
       return;

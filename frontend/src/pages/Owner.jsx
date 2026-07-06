@@ -67,9 +67,6 @@ export default function Owner() {
     fetchApartments();
   }, [user?.role, navigate]);
 
-  // Auto-pin on the map as soon as a usable address is typed. Stops touching
-  // the pin the moment the owner manually clicks the map or clears it — it
-  // only resumes once they actually edit the address/location text again.
   useEffect(() => {
     if (manualPin || !showForm) return;
     if (form.address.trim().length < 5) return;
@@ -82,7 +79,6 @@ export default function Owner() {
           setPin({ lat: results[0].lat, lng: results[0].lng });
         }
       } catch {
-        // Silently ignore — owner can still pin manually on the map.
       }
     }, 700);
 
@@ -410,7 +406,6 @@ export default function Owner() {
               <div style={s.field}>
                 <label style={s.label}>{t('owner.photos')}</label>
 
-                {/* Existing images (edit mode only) */}
                 {editTarget && existingImages.length > 0 && (
                   <div style={s.existingImgRow}>
                     {existingImages.map(img => (
@@ -480,7 +475,6 @@ export default function Owner() {
         </div>
       )}
 
-      {/* Availability modal */}
       {availApt && (
         <div style={s.overlay} className="anim-overlay-in" onClick={() => setAvailApt(null)}>
           <div style={{ ...s.modal, maxWidth: 380 }} className="anim-modal-in" onClick={e => e.stopPropagation()}>

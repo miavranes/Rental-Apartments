@@ -46,7 +46,6 @@ export default function Messages() {
     chatService.getMessages(convId)
       .then((data) => {
         setMessages(data);
-        // Mark the conversation as read locally so the badge clears instantly.
         setConversations(prev => prev.map(c => c.id === convId ? { ...c, unread_count: 0 } : c));
       })
       .catch(() => {})
@@ -141,7 +140,6 @@ export default function Messages() {
             )}
           </div>
 
-          {/* Thread */}
           <div style={s.thread} className="messages-thread">
             {!activeConv ? (
               <div style={s.noThread}>

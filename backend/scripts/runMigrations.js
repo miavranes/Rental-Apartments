@@ -1,10 +1,3 @@
-/**
- * Run all .sql files in db/migrations/ against the database, in filename order.
- * Safe to re-run: every migration in this project uses IF NOT EXISTS / IF EXISTS
- * guards, so already-applied migrations are simply no-ops.
- *
- *   node scripts/runMigrations.js
- */
 const fs = require('fs');
 const path = require('path');
 const pool = require('../config/db');

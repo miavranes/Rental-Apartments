@@ -1,6 +1,3 @@
-// Generic Joi validation middleware.
-// Usage: router.post('/route', validate(schema), controllerFn)
-// Validates req.body by default; pass { source: 'query' } to validate req.query instead.
 const validate = (schema, { source = 'body' } = {}) => (req, res, next) => {
   const { error, value } = schema.validate(req[source], {
     abortEarly: false,   // collect all errors, not just the first

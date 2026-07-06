@@ -129,7 +129,6 @@ const g = {
   lbCounter: { position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.7)', fontSize: 14, margin: 0 },
 };
 
-// ─── Stripe payment form (rendered inside Elements provider) ─────────────────
 function StripePaymentForm({ reservationId, total, onSuccess, onError }) {
   const { t } = useTranslation();
   const stripe = useStripe();
@@ -169,7 +168,6 @@ function StripePaymentForm({ reservationId, total, onSuccess, onError }) {
   );
 }
 
-// ─── Booking panel ────────────────────────────────────────────────────────────
 function BookingPanel({ apartment, blockedDates = [] }) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -188,7 +186,6 @@ function BookingPanel({ apartment, blockedDates = [] }) {
   const [step, setStep]                 = useState('form'); // 'form' | 'pay' | 'done'
   const [createdReservation, setCreatedReservation] = useState(null);
   const [openCal, setOpenCal]           = useState(null);
-  // Payment method is set by the host on the listing — guests don't choose it.
   const paymentMethod = apartment.payment_method || 'on_arrival';
   const panelRef = useRef(null);
 
@@ -210,9 +207,6 @@ function BookingPanel({ apartment, blockedDates = [] }) {
     : 0;
   const total = nights * apartment.price_per_night;
 
-  // The earliest date, after check-in, that's already occupied by another
-  // reservation. Checkout is allowed to land exactly on that date (the guest
-  // leaves that morning before the next one arrives) but not go past it.
   const checkoutMaxDate = checkIn
     ? [...blockedDates].filter(d => d > checkIn).sort()[0] || null
     : null;
@@ -242,7 +236,6 @@ function BookingPanel({ apartment, blockedDates = [] }) {
     }
   };
 
-  // ── Success screen ──
   if (step === 'done') {
     return (
       <div style={bp.card} className="anim-fade-in-up">
@@ -260,7 +253,6 @@ function BookingPanel({ apartment, blockedDates = [] }) {
     );
   }
 
-  // ── Stripe payment step ──
   if (step === 'pay') {
     return (
       <div style={bp.card}>
@@ -284,7 +276,6 @@ function BookingPanel({ apartment, blockedDates = [] }) {
     );
   }
 
-  // ── Main booking form ──
   return (
     <div style={bp.card} ref={panelRef}>
       <div style={bp.priceRow}>
@@ -449,7 +440,6 @@ const bp = {
   cardElementWrap: { border: '1px solid #ddd', borderRadius: 10, padding: '13px 14px', backgroundColor: '#fff' },
 };
 
-// ─── Main page ────────────────────────────────────────────────────────────────
 export default function ApartmentDetail() {
   const { t } = useTranslation();
   const { id } = useParams();

@@ -1,10 +1,3 @@
--- Belt-and-suspenders protection against double-booked apartments.
--- The app already serializes booking requests with an advisory lock + transaction,
--- but this constraint guarantees at the database level that no two active
--- (pending/confirmed) reservations for the same apartment can ever overlap,
--- even if the app is buggy, restarted mid-request, or another process writes
--- to the table directly.
-
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 ALTER TABLE reservations

@@ -1,6 +1,3 @@
--- Rentura — Full Database Schema
--- Run: psql -U postgres -d rental_apartments -f backend/db/schema.sql
-
 -- ─── Users ───────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
   id                        SERIAL PRIMARY KEY,

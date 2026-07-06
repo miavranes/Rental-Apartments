@@ -27,7 +27,6 @@ export default function Navbar() {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Close the mobile menu whenever the route changes.
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
@@ -156,7 +155,6 @@ export default function Navbar() {
 
         <div className="navbar-divider" style={s.divider} />
 
-        {/* Language dropdown */}
         <div className="navbar-lang-wrap">
           <LanguageSwitcher />
         </div>

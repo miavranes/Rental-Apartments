@@ -1,7 +1,3 @@
--- Rentura — Amenities Seed Data
--- Run after schema.sql:
--- psql -U postgres -d rental_apartments -f backend/db/seedAmenities.sql
-
 INSERT INTO amenities (name, icon) VALUES
   ('WiFi',             'wifi'),
   ('Parking',          'car'),

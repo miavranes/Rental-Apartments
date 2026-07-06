@@ -10,7 +10,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl:     'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// Listens for clicks on the map and updates pin
 function ClickHandler({ onPin }) {
   useMapEvents({
     click(e) {
@@ -20,7 +19,6 @@ function ClickHandler({ onPin }) {
   return null;
 }
 
-// Moves map view when coords change from outside (e.g. geocode)
 function FlyTo({ coords }) {
   const map = useMapEvents({});
   useEffect(() => {

@@ -9,7 +9,6 @@ const { authenticate } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const schemas = require('../validators/authSchemas');
 
-// Brute-force protection on the sensitive, unauthenticated auth endpoints.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10,

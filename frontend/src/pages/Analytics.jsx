@@ -12,8 +12,6 @@ const monthLabel = (ym) => {
   return new Date(Number(y), Number(m) - 1, 1).toLocaleDateString('en-GB', { month: 'short' });
 };
 
-// Simple, dependency-free bar chart. `data` is an array of numbers; `format`
-// controls the tooltip/label text shown above each bar.
 function BarChart({ data, labels, format, color = '#0F4C5C', height = 140 }) {
   const max = Math.max(1, ...data);
   return (
@@ -95,7 +93,6 @@ export default function Analytics() {
         <h1 style={s.pageTitle}>{t('analytics.title')}</h1>
         <p style={s.pageSub}>{t('analytics.subtitle')}</p>
 
-        {/* Summary cards */}
         <div style={s.cardsRow}>
           <div style={{ ...s.card, animationDelay: "0ms" }} className="analytics-card anim-fade-in-up">
             <div style={{ ...s.cardIcon, backgroundColor: '#eafaf1' }}><DollarSign size={18} color="#22c55e" /></div>
@@ -125,7 +122,6 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* Booking trends */}
         <div style={s.chartsRow}>
           <div style={{ ...s.chartCard, animationDelay: "240ms" }} className="analytics-card anim-fade-in-up">
             <h3 style={s.chartTitle}>{t('analytics.revenueByMonth')}</h3>
@@ -141,7 +137,6 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* Per-listing performance */}
         <div style={s.tableCard} className="analytics-card">
           <h3 style={s.chartTitle}>{t('analytics.listingPerformance')}</h3>
           {listings.length === 0 ? (

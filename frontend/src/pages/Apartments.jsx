@@ -50,8 +50,6 @@ export default function Apartments() {
 
   const amenitiesParam = searchParams.get('amenities') ?? '';
   const urlAmenities = useMemo(() => parseAmenitiesParam(amenitiesParam), [amenitiesParam]);
-
-  // Single filters state — applied live, same as amenities (no separate "draft" step)
   const [filters, setFilters] = useState(emptyFilters);
 
   useEffect(() => {
@@ -118,7 +116,6 @@ export default function Apartments() {
       </div>
 
       <div style={s.body}>
-        {/* ── Filter Sidebar ── */}
         {showFilters && (
           <aside style={s.sidebar}>
             <div style={s.sidebarHeader}>
@@ -128,7 +125,6 @@ export default function Apartments() {
               )}
             </div>
 
-            {/* Price */}
             <div style={s.filterSection}>
               <p style={s.filterLabel}>{t('filters.pricePerNight')}</p>
               <div style={s.priceRow}>
@@ -148,7 +144,7 @@ export default function Apartments() {
 
             <div style={s.divider} />
 
-            {/* Bedrooms */}
+           
             <div style={s.filterSection}>
               <p style={s.filterLabel}>{t('filters.bedrooms')}</p>
               <div style={s.bedroomRow}>
@@ -184,7 +180,6 @@ export default function Apartments() {
 
             <div style={s.divider} />
 
-            {/* Pet friendly */}
             <div style={s.filterSection}>
               <label style={s.checkRow}>
                 <input
@@ -228,7 +223,6 @@ export default function Apartments() {
           </aside>
         )}
 
-        {/* ── Results ── */}
         <section style={s.results}>
           <div style={s.resultsHeader}>
             <div>
@@ -297,7 +291,6 @@ const s = {
 
   body: { display: 'flex', maxWidth: '1300px', margin: '0 auto', padding: '40px 24px 64px', gap: 32, alignItems: 'flex-start' },
 
-  // Sidebar
   sidebar: { width: 260, flexShrink: 0, backgroundColor: '#fff', borderRadius: 16, border: '1px solid #ebebeb', padding: '24px 20px', position: 'sticky', top: 90 },
   sidebarHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   sidebarTitle: { fontSize: 16, fontWeight: 700, color: '#0F4C5C' },
@@ -319,7 +312,6 @@ const s = {
   applyBtn: { width: '100%', padding: '11px', backgroundColor: '#0F4C5C', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, fontFamily: "'Segoe UI', sans-serif", transition: 'background 0.15s' },
   clearBtn: { width: '100%', padding: '10px', backgroundColor: 'transparent', color: '#c0392b', border: '1px solid #ffd0d0', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
 
-  // Results
   results: { flex: 1, minWidth: 0 },
   resultsHeader: { display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 28 },
   sectionTitle: { fontSize: '24px', fontWeight: '700', color: '#0F4C5C', margin: '0 0 4px' },

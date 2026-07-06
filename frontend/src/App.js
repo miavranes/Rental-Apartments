@@ -22,14 +22,12 @@ export default function App() {
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <Routes>
-          {/* Public routes - accessible without login */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* Protected routes - require login */}
-          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+         <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/apartments" element={<ProtectedRoute><Apartments /></ProtectedRoute>} />
           <Route path="/apartments/:id" element={<ProtectedRoute><ApartmentDetail /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

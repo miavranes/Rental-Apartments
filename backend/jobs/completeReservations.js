@@ -1,11 +1,4 @@
 const pool = require('../config/db');
-
-/**
- * Marks confirmed reservations as completed once the apartment's actual
- * check-out moment (check_out date + the listing's check_out_time) has
- * passed — not just the date. This is what unlocks leaving a review.
- * Called from server.js via node-cron.
- */
 const completeExpiredReservations = async () => {
   try {
     const result = await pool.query(`
