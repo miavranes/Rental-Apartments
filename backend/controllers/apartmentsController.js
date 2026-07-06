@@ -1,5 +1,16 @@
 const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
+const fs = require('fs');
+const path = require('path');
+
+// Best-effort removal of an uploaded image file from disk. Never throws —
+// a missing/already-removed file should not fail the API request.
+const deleteImageFile = (filename) => {
+  if (!filename) return;
+  fs.unlink(path.join(__dirname, '..', 'uploads', filename), (err) => {
+    if (err && err.code !== 'ENOENT') console.error('Failed to delete image file:', filename, err.message);
+  });
+};
 
 // Legacy DB icon values that should match frontend filter keys
 const ICON_LOOKUP = {
@@ -156,7 +167,7 @@ const createApartment = async (req, res) => {
   try {
     const result = await pool.query(`
       INSERT INTO apartments (owner_id, title, description, location, municipality, country, address, max_guests, bedrooms, beds, price_per_night, lat, lng, check_in_time, check_out_time, payment_method)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, COALESCE($14, '14:00'), COALESCE($15, '11:00'), COALESCE($16, 'on_arrival'))
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, COALESCE($14::time, '14:00'::time), COALESCE($15::time, '11:00'::time), COALESCE($16::varchar, 'on_arrival'))
       RETURNING *
     `, [req.user.id, title, description, location, municipality || null, country || null, address, max_guests, bedrooms, beds, price_per_night, lat || null, lng || null, check_in_time || null, check_out_time || null, payment_method || null]);
 
@@ -194,10 +205,10 @@ const updateApartment = async (req, res) => {
 
     const result = await pool.query(`
       UPDATE apartments
-      SET title=$1, description=$2, location=$3, municipality=$4, country=$5, address=$6,
+      SET title=$1, description=$2, location=$3, municipality=COALESCE($4, municipality), country=COALESCE($5, country), address=$6,
           max_guests=$7, bedrooms=$8, beds=$9, price_per_night=$10,
-          lat=$11, lng=$12, check_in_time=COALESCE($13, check_in_time), check_out_time=COALESCE($14, check_out_time),
-          payment_method=COALESCE($15, payment_method)
+          lat=COALESCE($11, lat), lng=COALESCE($12, lng), check_in_time=COALESCE($13::time, check_in_time), check_out_time=COALESCE($14::time, check_out_time),
+          payment_method=COALESCE($15::varchar, payment_method)
       WHERE id=$16
       RETURNING *
     `, [title, description, location, municipality || null, country || null, address, max_guests, bedrooms, beds, price_per_night, lat || null, lng || null, check_in_time || null, check_out_time || null, payment_method || null, id]);
@@ -237,7 +248,12 @@ const deleteApartment = async (req, res) => {
     if (check.rows.length === 0) return res.status(404).json({ error: 'Smještaj nije pronađen.' });
     if (check.rows[0].owner_id !== req.user.id) return res.status(403).json({ error: 'Nemate pristup.' });
 
+    const images = await pool.query('SELECT image_url FROM apartment_images WHERE apartment_id = $1', [id]);
+
     await pool.query('DELETE FROM apartments WHERE id = $1', [id]);
+
+    images.rows.forEach((row) => deleteImageFile(row.image_url));
+
     res.json({ message: 'Smještaj obrisan.' });
   } catch (err) {
     serverError(res, err);
@@ -255,6 +271,7 @@ const deleteImage = async (req, res) => {
     if (img.rows.length === 0) return res.status(404).json({ error: 'Image not found.' });
 
     await pool.query('DELETE FROM apartment_images WHERE id = $1', [imageId]);
+    deleteImageFile(img.rows[0].image_url);
 
     // If deleted image was primary, promote next one
     await pool.query(`

@@ -116,7 +116,7 @@ const switchRole = async (req, res) => {
 const deleteAccount = async (req, res) => {
   try {
     await pool.query('DELETE FROM users WHERE id = $1', [req.user.id]);
-    res.json({ message: 'Account is succesfully deleted.' });
+    res.json({ message: 'Account successfully deleted.' });
   } catch (err) {
     serverError(res, err);
   }
@@ -144,7 +144,7 @@ const verifyEmail = async (req, res) => {
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
-      message: 'Email succesfull verified!',
+      message: 'Email successfully verified!',
       user: toPublicUser(user),
       token
     });
