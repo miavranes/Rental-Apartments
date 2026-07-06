@@ -215,7 +215,11 @@
     "messageGuest": "Message a l'invite",
     "opening": "Ouverture...",
     "chatFailed": "Impossible d'ouvrir la conversation.",
-    "confirmFailed": "Echec de la confirmation."
+    "confirmFailed": "Echec de la confirmation.",
+    "paid": "Paye",
+    "unpaid": "En attente de paiement",
+    "paymentFailed": "Paiement echoue",
+    "awaitingPayment": "Le voyageur n'a pas encore termine le paiement par carte — la confirmation est desactivee en attendant."
   },
   "owner": {
     "myListings": "Mes annonces",

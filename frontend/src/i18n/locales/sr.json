@@ -215,7 +215,11 @@
     "messageGuest": "Poruka gostu",
     "opening": "Otvaranje...",
     "chatFailed": "Neuspješno otvaranje razgovora.",
-    "confirmFailed": "Potvrđivanje nije uspjelo."
+    "confirmFailed": "Potvrđivanje nije uspjelo.",
+    "paid": "Plaćeno",
+    "unpaid": "Čeka se uplata",
+    "paymentFailed": "Plaćanje neuspješno",
+    "awaitingPayment": "Gost još nije platio karticom — potvrda je onemogućena dok uplata ne prođe."
   },
   "owner": {
     "myListings": "Moji oglasi",

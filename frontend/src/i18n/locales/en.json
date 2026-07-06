@@ -215,7 +215,11 @@
     "messageGuest": "Message guest",
     "opening": "Opening...",
     "chatFailed": "Failed to open chat.",
-    "confirmFailed": "Failed to confirm."
+    "confirmFailed": "Failed to confirm.",
+    "paid": "Paid",
+    "unpaid": "Awaiting payment",
+    "paymentFailed": "Payment failed",
+    "awaitingPayment": "The guest hasn't completed the card payment yet — confirmation is disabled until it does."
   },
   "owner": {
     "myListings": "My listings",

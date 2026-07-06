@@ -83,6 +83,8 @@ CREATE TABLE IF NOT EXISTS reservations (
   total_price       NUMERIC(10,2) NOT NULL,
   payment_method    VARCHAR(20)   NOT NULL DEFAULT 'on_arrival'
                       CHECK (payment_method IN ('on_arrival', 'online')),
+  payment_status    VARCHAR(20)   NOT NULL DEFAULT 'unpaid'
+                      CHECK (payment_status IN ('unpaid', 'paid', 'failed')),
   status            VARCHAR(20)   NOT NULL DEFAULT 'pending'
                       CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed')),
   stripe_payment_id VARCHAR(255),

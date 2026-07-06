@@ -167,6 +167,15 @@ export default function OwnerReservations() {
                         {r.payment_method === 'online' ? <CreditCard size={13} style={{ marginRight: 4 }} /> : <Banknote size={13} style={{ marginRight: 4 }} />}
                         {r.payment_method === 'online' ? t('ownerReservations.online') : t('ownerReservations.onArrival')}
                       </span>
+                      {r.payment_method === 'online' && (
+                        <span style={{
+                          ...s.payBadge,
+                          color: r.payment_status === 'paid' ? '#22c55e' : r.payment_status === 'failed' ? '#ef4444' : '#f59e0b',
+                          backgroundColor: r.payment_status === 'paid' ? '#f0fff4' : r.payment_status === 'failed' ? '#fff0f0' : '#fff8e1',
+                        }}>
+                          {r.payment_status === 'paid' ? t('ownerReservations.paid') : r.payment_status === 'failed' ? t('ownerReservations.paymentFailed') : t('ownerReservations.unpaid')}
+                        </span>
+                      )}
                     </div>
                     <div style={s.infoBlock}>
                       <span style={s.infoLabel}>{t('ownerReservations.total')}</span>
@@ -194,25 +203,33 @@ export default function OwnerReservations() {
                       </div>
                     )}
                     {r.status === 'pending' && (
-                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                        <button
-                          onClick={() => handleConfirm(r.id)}
-                          disabled={!!processing}
-                          style={s.confirmBtn}
-                          className="btn-press"
-                        >
-                          <Check size={14} style={{ marginRight: 4 }} />
-                          {processing === r.id + '_confirm' ? t('ownerReservations.confirming') : t('ownerReservations.confirm')}
-                        </button>
-                        <button
-                          onClick={() => handleCancel(r.id)}
-                          disabled={!!processing}
-                          style={s.declineBtn}
-                          className="btn-press"
-                        >
-                          <X size={14} style={{ marginRight: 4 }} />
-                          {processing === r.id + '_cancel' ? t('ownerReservations.declining') : t('ownerReservations.decline')}
-                        </button>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => handleConfirm(r.id)}
+                            disabled={!!processing || (r.payment_method === 'online' && r.payment_status !== 'paid')}
+                            style={{
+                              ...s.confirmBtn,
+                              ...((r.payment_method === 'online' && r.payment_status !== 'paid') ? s.btnDisabled : {}),
+                            }}
+                            className="btn-press"
+                          >
+                            <Check size={14} style={{ marginRight: 4 }} />
+                            {processing === r.id + '_confirm' ? t('ownerReservations.confirming') : t('ownerReservations.confirm')}
+                          </button>
+                          <button
+                            onClick={() => handleCancel(r.id)}
+                            disabled={!!processing}
+                            style={s.declineBtn}
+                            className="btn-press"
+                          >
+                            <X size={14} style={{ marginRight: 4 }} />
+                            {processing === r.id + '_cancel' ? t('ownerReservations.declining') : t('ownerReservations.decline')}
+                          </button>
+                        </div>
+                        {r.payment_method === 'online' && r.payment_status !== 'paid' && (
+                          <span style={s.awaitingNote}>{t('ownerReservations.awaitingPayment')}</span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -271,6 +288,9 @@ const s = {
   guestInfo: { display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' },
   guestName: { fontSize: 14, fontWeight: 600, color: '#222' },
   guestContact: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#0F4C5C', textDecoration: 'none' },
+  payBadge: { fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 10, marginTop: 4, alignSelf: 'flex-start' },
+  awaitingNote: { fontSize: 12, color: '#f59e0b', maxWidth: 260, textAlign: 'right' },
+  btnDisabled: { opacity: 0.5, cursor: 'not-allowed' },
   confirmBtn: { display: 'flex', alignItems: 'center', padding: '8px 16px', backgroundColor: '#f0fff4', color: '#22c55e', border: '1px solid #b7ebc8', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
   declineBtn: { display: 'flex', alignItems: 'center', padding: '8px 16px', backgroundColor: '#fff0f0', color: '#ef4444', border: '1px solid #ffd0d0', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },
   messageBtn: { display: 'flex', alignItems: 'center', padding: '8px 16px', backgroundColor: '#0F4C5C', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif" },

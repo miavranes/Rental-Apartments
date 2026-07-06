@@ -197,6 +197,10 @@ const confirmReservation = async (req, res) => {
     if (check.rows[0].owner_id !== req.user.id) return res.status(403).json({ error: 'Access denied.' });
     if (check.rows[0].status !== 'pending') return res.status(400).json({ error: 'Reservation is not pending.' });
 
+    if (check.rows[0].payment_method === 'online' && check.rows[0].payment_status !== 'paid') {
+      return res.status(400).json({ error: 'Guest has not completed the card payment yet.' });
+    }
+
     const result = await pool.query(
       'UPDATE reservations SET status = $1 WHERE id = $2 RETURNING *',
       ['confirmed', id]

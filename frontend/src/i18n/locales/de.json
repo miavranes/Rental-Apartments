@@ -215,7 +215,11 @@
     "messageGuest": "Nachricht an Gast",
     "opening": "Öffne...",
     "chatFailed": "Chat konnte nicht geöffnet werden.",
-    "confirmFailed": "Bestätigung fehlgeschlagen."
+    "confirmFailed": "Bestätigung fehlgeschlagen.",
+    "paid": "Bezahlt",
+    "unpaid": "Zahlung ausstehend",
+    "paymentFailed": "Zahlung fehlgeschlagen",
+    "awaitingPayment": "Der Gast hat die Kartenzahlung noch nicht abgeschlossen — die Bestätigung ist so lange deaktiviert."
   },
   "owner": {
     "myListings": "Meine Angebote",
