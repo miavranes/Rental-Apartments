@@ -3,8 +3,6 @@ const pool = require('../config/db');
 const fs = require('fs');
 const path = require('path');
 
-// Best-effort removal of an uploaded image file from disk. Never throws —
-// a missing/already-removed file should not fail the API request.
 const deleteImageFile = (filename) => {
   if (!filename) return;
   fs.unlink(path.join(__dirname, '..', 'uploads', filename), (err) => {
@@ -12,7 +10,6 @@ const deleteImageFile = (filename) => {
   });
 };
 
-// Legacy DB icon values that should match frontend filter keys
 const ICON_LOOKUP = {
   'washing-machine': ['washing-machine', 'washer', 'washing_machine'],
   'paw-print': ['paw-print', 'pets', 'pet-friendly', 'pet_friendly'],
@@ -173,7 +170,6 @@ const createApartment = async (req, res) => {
 
     const apartment = result.rows[0];
 
-    // Save uploaded images
     if (req.files && req.files.length > 0) {
       for (let i = 0; i < req.files.length; i++) {
         await pool.query(
@@ -273,7 +269,6 @@ const deleteImage = async (req, res) => {
     await pool.query('DELETE FROM apartment_images WHERE id = $1', [imageId]);
     deleteImageFile(img.rows[0].image_url);
 
-    // If deleted image was primary, promote next one
     await pool.query(`
       UPDATE apartment_images SET is_primary = true
       WHERE apartment_id = $1 AND id = (

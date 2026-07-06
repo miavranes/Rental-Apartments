@@ -3,22 +3,13 @@ const pool = require('../config/db');
 const { sendReservationEmailToGuest, sendReservationEmailToOwner } = require('../utils/sendEmail');
 
 const createReservation = async (req, res) => {
-  // The payment method is decided by the host on the listing itself, not by
-  // the guest at booking time — any payment_method sent by the client is
-  // ignored in favor of apartments.payment_method below.
   const { apartment_id, check_in, check_out, guests } = req.body;
 
-  // Everything below runs on a single dedicated client so we can use a
-  // transaction + advisory lock: this closes the race window where two
-  // guests could both pass the "dates free?" check for the same apartment
-  // at the same time and end up double-booked.
   const client = await pool.connect();
 
   try {
     await client.query('BEGIN');
 
-    // Serialize all booking attempts for this specific apartment. The lock
-    // is automatically released when the transaction ends (COMMIT/ROLLBACK).
     await client.query('SELECT pg_advisory_xact_lock($1)', [apartment_id]);
 
     const aptResult = await client.query(
@@ -55,9 +46,6 @@ const createReservation = async (req, res) => {
       return res.status(400).json({ error: 'Invalid dates.' });
     }
 
-    // Check for conflicts with existing confirmed/pending reservations.
-    // Safe now: no other request can be checking/inserting for this
-    // apartment_id concurrently thanks to the advisory lock above.
     const conflict = await client.query(
       `SELECT id FROM reservations
        WHERE apartment_id = $1
@@ -70,11 +58,6 @@ const createReservation = async (req, res) => {
       await client.query('ROLLBACK');
       return res.status(409).json({ error: 'These dates are already booked.' });
     }
-
-    // Also reject if any date in the range was manually blocked by the owner
-    // (blocked_dates rows with no reservation behind them — e.g. owner keeping
-    // the apartment for personal use). The reservations check above only
-    // catches overlaps with other bookings, not manual blocks.
     const blockedCheck = await client.query(
       `SELECT date FROM blocked_dates
        WHERE apartment_id = $1
@@ -98,7 +81,6 @@ const createReservation = async (req, res) => {
 
     const reservation = result.rows[0];
 
-    // Auto-block all dates in the range
     const start = new Date(check_in);
     const end   = new Date(check_out);
     for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
@@ -114,8 +96,6 @@ const createReservation = async (req, res) => {
 
     await client.query('COMMIT');
 
-    // Emails are sent after commit — a slow/failed email must never roll
-    // back an otherwise-successful booking.
     const emailData = {
       title: apt.title,
       location: apt.location,
@@ -137,7 +117,6 @@ const createReservation = async (req, res) => {
     res.status(201).json(reservation);
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
-    // 23P01 = exclusion_violation (our reservations_no_overlap DB constraint)
     if (err.code === '23P01') {
       return res.status(409).json({ error: 'These dates are already booked.' });
     }

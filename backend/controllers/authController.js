@@ -153,13 +153,11 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-// ─── Forgot password ──────────────────────────────────────────────────────────
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    // Always return 200 so we don't leak whether the email exists
     if (result.rows.length === 0) {
       return res.json({ message: 'If that email exists, a reset link has been sent.' });
     }
@@ -181,7 +179,6 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-// ─── Reset password ───────────────────────────────────────────────────────────
 const resetPassword = async (req, res) => {
   const { token, password } = req.body;
 
@@ -197,7 +194,6 @@ const resetPassword = async (req, res) => {
 
     const user = result.rows[0];
 
-    // Prevent setting the same password as the current one
     const isSamePassword = await bcrypt.compare(password, user.password_hash);
     if (isSamePassword) {
       return res.status(400).json({ error: 'New password must be different from your current password.' });

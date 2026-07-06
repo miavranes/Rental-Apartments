@@ -62,10 +62,6 @@ const startConversation = async (req, res) => {
     if (apt.rows.length === 0) return res.status(404).json({ error: 'Apartment not found.' });
 
     const ownerId = apt.rows[0].owner_id;
-
-    // The owner of the apartment can open/create a conversation with a specific
-    // tourist (e.g. from the reservations list). Anyone else starts a
-    // conversation with the apartment's owner, as before.
     let finalTouristId;
     if (req.user.id === ownerId) {
       if (!tourist_id) return res.status(400).json({ error: 'tourist_id is required.' });

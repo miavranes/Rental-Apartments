@@ -58,10 +58,6 @@ const handleWebhook = async (req, res) => {
     const reservation_id = paymentIntent.metadata.reservation_id;
 
     try {
-      // Payment succeeding only means the guest has paid — it does NOT
-      // approve the booking. The host still has to confirm it manually,
-      // exactly like an on-arrival (cash) reservation. `status` stays
-      // 'pending' here; only `payment_status` changes.
       await pool.query(
         'UPDATE reservations SET payment_status = $1 WHERE id = $2 AND status = $3',
         ['paid', reservation_id, 'pending']

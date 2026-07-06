@@ -4,8 +4,7 @@ const pool = require('../config/db');
 const getOwnerAnalytics = async (req, res) => {
   try {
     const [summary, listings, monthly, occupancy30] = await Promise.all([
-      // Overall summary: revenue, reservation counts by status, ratings
-      pool.query(`
+     pool.query(`
         SELECT
           COUNT(DISTINCT a.id)::int AS listings,
           COUNT(r.id)::int AS reservations,
@@ -22,10 +21,7 @@ const getOwnerAnalytics = async (req, res) => {
         WHERE a.owner_id = $1
       `, [req.user.id]),
 
-      // Per-listing breakdown, including each listing's occupancy over the last 30 days.
-      // Uses LATERAL subqueries (rather than parallel LEFT JOINs) so reservations
-      // and favorites don't cross-multiply against each other in the row count.
-      pool.query(`
+     pool.query(`
         SELECT a.id, a.title,
           COALESCE(rstats.reservations, 0)::int AS reservations,
           COALESCE(rstats.revenue, 0)::numeric AS revenue,
@@ -57,8 +53,7 @@ const getOwnerAnalytics = async (req, res) => {
         ORDER BY revenue DESC, reservations DESC
       `, [req.user.id]),
 
-      // 12-month trend: reservations, revenue and booked nights per month (booking trends + occupancy trend)
-      pool.query(`
+     pool.query(`
         WITH months AS (
           SELECT date_trunc('month', d)::date AS month_start
           FROM generate_series(date_trunc('month', NOW()) - INTERVAL '11 months', date_trunc('month', NOW()), INTERVAL '1 month') AS d
@@ -99,7 +94,6 @@ const getOwnerAnalytics = async (req, res) => {
         ORDER BY m.month_start
       `, [req.user.id]),
 
-      // Overall occupancy over the last 30 days (all listings combined)
       pool.query(`
         SELECT COUNT(*)::int AS booked_nights_30d
         FROM reservations r

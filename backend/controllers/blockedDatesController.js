@@ -1,7 +1,6 @@
 const { serverError } = require('../utils/errors');
 const pool = require('../config/db');
 
-// GET /api/apartments/:id/blocked-dates
 const getBlockedDates = async (req, res) => {
   const { id } = req.params;
   try {
@@ -15,7 +14,6 @@ const getBlockedDates = async (req, res) => {
   }
 };
 
-// POST /api/apartments/:id/blocked-dates  { dates: ['2025-07-01', ...] }
 const blockDates = async (req, res) => {
   const { id } = req.params;
   const { dates } = req.body;
@@ -37,7 +35,6 @@ const blockDates = async (req, res) => {
   }
 };
 
-// DELETE /api/apartments/:id/blocked-dates  { dates: ['2025-07-01', ...] }
 const unblockDates = async (req, res) => {
   const { id } = req.params;
   const { dates } = req.body;
