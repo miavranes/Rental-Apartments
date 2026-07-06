@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import geocodingService from '../services/geocodingService';
 import { formatLocation } from '../utils/locationUtils';
 
@@ -14,10 +15,11 @@ export default function LocationAutocomplete({
   value,
   onChange,
   onCoords,
-  placeholder = 'City, region...',
+  placeholder,
   required = false,
   inputStyle = {},
 }) {
+  const { t } = useTranslation();
   const wrapRef = useRef(null);
   const [query, setQuery] = useState(value?.label || value?.location || '');
   const [suggestions, setSuggestions] = useState([]);
@@ -106,7 +108,7 @@ export default function LocationAutocomplete({
         onChange={handleInputChange}
         onFocus={() => suggestions.length > 0 && setOpen(true)}
         onBlur={handleBlur}
-        placeholder={placeholder}
+        placeholder={placeholder || t('search.cityPlaceholder')}
         required={required}
         style={{ ...s.input, ...inputStyle }}
         autoComplete="off"
@@ -115,7 +117,7 @@ export default function LocationAutocomplete({
       {open && (loading || suggestions.length > 0) && (
         <div style={s.dropdown}>
           {loading && suggestions.length === 0 && (
-            <div style={s.hint}>Searching places...</div>
+            <div style={s.hint}>{t('search.searchingPlaces')}</div>
           )}
           {suggestions.map((place, i) => (
             <button
@@ -141,7 +143,7 @@ export default function LocationAutocomplete({
 
       {value?.location && (value.municipality || value.country) && (
         <p style={s.selectedHint}>
-          Selected: {formatLocation(value)}
+          {t('search.selected')}: {formatLocation(value)}
         </p>
       )}
     </div>

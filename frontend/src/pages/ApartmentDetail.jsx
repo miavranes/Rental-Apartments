@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import Calendar from '../components/Calendar';
 import MapView from '../components/MapView';
 import Navbar from '../components/Navbar';
+import { useTranslation } from 'react-i18next';
 import { formatLocation } from '../utils/locationUtils';
 import {
   Home, MapPin, BedDouble, Bed, Users,
@@ -48,6 +49,7 @@ function formatDate(str) {
 }
 
 function Gallery({ images }) {
+  const { t } = useTranslation();
   const [active, setActive] = useState(0);
   const [lightbox, setLightbox] = useState(false);
 
@@ -78,7 +80,7 @@ function Gallery({ images }) {
         <div style={g.main} onClick={() => setLightbox(true)}>
           <img src={src(images[active])} alt="apartment" style={g.mainImg} />
           <div style={g.mainOverlay}>
-            <span style={g.viewAll}>View all photos</span>
+            <span style={g.viewAll}>{t('detail.viewAllPhotos')}</span>
           </div>
         </div>
 
@@ -129,6 +131,7 @@ const g = {
 
 // ─── Stripe payment form (rendered inside Elements provider) ─────────────────
 function StripePaymentForm({ reservationId, total, onSuccess, onError }) {
+  const { t } = useTranslation();
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -148,7 +151,7 @@ function StripePaymentForm({ reservationId, total, onSuccess, onError }) {
         onSuccess();
       }
     } catch (err) {
-      onError(err.response?.data?.error || 'Payment failed.');
+      onError(err.response?.data?.error || t('booking.paymentFailed'));
     } finally {
       setLoading(false);
     }
@@ -160,7 +163,7 @@ function StripePaymentForm({ reservationId, total, onSuccess, onError }) {
         <CardElement options={{ style: { base: { fontSize: '15px', color: '#222', fontFamily: "'Segoe UI', sans-serif", '::placeholder': { color: '#aaa' } } } }} />
       </div>
       <button type="submit" disabled={!stripe || loading} style={{ ...bp.btn, marginTop: 12 }} className="btn-press">
-        {loading ? 'Processing...' : `Pay $${Number(total).toFixed(2)}`}
+        {loading ? t('common.processing') : `${t('booking.pay')} $${Number(total).toFixed(2)}`}
       </button>
     </form>
   );
@@ -168,6 +171,7 @@ function StripePaymentForm({ reservationId, total, onSuccess, onError }) {
 
 // ─── Booking panel ────────────────────────────────────────────────────────────
 function BookingPanel({ apartment, blockedDates = [] }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -232,7 +236,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
         setStep('done');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Booking failed. Please try again.');
+      setError(err.response?.data?.error || t('booking.bookingFailed'));
     } finally {
       setLoading(false);
     }
@@ -243,14 +247,14 @@ function BookingPanel({ apartment, blockedDates = [] }) {
     return (
       <div style={bp.card} className="anim-fade-in-up">
         <div style={bp.successIcon} className="anim-pop-in"><Check size={28} strokeWidth={2.5} color="#0F4C5C" /></div>
-        <h3 style={{ ...bp.price, textAlign: 'center', marginBottom: 8 }}>Booking confirmed!</h3>
+        <h3 style={{ ...bp.price, textAlign: 'center', marginBottom: 8 }}>{t('booking.confirmedTitle')}</h3>
         <p style={{ color: '#888', fontSize: 14, textAlign: 'center', margin: '0 0 20px' }}>
           {paymentMethod === 'online'
-            ? 'Payment successful. Your reservation is confirmed.'
-            : 'Your reservation is pending approval from the host.'}
+            ? t('booking.paymentSuccessSub')
+            : t('booking.confirmedSub')}
         </p>
         <Link to="/reservations" style={{ ...bp.btn, display: 'block', textAlign: 'center', textDecoration: 'none' }} className="btn-press">
-          View my bookings
+          {t('booking.viewMyBookings')}
         </Link>
       </div>
     );
@@ -260,9 +264,9 @@ function BookingPanel({ apartment, blockedDates = [] }) {
   if (step === 'pay') {
     return (
       <div style={bp.card}>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F4C5C', margin: '0 0 4px' }}>Complete payment</h3>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F4C5C', margin: '0 0 4px' }}>{t('booking.completePayment')}</h3>
         <p style={{ fontSize: 13, color: '#888', margin: '0 0 16px' }}>
-          {apartment.title} · {nights} night{nights !== 1 ? 's' : ''} · <strong style={{ color: '#0F4C5C' }}>${total.toFixed(2)}</strong>
+          {apartment.title} · {nights} {nights !== 1 ? t('booking.nights') : t('booking.night')} · <strong style={{ color: '#0F4C5C' }}>${total.toFixed(2)}</strong>
         </p>
         {error && <p style={bp.error}>{error}</p>}
         <Elements stripe={stripePromise}>
@@ -274,7 +278,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
           />
         </Elements>
         <button onClick={() => { setStep('done'); }} style={{ ...bp.btn, marginTop: 10, backgroundColor: '#f5f5f5', color: '#888', fontSize: 13 }} className="btn-press">
-          Skip — I'll pay later
+          {t('booking.skipPayLater')}
         </button>
       </div>
     );
@@ -300,26 +304,26 @@ function BookingPanel({ apartment, blockedDates = [] }) {
           <div style={bp.filledDates}>
             <div style={bp.filledRow}>
               <div style={bp.filledField}>
-                <span style={bp.label}>CHECK IN</span>
+                <span style={bp.label}>{t('booking.checkIn')}</span>
                 <span style={bp.filledValue}>{fmtDate(checkIn)}</span>
               </div>
               <div style={bp.filledDivider} />
               <div style={bp.filledField}>
-                <span style={bp.label}>CHECK OUT</span>
+                <span style={bp.label}>{t('booking.checkOut')}</span>
                 <span style={bp.filledValue}>{fmtDate(checkOut)}</span>
               </div>
             </div>
             <button type="button" onClick={() => setEditDates(true)} style={bp.changeDatesBtn}>
-              Change dates
+              {t('booking.changeDates')}
             </button>
           </div>
         ) : (
           <div style={bp.dateRow}>
             <div style={{ ...bp.dateField, position: 'relative' }}
               onClick={() => setOpenCal(o => o === 'checkin' ? null : 'checkin')}>
-              <label style={bp.label}>CHECK IN</label>
+              <label style={bp.label}>{t('booking.checkIn')}</label>
               <div style={bp.dateValue}>
-                {fmtDate(checkIn) || <span style={{ color: '#aaa' }}>Add date</span>}
+                {fmtDate(checkIn) || <span style={{ color: '#aaa' }}>{t('search.addDate')}</span>}
                 <ChevronDown size={14} color="#aaa" style={{ marginLeft: 'auto' }} />
               </div>
               {openCal === 'checkin' && (
@@ -340,9 +344,9 @@ function BookingPanel({ apartment, blockedDates = [] }) {
             <div style={bp.dateDivider} />
             <div style={{ ...bp.dateField, position: 'relative' }}
               onClick={() => setOpenCal(o => o === 'checkout' ? null : 'checkout')}>
-              <label style={bp.label}>CHECK OUT</label>
+              <label style={bp.label}>{t('booking.checkOut')}</label>
               <div style={bp.dateValue}>
-                {fmtDate(checkOut) || <span style={{ color: '#aaa' }}>Add date</span>}
+                {fmtDate(checkOut) || <span style={{ color: '#aaa' }}>{t('search.addDate')}</span>}
                 <ChevronDown size={14} color="#aaa" style={{ marginLeft: 'auto' }} />
               </div>
               {openCal === 'checkout' && (
@@ -361,11 +365,11 @@ function BookingPanel({ apartment, blockedDates = [] }) {
         )}
 
         <div style={bp.guestField}>
-          <label style={bp.label}>GUESTS</label>
+          <label style={bp.label}>{t('booking.guests')}</label>
           <div style={bp.guestRow}>
             <button type="button" style={{ ...bp.guestBtn, opacity: guests <= 1 ? 0.3 : 1 }}
               onClick={() => setGuests(g => Math.max(1, g - 1))}>−</button>
-            <span style={bp.guestCount}>{guests} {guests === 1 ? 'guest' : 'guests'}</span>
+            <span style={bp.guestCount}>{guests} {guests === 1 ? t('booking.guest') : t('detail.guestsLabel')}</span>
             <button type="button" style={{ ...bp.guestBtn, opacity: guests >= apartment.max_guests ? 0.3 : 1 }}
               onClick={() => setGuests(g => Math.min(apartment.max_guests, g + 1))}>+</button>
           </div>
@@ -378,26 +382,26 @@ function BookingPanel({ apartment, blockedDates = [] }) {
             ? <CreditCard size={20} color="#0F4C5C" />
             : <Banknote size={20} color="#0F4C5C" />}
           <div>
-            <p style={bp.payLabel}>{paymentMethod === 'online' ? 'Pay online' : 'Pay on arrival'}</p>
+            <p style={bp.payLabel}>{paymentMethod === 'online' ? t('booking.payOnline') : t('booking.payOnArrival')}</p>
             <p style={bp.paySub}>
-              {paymentMethod === 'online' ? 'Secure card payment via Stripe' : 'Cash or card at the property'}
+              {paymentMethod === 'online' ? t('booking.payOnlineSub') : t('booking.payOnArrivalSub')}
             </p>
           </div>
         </div>
 
         <button type="submit" disabled={loading || !checkIn || !checkOut} style={{ ...bp.btn, opacity: (!checkIn || !checkOut) ? 0.6 : 1 }} className="btn-press">
-          {loading ? 'Booking...' : user ? 'Reserve' : 'Log in to book'}
+          {loading ? t('booking.booking') : user ? t('booking.reserve') : t('booking.loginToBook')}
         </button>
 
         {nights > 0 && (
           <div style={bp.breakdown}>
             <div style={bp.breakRow}>
-              <span>${apartment.price_per_night} × {nights} night{nights > 1 ? 's' : ''}</span>
+              <span>${apartment.price_per_night} × {nights} {nights > 1 ? t('booking.nights') : t('booking.night')}</span>
               <span>${total.toFixed(2)}</span>
             </div>
             <div style={bp.breakDivider} />
             <div style={{ ...bp.breakRow, fontWeight: 700, color: '#0F4C5C' }}>
-              <span>Total</span>
+              <span>{t('booking.total')}</span>
               <span>${total.toFixed(2)}</span>
             </div>
           </div>
@@ -447,6 +451,7 @@ const bp = {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function ApartmentDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -469,9 +474,9 @@ export default function ApartmentDetail() {
         setReviews(reviewData);
         setBlockedDates(blocked);
       })
-      .catch(() => setError('Apartment not found.'))
+      .catch(() => setError(t('detail.notFound')))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, t]);
 
   if (loading) return (
     <div style={s.loadingPage}>
@@ -481,8 +486,8 @@ export default function ApartmentDetail() {
 
   if (error || !apt) return (
     <div style={s.loadingPage}>
-      <p style={{ color: '#888' }}>{error || 'Not found.'}</p>
-      <button onClick={() => navigate(-1)} style={s.backBtn}>← Go back</button>
+      <p style={{ color: '#888' }}>{error || t('detail.notFound')}</p>
+      <button onClick={() => navigate(-1)} style={s.backBtn}>← {t('auth.goBack')}</button>
     </div>
   );
 
@@ -496,12 +501,12 @@ export default function ApartmentDetail() {
   };
 
   const amenityLabels = {
-    wifi: 'WiFi', car: 'Parking', snowflake: 'Air Conditioning',
-    waves: 'Pool', utensils: 'Kitchen', 'washing-machine': 'Washing Machine',
-    tv: 'TV', 'paw-print': 'Pet Friendly', flame: 'Grill', building: 'Balcony',
-    spa: 'Spa', gym: 'Gym', 'room-service': 'Room Service',
-    'sea-view': 'Sea View', 'mountain-view': 'Mountain View', kettle: 'Kettle',
-    breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner',
+    wifi: t('amenities.wifi'), car: t('amenities.car'), snowflake: t('amenities.snowflake'),
+    waves: t('amenities.waves'), utensils: t('amenities.utensils'), 'washing-machine': t('amenities.washing-machine'),
+    tv: t('amenities.tv'), 'paw-print': t('amenities.paw-print'), flame: t('amenities.flame'), building: t('amenities.building'),
+    spa: t('amenities.spa'), gym: t('amenities.gym'), 'room-service': t('amenities.room-service'),
+    'sea-view': t('amenities.sea-view'), 'mountain-view': t('amenities.mountain-view'), kettle: t('amenities.kettle'),
+    breakfast: t('amenities.breakfast'), lunch: t('amenities.lunch'), dinner: t('amenities.dinner'),
   };
 
   const displayAmenities = (() => {
@@ -519,7 +524,7 @@ export default function ApartmentDetail() {
       <Navbar />
 
       <div style={s.container}>
-        <button onClick={() => navigate(-1)} style={s.backBtn}><ChevronLeft size={16} style={{ marginRight: 2 }} />Back</button>
+        <button onClick={() => navigate(-1)} style={s.backBtn}><ChevronLeft size={16} style={{ marginRight: 2 }} />{t('detail.back')}</button>
 
         <div style={s.titleRow}>
           <div>
@@ -529,7 +534,7 @@ export default function ApartmentDetail() {
                 <span style={s.metaItem}>
                   <Stars rating={apt.avg_rating} />
                   <strong style={{ marginLeft: 4 }}>{Number(apt.avg_rating).toFixed(1)}</strong>
-                  <span style={{ color: '#888' }}> · {apt.review_count} reviews</span>
+                  <span style={{ color: '#888' }}> · {apt.review_count} {t('detail.reviews')}</span>
                 </span>
               )}
               <span style={s.metaDot}>·</span>
@@ -544,9 +549,9 @@ export default function ApartmentDetail() {
           <div style={s.left}>
             <div style={s.statsRow}>
               {[
-                { Icon: BedDouble, label: `${apt.bedrooms} bedroom${apt.bedrooms !== 1 ? 's' : ''}` },
-                { Icon: Bed,       label: `${apt.beds} bed${apt.beds !== 1 ? 's' : ''}` },
-                { Icon: Users,     label: `Up to ${apt.max_guests} guests` },
+                { Icon: BedDouble, label: `${apt.bedrooms} ${apt.bedrooms !== 1 ? t('detail.bedrooms') : t('detail.bedroom')}` },
+                { Icon: Bed,       label: `${apt.beds} ${apt.beds !== 1 ? t('detail.beds') : t('detail.bed')}` },
+                { Icon: Users,     label: `${t('detail.upTo')} ${apt.max_guests} ${t('detail.guestsLabel')}` },
               ].map((item, i) => (
                 <div key={i} style={s.statCard}>
                   <item.Icon size={18} color="#0F4C5C" strokeWidth={1.8} />
@@ -558,15 +563,15 @@ export default function ApartmentDetail() {
             <div style={s.divider} />
 
             <section>
-              <h2 style={s.sectionTitle}>About this place</h2>
-              <p style={s.description}>{apt.description || 'No description provided.'}</p>
+              <h2 style={s.sectionTitle}>{t('detail.aboutPlace')}</h2>
+              <p style={s.description}>{apt.description || t('detail.noDescription')}</p>
             </section>
 
             {apt.address && (
               <>
                 <div style={s.divider} />
                 <section>
-                  <h2 style={s.sectionTitle}>Address</h2>
+                  <h2 style={s.sectionTitle}>{t('detail.address')}</h2>
                   <p style={{ ...s.description, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 }}>
                     <MapPin size={15} color="#0F4C5C" />{apt.address}
                   </p>
@@ -579,11 +584,11 @@ export default function ApartmentDetail() {
               <>
                 <div style={s.divider} />
                 <section>
-                  <h2 style={s.sectionTitle}>Amenities</h2>
+                  <h2 style={s.sectionTitle}>{t('detail.amenities')}</h2>
                   <div style={s.amenitiesGrid}>
                     {displayAmenities.map(a => {
                       const IconComp = a.icon === 'all-meals' ? UtensilsCrossed : (amenityIcons[a.icon] || Check);
-                      const label = a.icon === 'all-meals' ? 'All Meals' : (amenityLabels[a.icon] || a.name);
+                      const label = a.icon === 'all-meals' ? t('amenities.all-meals') : (amenityLabels[a.icon] || a.name);
                       return (
                         <div key={a.id} style={s.amenityItem}>
                           <IconComp size={18} color="#0F4C5C" strokeWidth={1.8} />
@@ -602,13 +607,13 @@ export default function ApartmentDetail() {
               <div style={s.reviewsHeader}>
                 <h2 style={s.sectionTitle}>
                   {reviews.length > 0
-                    ? <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Star size={18} fill="#E8A87C" color="#E8A87C" />{Number(apt.avg_rating).toFixed(1)} · {reviews.length} review{reviews.length !== 1 ? 's' : ''}</span>
-                    : 'No reviews yet'}
+                    ? <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Star size={18} fill="#E8A87C" color="#E8A87C" />{Number(apt.avg_rating).toFixed(1)} · {reviews.length} {t('detail.reviews')}</span>
+                    : t('detail.noReviews')}
                 </h2>
               </div>
 
               {reviews.length === 0 ? (
-                <p style={{ color: '#aaa', fontSize: 14 }}>Be the first to leave a review after your stay.</p>
+                <p style={{ color: '#aaa', fontSize: 14 }}>{t('detail.firstReview')}</p>
               ) : (
                 <div style={s.reviewsGrid}>
                   {reviews.map(r => (
@@ -636,8 +641,8 @@ export default function ApartmentDetail() {
               <div style={bp.card}>
                 <div style={{ textAlign: 'center', padding: '8px 0' }}>
                   <Home size={32} color="#0F4C5C" strokeWidth={1.5} style={{ marginBottom: 12 }} />
-                  <p style={{ fontSize: 15, fontWeight: 600, color: '#0F4C5C', margin: '0 0 6px' }}>This is your listing</p>
-                  <p style={{ fontSize: 13, color: '#888', margin: 0 }}>You can't book your own apartment.</p>
+                  <p style={{ fontSize: 15, fontWeight: 600, color: '#0F4C5C', margin: '0 0 6px' }}>{t('booking.ownListing')}</p>
+                  <p style={{ fontSize: 13, color: '#888', margin: 0 }}>{t('booking.ownListingSub')}</p>
                 </div>
               </div>
             ) : (

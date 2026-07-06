@@ -37,7 +37,9 @@
     "guest": "gost",
     "guestsPlural": "gostiju",
     "numberOfGuests": "Broj gostiju",
-    "searchBtn": "Pretraži"
+    "searchBtn": "Pretraži",
+    "searchingPlaces": "Pretraga lokacija...",
+    "selected": "Izabrano"
   },
   "filters": {
     "filters": "Filteri",
@@ -80,7 +82,8 @@
     "bed": "krevet",
     "beds": "kreveta",
     "upTo": "Do",
-    "guestsLabel": "gostiju"
+    "guestsLabel": "gostiju",
+    "notFound": "Smještaj nije pronađen."
   },
   "booking": {
     "checkIn": "DOLAZAK",
@@ -103,7 +106,13 @@
     "ownListing": "Ovo je Vaš oglas",
     "ownListingSub": "Ne možete rezervisati sopstveni apartman.",
     "pay": "Plati",
-    "guest": "gost"
+    "guest": "gost",
+    "paymentFailed": "Plaćanje nije uspjelo.",
+    "bookingFailed": "Rezervacija nije uspjela. Pokušajte ponovo.",
+    "viewMyBookings": "Pogledaj moje rezervacije",
+    "completePayment": "Završi plaćanje",
+    "skipPayLater": "Preskoči — platiću kasnije",
+    "paymentSuccessSub": "Plaćanje uspješno. Vaša rezervacija je potvrđena."
   },
   "auth": {
     "welcomeBack": "Dobrodošli nazad",
@@ -256,7 +265,11 @@
     "paymentOnArrival": "Plaćanje po dolasku",
     "paymentOnArrivalSub": "Gosti plaćaju gotovinom ili karticom u smještaju",
     "paymentOnline": "Plaćanje online",
-    "paymentOnlineSub": "Gosti plaćaju karticom putem Stripe-a prilikom rezervacije"
+    "paymentOnlineSub": "Gosti plaćaju karticom putem Stripe-a prilikom rezervacije",
+    "autoPinned": "Automatski pinovano na osnovu adrese — kliknite na mapu da ispravite.",
+    "manualPinned": "Ručno pinovano.",
+    "pinHintClick": "Kliknite na mapu da označite tačnu lokaciju",
+    "removePin": "Ukloni pin"
   },
   "review": {
     "leaveReview": "Ostavi recenziju",
@@ -294,7 +307,8 @@
     "error": "Došlo je do greške.",
     "copyright": "Rentura. Sva prava zadržana.",
     "min": "Min",
-    "max": "Maks"
+    "max": "Maks",
+    "processing": "Obrada u toku..."
   },
   "chat": {
     "title": "Poruke",

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import apartmentService from '../services/apartmentService';
+import geocodingService from '../services/geocodingService';
 import PinMap from '../components/PinMap';
 import Calendar from '../components/Calendar';
 import LocationAutocomplete from '../components/LocationAutocomplete';
@@ -55,6 +56,7 @@ export default function Owner() {
   const [existingImages, setExistingImages] = useState([]); // images already saved in DB
   const [amenities, setAmenities] = useState([]);
   const [pin, setPin] = useState(null); // { lat, lng }
+  const [manualPin, setManualPin] = useState(false); // true once user has explicitly placed/cleared the pin themselves
   const [saving, setSaving] = useState(false);
   const [availApt, setAvailApt] = useState(null); // apartment for availability modal
   const [blockedDates, setBlockedDates] = useState([]); // blocked dates for availApt
@@ -65,6 +67,28 @@ export default function Owner() {
     fetchApartments();
   }, [user?.role, navigate]);
 
+  // Auto-pin on the map as soon as a usable address is typed. Stops touching
+  // the pin the moment the owner manually clicks the map or clears it — it
+  // only resumes once they actually edit the address/location text again.
+  useEffect(() => {
+    if (manualPin || !showForm) return;
+    if (form.address.trim().length < 5) return;
+    const query = [form.address, form.location, form.municipality, form.country].filter(Boolean).join(', ');
+
+    const timer = setTimeout(async () => {
+      try {
+        const results = await geocodingService.search(query);
+        if (results && results.length > 0 && results[0].lat && results[0].lng) {
+          setPin({ lat: results[0].lat, lng: results[0].lng });
+        }
+      } catch {
+        // Silently ignore — owner can still pin manually on the map.
+      }
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [form.address, form.location, form.municipality, form.country, manualPin, showForm]);
+
   const fetchApartments = () => {
     setLoading(true);
     apartmentService.getMine()
@@ -74,7 +98,7 @@ export default function Owner() {
   };
 
   const openNew = () => {
-    setEditTarget(null); setForm(emptyForm); setImages([]); setPreviews([]); setExistingImages([]); setAmenities([]); setPin(null); setError(''); setShowForm(true);
+    setEditTarget(null); setForm(emptyForm); setImages([]); setPreviews([]); setExistingImages([]); setAmenities([]); setPin(null); setManualPin(false); setError(''); setShowForm(true);
   };
   const openEdit = (apt) => {
     setEditTarget(apt);
@@ -83,6 +107,7 @@ export default function Owner() {
     setExistingImages(apt.images || []);
     setAmenities(apt.amenities?.map(a => a.icon || a.key) || []);
     setPin(apt.lat && apt.lng ? { lat: parseFloat(apt.lat), lng: parseFloat(apt.lng) } : null);
+    setManualPin(!!(apt.lat && apt.lng)); // an already-saved pin is treated as confirmed, so editing the address won't jump it
     setError(''); setShowForm(true);
   };
 
@@ -274,13 +299,16 @@ export default function Owner() {
                       country: form.country,
                       label: formatLocation(form),
                     }}
-                    onChange={(place) => setForm({
-                      ...form,
-                      location: place.location,
-                      municipality: place.municipality || '',
-                      country: place.country || '',
-                    })}
-                    onCoords={setPin}
+                    onChange={(place) => {
+                      setManualPin(false);
+                      setForm({
+                        ...form,
+                        location: place.location,
+                        municipality: place.municipality || '',
+                        country: place.country || '',
+                      });
+                    }}
+                    onCoords={(coords) => { setManualPin(false); setPin(coords); }}
                     placeholder={t('owner.locationPlaceholder')}
                     inputStyle={s.input}
                   />
@@ -288,7 +316,7 @@ export default function Owner() {
                 <div style={{ ...s.field, flex: 1 }}>
                   <label style={s.label}>{t('owner.address')}</label>
                   <input style={s.input} value={form.address}
-                    onChange={e => setForm({ ...form, address: e.target.value })}
+                    onChange={e => { setManualPin(false); setForm({ ...form, address: e.target.value }); }}
                     placeholder={t('owner.addressPlaceholder')}
                     onFocus={e => e.target.style.borderColor = '#0F4C5C'}
                     onBlur={e => e.target.style.borderColor = '#ddd'} />
@@ -297,7 +325,12 @@ export default function Owner() {
 
               <div style={s.field}>
                 <label style={s.label}>{t('owner.pinLocation')}</label>
-                <PinMap pin={pin} onPin={setPin} />
+                <PinMap pin={pin} onPin={(coords) => { setManualPin(true); setPin(coords); }} />
+                {pin && (
+                  <p style={s.pinHint}>
+                    {manualPin ? t('owner.manualPinned') : t('owner.autoPinned')}
+                  </p>
+                )}
               </div>
 
               <div style={s.field}>
@@ -518,6 +551,7 @@ const s = {
   row: { display: 'flex', gap: 16 },
   field: { marginBottom: 18 },
   label: { display: 'block', fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.4px' },
+  pinHint: { fontSize: 12, color: '#888', margin: '6px 0 0' },
   input: { width: '100%', padding: '12px 14px', border: '1px solid #ddd', borderRadius: 10, fontSize: 15, outline: 'none', boxSizing: 'border-box', color: '#222', fontFamily: "'Segoe UI', sans-serif" },
   counter: { display: 'flex', alignItems: 'center', gap: 16, border: '1px solid #ddd', borderRadius: 10, padding: '10px 16px' },
   counterBtn: { width: 28, height: 28, borderRadius: '50%', border: '1px solid #ccc', background: '#fff', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F4C5C', fontWeight: 700, padding: 0, fontFamily: "'Segoe UI', sans-serif" },

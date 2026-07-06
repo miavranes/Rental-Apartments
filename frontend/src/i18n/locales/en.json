@@ -37,7 +37,9 @@
     "guest": "guest",
     "guestsPlural": "guests",
     "numberOfGuests": "Number of guests",
-    "searchBtn": "Search"
+    "searchBtn": "Search",
+    "searchingPlaces": "Searching places...",
+    "selected": "Selected"
   },
   "filters": {
     "filters": "Filters",
@@ -80,7 +82,8 @@
     "bed": "bed",
     "beds": "beds",
     "upTo": "Up to",
-    "guestsLabel": "guests"
+    "guestsLabel": "guests",
+    "notFound": "Apartment not found."
   },
   "booking": {
     "checkIn": "CHECK IN",
@@ -103,7 +106,13 @@
     "ownListing": "This is your listing",
     "ownListingSub": "You can't book your own apartment.",
     "pay": "Pay",
-    "guest": "guest"
+    "guest": "guest",
+    "paymentFailed": "Payment failed.",
+    "bookingFailed": "Booking failed. Please try again.",
+    "viewMyBookings": "View my bookings",
+    "completePayment": "Complete payment",
+    "skipPayLater": "Skip — I'll pay later",
+    "paymentSuccessSub": "Payment successful. Your reservation is confirmed."
   },
   "auth": {
     "welcomeBack": "Welcome back",
@@ -256,7 +265,11 @@
     "paymentOnArrival": "Pay on arrival",
     "paymentOnArrivalSub": "Guests pay cash or card at the property",
     "paymentOnline": "Pay online",
-    "paymentOnlineSub": "Guests pay by card via Stripe when booking"
+    "paymentOnlineSub": "Guests pay by card via Stripe when booking",
+    "autoPinned": "Pinned automatically from the address — click the map to correct it.",
+    "manualPinned": "Pinned manually.",
+    "pinHintClick": "Click on the map to pin the exact location",
+    "removePin": "Remove pin"
   },
   "review": {
     "leaveReview": "Leave a review",
@@ -294,7 +307,8 @@
     "error": "Something went wrong.",
     "copyright": "Rentura. All rights reserved.",
     "min": "Min",
-    "max": "Max"
+    "max": "Max",
+    "processing": "Processing..."
   },
   "chat": {
     "title": "Messages",

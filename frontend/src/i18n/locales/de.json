@@ -37,7 +37,9 @@
     "guest": "Gast",
     "guestsPlural": "Gäste",
     "numberOfGuests": "Anzahl der Gäste",
-    "searchBtn": "Suchen"
+    "searchBtn": "Suchen",
+    "searchingPlaces": "Orte werden gesucht...",
+    "selected": "Ausgewählt"
   },
   "filters": {
     "filters": "Filter",
@@ -80,7 +82,8 @@
     "bed": "Bett",
     "beds": "Betten",
     "upTo": "Bis zu",
-    "guestsLabel": "Gäste"
+    "guestsLabel": "Gäste",
+    "notFound": "Unterkunft nicht gefunden."
   },
   "booking": {
     "checkIn": "ANREISE",
@@ -103,7 +106,13 @@
     "ownListing": "Das ist dein Angebot",
     "ownListingSub": "Du kannst dein eigenes Apartment nicht buchen.",
     "pay": "Zahlen",
-    "guest": "Gast"
+    "guest": "Gast",
+    "paymentFailed": "Zahlung fehlgeschlagen.",
+    "bookingFailed": "Buchung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "viewMyBookings": "Meine Buchungen ansehen",
+    "completePayment": "Zahlung abschließen",
+    "skipPayLater": "Überspringen — ich zahle später",
+    "paymentSuccessSub": "Zahlung erfolgreich. Ihre Reservierung ist bestätigt."
   },
   "auth": {
     "welcomeBack": "Willkommen zurück",
@@ -256,7 +265,11 @@
     "paymentOnArrival": "Zahlung bei Ankunft",
     "paymentOnArrivalSub": "Gäste zahlen bar oder mit Karte vor Ort",
     "paymentOnline": "Online bezahlen",
-    "paymentOnlineSub": "Gäste zahlen bei der Buchung per Karte über Stripe"
+    "paymentOnlineSub": "Gäste zahlen bei der Buchung per Karte über Stripe",
+    "autoPinned": "Automatisch anhand der Adresse markiert — klicken Sie auf die Karte, um es zu korrigieren.",
+    "manualPinned": "Manuell markiert.",
+    "pinHintClick": "Klicken Sie auf die Karte, um den genauen Standort zu markieren",
+    "removePin": "Pin entfernen"
   },
   "review": {
     "leaveReview": "Bewertung hinterlassen",
@@ -294,7 +307,8 @@
     "error": "Etwas ist schiefgelaufen.",
     "copyright": "Rentura. Alle Rechte vorbehalten.",
     "min": "Min",
-    "max": "Max"
+    "max": "Max",
+    "processing": "Wird verarbeitet..."
   },
   "chat": {
     "title": "Nachrichten",

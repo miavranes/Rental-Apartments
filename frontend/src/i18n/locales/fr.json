@@ -37,7 +37,9 @@
     "guest": "voyageur",
     "guestsPlural": "voyageurs",
     "numberOfGuests": "Nombre de voyageurs",
-    "searchBtn": "Rechercher"
+    "searchBtn": "Rechercher",
+    "searchingPlaces": "Recherche de lieux...",
+    "selected": "Sélectionné"
   },
   "filters": {
     "filters": "Filtres",
@@ -80,7 +82,8 @@
     "bed": "lit",
     "beds": "lits",
     "upTo": "Jusqu'a",
-    "guestsLabel": "voyageurs"
+    "guestsLabel": "voyageurs",
+    "notFound": "Logement introuvable."
   },
   "booking": {
     "checkIn": "ARRIVEE",
@@ -103,7 +106,13 @@
     "ownListing": "Ceci est votre annonce",
     "ownListingSub": "Vous ne pouvez pas reserver votre propre appartement.",
     "pay": "Payer",
-    "guest": "voyageur"
+    "guest": "voyageur",
+    "paymentFailed": "Le paiement a échoué.",
+    "bookingFailed": "La réservation a échoué. Veuillez réessayer.",
+    "viewMyBookings": "Voir mes réservations",
+    "completePayment": "Finaliser le paiement",
+    "skipPayLater": "Passer — je paierai plus tard",
+    "paymentSuccessSub": "Paiement réussi. Votre réservation est confirmée."
   },
   "auth": {
     "welcomeBack": "Bon retour",
@@ -256,7 +265,11 @@
     "paymentOnArrival": "Paiement a l'arrivee",
     "paymentOnArrivalSub": "Les voyageurs paient en especes ou par carte sur place",
     "paymentOnline": "Paiement en ligne",
-    "paymentOnlineSub": "Les voyageurs paient par carte via Stripe lors de la reservation"
+    "paymentOnlineSub": "Les voyageurs paient par carte via Stripe lors de la reservation",
+    "autoPinned": "Épinglé automatiquement à partir de l'adresse — cliquez sur la carte pour corriger.",
+    "manualPinned": "Épinglé manuellement.",
+    "pinHintClick": "Cliquez sur la carte pour épingler l'emplacement exact",
+    "removePin": "Supprimer l'épingle"
   },
   "review": {
     "leaveReview": "Laisser un avis",
@@ -294,7 +307,8 @@
     "error": "Une erreur est survenue.",
     "copyright": "Rentura. Tous droits reserves.",
     "min": "Min",
-    "max": "Max"
+    "max": "Max",
+    "processing": "Traitement en cours..."
   },
   "chat": {
     "title": "Messages",

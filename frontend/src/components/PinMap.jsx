@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { useTranslation } from 'react-i18next';
 import L from 'leaflet';
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -29,11 +30,12 @@ function FlyTo({ coords }) {
 }
 
 export default function PinMap({ pin, onPin }) {
+  const { t } = useTranslation();
   const center = pin ? [pin.lat, pin.lng] : [42.7087, 19.3744]; // default: Montenegro
 
   return (
     <div style={s.wrapper}>
-      <p style={s.hint}>Click on the map to pin the exact location</p>
+      <p style={s.hint}>{t('owner.pinHintClick')}</p>
       <div style={s.mapBox}>
         <MapContainer
           center={center}
@@ -53,7 +55,7 @@ export default function PinMap({ pin, onPin }) {
       {pin && (
         <div style={s.coords}>
           <span>📍 {pin.lat.toFixed(5)}, {pin.lng.toFixed(5)}</span>
-          <button type="button" onClick={() => onPin(null)} style={s.clearBtn}>Remove pin</button>
+          <button type="button" onClick={() => onPin(null)} style={s.clearBtn}>{t('owner.removePin')}</button>
         </div>
       )}
     </div>
