@@ -177,7 +177,7 @@ export default function OwnerReservations() {
                     </div>
                     <div style={s.infoBlock}>
                       <span style={s.infoLabel}>{t('ownerReservations.total')}</span>
-                      <span style={{ ...s.infoVal, fontWeight: 700, color: '#0F4C5C' }}>${Number(r.total_price).toFixed(2)}</span>
+                      <span style={{ ...s.infoVal, fontWeight: 700, color: '#0F4C5C' }}>€{Number(r.total_price).toFixed(2)}</span>
                     </div>
                   </div>
 

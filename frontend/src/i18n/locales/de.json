@@ -305,7 +305,8 @@
     "breakfast": "Frühstück",
     "lunch": "Mittagessen",
     "dinner": "Abendessen",
-    "all-meals": "Alle Mahlzeiten"
+    "full-board": "Vollpension",
+    "half-board": "Halbpension"
   },
   "common": {
     "error": "Etwas ist schiefgelaufen.",

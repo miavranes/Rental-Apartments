@@ -305,7 +305,8 @@
     "breakfast": "Breakfast",
     "lunch": "Lunch",
     "dinner": "Dinner",
-    "all-meals": "All Meals"
+    "full-board": "Full Board",
+    "half-board": "Half Board"
   },
   "common": {
     "error": "Something went wrong.",

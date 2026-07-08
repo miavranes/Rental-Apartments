@@ -25,7 +25,8 @@ export default function Calendar({ value, onChange, minDate, maxDate, blockedDat
   for (let i = 0; i < firstDay; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
-  const toStr = (d) => new Date(viewYear, viewMonth, d).toISOString().split('T')[0];
+  const pad = (n) => String(n).padStart(2, '0');
+  const toStr = (d) => `${viewYear}-${pad(viewMonth + 1)}-${pad(d)}`;
   const isSelected = (d) => d && value === toStr(d);
   const isDisabled = (d) => {
     if (!d) return true;
@@ -36,7 +37,7 @@ export default function Calendar({ value, onChange, minDate, maxDate, blockedDat
     if (blockedDates.includes(str) && str !== maxDate) return true;
     return false;
   };
-  const isToday = (d) => d && toStr(d) === today.toISOString().split('T')[0];
+  const isToday = (d) => d && toStr(d) === `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
   const isBlocked = (d) => d && blockedDates.includes(toStr(d)) && toStr(d) !== maxDate;
 
   return (

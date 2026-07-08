@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Calendar from './Calendar';
 import LocationAutocomplete from './LocationAutocomplete';
 import { formatLocation } from '../utils/locationUtils';
+import { todayLocal } from '../utils/dateUtils';
 
 function Dropdown({ children, open, style }) {
   return open ? (
@@ -81,7 +82,7 @@ export default function SearchBar() {
         <span style={{ ...sb.value, color: place.location ? '#111' : '#aaa' }}>
           {formatLocation(place) || t('search.locationPlaceholder')}
         </span>
-        <Dropdown open={isActive('location')} style={{ left: '0', transform: 'none', minWidth: '300px' }}>
+        <Dropdown open={isActive('location')} style={{ left: '0', transform: 'none', minWidth: '300px', overflow: 'visible' }}>
           <div style={{ padding: '16px' }} onClick={e => e.stopPropagation()}>
             <p style={sb.dropLabel}>{t('search.searchDestination')}</p>
             <LocationAutocomplete
@@ -103,7 +104,7 @@ export default function SearchBar() {
         <Dropdown open={isActive('checkin')}>
           <Calendar
             value={checkIn}
-            minDate={new Date().toISOString().split('T')[0]}
+            minDate={todayLocal()}
             onChange={(d) => { setCheckIn(d); if (checkOut && d >= checkOut) setCheckOut(''); setActive('checkout'); }}
           />
         </Dropdown>
@@ -120,7 +121,7 @@ export default function SearchBar() {
         <Dropdown open={isActive('checkout')}>
           <Calendar
             value={checkOut}
-            minDate={checkIn || new Date().toISOString().split('T')[0]}
+            minDate={checkIn || todayLocal()}
             onChange={(d) => { setCheckOut(d); setActive('guests'); }}
           />
         </Dropdown>

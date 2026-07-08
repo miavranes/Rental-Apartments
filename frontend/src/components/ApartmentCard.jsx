@@ -104,7 +104,7 @@ export default function ApartmentCard({ apartment, index = 0 }) {
         <p style={styles.location}>{formatLocation(apartment)}</p>
         <h3 style={styles.title}>{title}</h3>
         <p style={styles.price}>
-          <strong style={styles.priceAmount}>${price_per_night}</strong>
+          <strong style={styles.priceAmount}>€{price_per_night}</strong>
           <span style={styles.perNight}> {t('apartments.perNight')}</span>
         </p>
       </div>

@@ -11,6 +11,7 @@ import MapView from '../components/MapView';
 import Navbar from '../components/Navbar';
 import { useTranslation } from 'react-i18next';
 import { formatLocation } from '../utils/locationUtils';
+import { todayLocal } from '../utils/dateUtils';
 import {
   Home, MapPin, BedDouble, Bed, Users,
   Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building,
@@ -279,7 +280,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
   return (
     <div style={bp.card} ref={panelRef}>
       <div style={bp.priceRow}>
-        <span style={bp.price}>${apartment.price_per_night}</span>
+        <span style={bp.price}>€{apartment.price_per_night}</span>
         <span style={bp.perNight}> / night</span>
       </div>
       {apartment.avg_rating > 0 && (
@@ -321,7 +322,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
                 <div style={bp.calDrop} onClick={e => e.stopPropagation()}>
                   <Calendar
                     value={checkIn}
-                    minDate={new Date().toISOString().split('T')[0]}
+                    minDate={todayLocal()}
                     blockedDates={blockedDates}
                     onChange={(d) => {
                       setCheckIn(d);
@@ -344,7 +345,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
                 <div style={{ ...bp.calDrop, right: 0, left: 'auto' }} onClick={e => e.stopPropagation()}>
                   <Calendar
                     value={checkOut}
-                    minDate={checkIn || new Date().toISOString().split('T')[0]}
+                    minDate={checkIn || todayLocal()}
                     maxDate={checkoutMaxDate}
                     blockedDates={blockedDates}
                     onChange={(d) => { setCheckOut(d); setOpenCal(null); }}
@@ -387,7 +388,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
         {nights > 0 && (
           <div style={bp.breakdown}>
             <div style={bp.breakRow}>
-              <span>${apartment.price_per_night} × {nights} {nights > 1 ? t('booking.nights') : t('booking.night')}</span>
+              <span>€{apartment.price_per_night} × {nights} {nights > 1 ? t('booking.nights') : t('booking.night')}</span>
               <span>${total.toFixed(2)}</span>
             </div>
             <div style={bp.breakDivider} />
@@ -501,10 +502,15 @@ export default function ApartmentDetail() {
 
   const displayAmenities = (() => {
     const icons = apt.amenities?.map(a => a.icon) || [];
-    const hasAll = ['breakfast', 'lunch', 'dinner'].every(k => icons.includes(k));
-    if (hasAll) {
-      const filtered = apt.amenities.filter(a => !['breakfast', 'lunch', 'dinner'].includes(a.icon));
-      return [...filtered, { id: 'all-meals', icon: 'all-meals', name: 'All Meals' }];
+    const mealIcons = ['breakfast', 'lunch', 'dinner'];
+    const selectedMeals = mealIcons.filter(k => icons.includes(k));
+    const filtered = apt.amenities?.filter(a => !mealIcons.includes(a.icon)) || [];
+
+    if (selectedMeals.length === 3) {
+      return [...filtered, { id: 'full-board', icon: 'full-board', name: 'Full Board' }];
+    }
+    if (selectedMeals.length === 2) {
+      return [...filtered, { id: 'half-board', icon: 'half-board', name: 'Half Board' }];
     }
     return apt.amenities || [];
   })();
@@ -577,8 +583,10 @@ export default function ApartmentDetail() {
                   <h2 style={s.sectionTitle}>{t('detail.amenities')}</h2>
                   <div style={s.amenitiesGrid}>
                     {displayAmenities.map(a => {
-                      const IconComp = a.icon === 'all-meals' ? UtensilsCrossed : (amenityIcons[a.icon] || Check);
-                      const label = a.icon === 'all-meals' ? t('amenities.all-meals') : (amenityLabels[a.icon] || a.name);
+                      const IconComp = (a.icon === 'full-board' || a.icon === 'half-board') ? UtensilsCrossed : (amenityIcons[a.icon] || Check);
+                      const label = a.icon === 'full-board' ? t('amenities.full-board')
+                        : a.icon === 'half-board' ? t('amenities.half-board')
+                        : (amenityLabels[a.icon] || a.name);
                       return (
                         <div key={a.id} style={s.amenityItem}>
                           <IconComp size={18} color="#0F4C5C" strokeWidth={1.8} />

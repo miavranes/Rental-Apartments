@@ -173,7 +173,7 @@ const s = {
     border: '1px solid #e8e8e8',
     borderRadius: '12px',
     boxShadow: '0 8px 24px rgba(15,76,92,0.12)',
-    zIndex: 300,
+    zIndex: 2000,
     maxHeight: '260px',
     overflowY: 'auto',
   },

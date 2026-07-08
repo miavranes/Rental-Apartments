@@ -193,7 +193,7 @@ export default function MyReservations() {
 
                     <div style={s.cardBottom} className="my-res-card-bottom">
                       <div>
-                        <span style={s.price}>${Number(r.total_price).toFixed(2)}</span>
+                        <span style={s.price}>€{Number(r.total_price).toFixed(2)}</span>
                         <span style={s.priceNights}> · {n} {n !== 1 ? t('booking.nights', 'nights') : t('booking.night', 'night')}</span>
                       </div>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

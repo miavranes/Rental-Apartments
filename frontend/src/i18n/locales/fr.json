@@ -305,7 +305,8 @@
     "breakfast": "Petit-dejeuner",
     "lunch": "Dejeuner",
     "dinner": "Diner",
-    "all-meals": "Tous les repas"
+    "full-board": "Pension complete",
+    "half-board": "Demi-pension"
   },
   "common": {
     "error": "Une erreur est survenue.",

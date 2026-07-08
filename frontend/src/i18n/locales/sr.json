@@ -305,7 +305,8 @@
     "breakfast": "Doručak",
     "lunch": "Ručak",
     "dinner": "Večera",
-    "all-meals": "Svi obroci"
+    "full-board": "Puni pansion",
+    "half-board": "Polupansion"
   },
   "common": {
     "error": "Došlo je do greške.",

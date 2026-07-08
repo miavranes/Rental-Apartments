@@ -18,7 +18,7 @@ export default function Home() {
       .getAll()
       .then((data) => {
         const sorted = [...data].sort((a, b) => (b.avg_rating || 0) - (a.avg_rating || 0));
-        setFeatured(sorted.slice(0, 6));
+        setFeatured(sorted.slice(0, 3));
       })
       .catch(() => setFeatured([]))
       .finally(() => setLoading(false));
@@ -48,7 +48,7 @@ export default function Home() {
 
         {loading ? (
           <div style={styles.grid}>
-            {Array.from({ length: 6 }).map((_, i) => (
+            {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} style={styles.skeleton} className="skeleton-shimmer" />
             ))}
           </div>

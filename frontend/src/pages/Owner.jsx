@@ -236,7 +236,7 @@ export default function Owner() {
                 <div style={s.cardBody}>
                   <p style={s.cardLocation}>{formatLocation(apt)}</p>
                   <h3 style={s.cardTitle}>{apt.title}</h3>
-                  <p style={s.cardPrice}><strong style={{ color: '#0F4C5C' }}>${apt.price_per_night}</strong> / night</p>
+                  <p style={s.cardPrice}><strong style={{ color: '#0F4C5C' }}>€{apt.price_per_night}</strong> / night</p>
                   <div style={s.cardMeta}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><BedDouble size={14} color="#aaa" /> {apt.bedrooms} bed{apt.bedrooms !== 1 ? 's' : ''}</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Users size={14} color="#aaa" /> {apt.max_guests} guests</span>
