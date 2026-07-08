@@ -348,7 +348,19 @@
     "colRating": "Rating",
     "colFavorites": "Favorites",
     "loadFailed": "Failed to load analytics.",
-    "statusBreakdown": "confirmed · completed · pending · cancelled"
+    "statusBreakdown": "confirmed · completed · pending · cancelled",
+    "revenueByMonthHint": "Money from bookings made in that month (last 12 months), excluding cancellations",
+    "bookingsByMonthHint": "Number of bookings made in that month",
+    "occupancyByMonthHint": "Share of that month's nights that were booked, across all your listings",
+    "calendarTitle": "Availability calendar",
+    "calendarSubtitle": "See which dates are booked for each listing",
+    "calendarSelectLabel": "Listing",
+    "calendarLegendAvailable": "Available",
+    "calendarLegendPending": "Pending approval",
+    "calendarLegendConfirmed": "Confirmed",
+    "calendarLegendCompleted": "Completed stay",
+    "calendarLegendReserved": "Reserved",
+    "calendarNoBookings": "No bookings for this listing in this month — try another month or listing."
   },
   "footer": {
     "tagline": "Find the perfect stay for your next journey.",

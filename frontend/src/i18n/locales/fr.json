@@ -348,7 +348,19 @@
     "colRating": "Note",
     "colFavorites": "Favoris",
     "loadFailed": "Echec du chargement des analyses.",
-    "statusBreakdown": "confirmees · terminees · en attente · annulees"
+    "statusBreakdown": "confirmees · terminees · en attente · annulees",
+    "revenueByMonthHint": "Argent des reservations creees ce mois-la (12 derniers mois), hors annulations",
+    "bookingsByMonthHint": "Nombre de reservations creees ce mois-la",
+    "occupancyByMonthHint": "Part des nuits de ce mois qui etaient reservees, pour toutes vos annonces",
+    "calendarTitle": "Calendrier de disponibilite",
+    "calendarSubtitle": "Voyez quelles dates sont reservees pour chaque annonce",
+    "calendarSelectLabel": "Annonce",
+    "calendarLegendAvailable": "Disponible",
+    "calendarLegendPending": "En attente de confirmation",
+    "calendarLegendConfirmed": "Confirmee",
+    "calendarLegendCompleted": "Sejour termine",
+    "calendarLegendReserved": "Reservee",
+    "calendarNoBookings": "Aucune reservation pour cette annonce ce mois-ci — essayez un autre mois ou une autre annonce."
   },
   "footer": {
     "tagline": "Trouvez le sejour parfait pour votre prochain voyage.",

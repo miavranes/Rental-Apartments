@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import analyticsService from '../services/analyticsService';
+import reservationService from '../services/reservationService';
 import Navbar from '../components/Navbar';
-import { TrendingUp, Percent, DollarSign, CalendarCheck, Star, Heart } from 'lucide-react';
+import { TrendingUp, Percent, DollarSign, CalendarCheck, Star, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 const money = (n) => `€${Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
 const monthLabel = (ym) => {
@@ -18,12 +21,17 @@ function BarChart({ data, labels, format, color = '#0F4C5C', height = 140 }) {
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height, padding: '0 4px' }}>
       {data.map((v, i) => (
         <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-          <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'flex-end', height: height - 34 }}>
+          <div style={{ position: 'relative', width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', height: height - 34 }}>
+            {v > 0 && (
+              <span style={{ fontSize: 9.5, color: '#999', marginBottom: 3, whiteSpace: 'nowrap' }}>
+                {format ? format(v) : v}
+              </span>
+            )}
             <div
               title={format ? format(v) : v}
               style={{
                 width: '100%',
-                height: `${Math.max(2, (v / max) * (height - 34))}px`,
+                height: `${Math.max(2, (v / max) * (height - 34 - 14))}px`,
                 backgroundColor: color,
                 borderRadius: '4px 4px 0 0',
                 transition: 'height 0.3s ease',
@@ -37,18 +45,23 @@ function BarChart({ data, labels, format, color = '#0F4C5C', height = 140 }) {
   );
 }
 
+
 export default function Analytics() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [data, setData] = useState(null);
+  const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (user?.role !== 'owner') { navigate('/'); return; }
-    analyticsService.getOwner()
-      .then(setData)
+    Promise.all([analyticsService.getOwner(), reservationService.getOwnerReservations()])
+      .then(([analyticsData, reservationsData]) => {
+        setData(analyticsData);
+        setReservations(reservationsData);
+      })
       .catch(() => setError(t('analytics.loadFailed')))
       .finally(() => setLoading(false));
   }, [user, navigate, t]);
@@ -125,17 +138,22 @@ export default function Analytics() {
         <div style={s.chartsRow}>
           <div style={{ ...s.chartCard, animationDelay: "240ms" }} className="analytics-card anim-fade-in-up">
             <h3 style={s.chartTitle}>{t('analytics.revenueByMonth')}</h3>
+            <p style={s.chartHint}>{t('analytics.revenueByMonthHint')}</p>
             <BarChart data={revenueData} labels={labels} format={money} color="#0F4C5C" />
           </div>
           <div style={{ ...s.chartCard, animationDelay: "300ms" }} className="analytics-card anim-fade-in-up">
             <h3 style={s.chartTitle}>{t('analytics.bookingsByMonth')}</h3>
+            <p style={s.chartHint}>{t('analytics.bookingsByMonthHint')}</p>
             <BarChart data={reservationsData} labels={labels} format={(v) => `${v}`} color="#E8A87C" />
           </div>
           <div style={s.chartCard} className="analytics-card">
             <h3 style={s.chartTitle}>{t('analytics.occupancyByMonth')}</h3>
+            <p style={s.chartHint}>{t('analytics.occupancyByMonthHint')}</p>
             <BarChart data={occupancyData} labels={labels} format={(v) => `${v}%`} color="#22c55e" />
           </div>
         </div>
+
+        
 
         <div style={s.tableCard} className="analytics-card">
           <h3 style={s.chartTitle}>{t('analytics.listingPerformance')}</h3>
@@ -207,7 +225,25 @@ const s = {
     backgroundColor: '#fff', border: '1px solid #ebebeb', borderRadius: 14,
     padding: '18px 20px', boxShadow: '0 2px 10px rgba(15,76,92,0.05)',
   },
-  chartTitle: { fontSize: 14.5, fontWeight: 700, color: '#0F4C5C', margin: '0 0 14px' },
+  chartTitle: { fontSize: 14.5, fontWeight: 700, color: '#0F4C5C', margin: '0 0 4px' },
+  chartHint: { fontSize: 12, color: '#999', margin: '0 0 14px', lineHeight: 1.4 },
+
+  calHeaderRow: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 16 },
+  select: {
+    fontSize: 13, fontWeight: 600, color: '#0F4C5C', padding: '8px 12px', borderRadius: 10,
+    border: '1px solid #ddd', backgroundColor: '#fff', cursor: 'pointer', fontFamily: "'Segoe UI', sans-serif", maxWidth: 220,
+  },
+  calNav: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 12 },
+  calNavBtn: { background: 'none', border: '1px solid #eee', borderRadius: 8, cursor: 'pointer', color: '#0F4C5C', padding: 4, display: 'flex' },
+  calMonthLabel: { fontSize: 14, fontWeight: 700, color: '#0F4C5C', minWidth: 140, textAlign: 'center' },
+  calGrid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, maxWidth: 420, margin: '0 auto' },
+  calDayName: { textAlign: 'center', fontSize: 11, fontWeight: 600, color: '#aaa', padding: '4px 0', textTransform: 'uppercase' },
+  calCell: { textAlign: 'center', fontSize: 12.5, padding: '9px 0', borderRadius: 8, backgroundColor: '#fafafa' },
+  calCellBooked: { backgroundColor: '#fee2e2', color: '#f87171', textDecoration: 'line-through', fontWeight: 700 },
+  calLegend: { display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center', marginTop: 18, paddingTop: 14, borderTop: '1px solid #f0f0f0' },
+  calNoData: { textAlign: 'center', color: '#aaa', fontSize: 12.5, marginTop: 10 },
+  legendItem: { display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#666' },
+  legendDot: { width: 10, height: 10, borderRadius: 3, display: 'inline-block' },
 
   tableCard: {
     backgroundColor: '#fff', border: '1px solid #ebebeb', borderRadius: 14,

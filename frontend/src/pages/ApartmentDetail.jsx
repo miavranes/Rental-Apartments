@@ -434,7 +434,7 @@ const bp = {
   breakDivider: { height: 1, backgroundColor: '#ebebeb' },
   successIcon: { width: 56, height: 56, borderRadius: '50%', backgroundColor: '#e6f4f1', color: '#0F4C5C', fontSize: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontWeight: 700 },
   payRow: { display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 },
-  payOption: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', border: '1px solid #ddd', borderRadius: 10, cursor: 'pointer', background: '#fff', textAlign: 'left', fontFamily: "'Segoe UI', sans-serif", transition: 'border-color 0.15s' },
+  payOption: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', marginBottom: 16, border: '1px solid #ddd', borderRadius: 10, cursor: 'pointer', background: '#fff', textAlign: 'left', fontFamily: "'Segoe UI', sans-serif", transition: 'border-color 0.15s' },
   payOptionActive: { borderColor: '#0F4C5C', backgroundColor: '#f0f7f9' },
   payLabel: { fontSize: 14, fontWeight: 600, color: '#222', margin: 0 },
   paySub: { fontSize: 12, color: '#888', margin: 0 },

@@ -348,7 +348,19 @@
     "colRating": "Ocjena",
     "colFavorites": "Omiljeno",
     "loadFailed": "Učitavanje analitike nije uspjelo.",
-    "statusBreakdown": "potvrđeno · završeno · na čekanju · otkazano"
+    "statusBreakdown": "potvrđeno · završeno · na čekanju · otkazano",
+    "revenueByMonthHint": "Novac od rezervacija napravljenih tog mjeseca (poslednjih 12 mjeseci), bez otkazanih",
+    "bookingsByMonthHint": "Broj rezervacija napravljenih tog mjeseca",
+    "occupancyByMonthHint": "Procenat noći tog mjeseca koje su bile rezervisane, za sve vaše oglase zajedno",
+    "calendarTitle": "Kalendar zauzetosti",
+    "calendarSubtitle": "Pogledajte koji su datumi zauzeti za svaki oglas",
+    "calendarSelectLabel": "Oglas",
+    "calendarLegendAvailable": "Slobodno",
+    "calendarLegendPending": "Čeka potvrdu",
+    "calendarLegendConfirmed": "Potvrđeno",
+    "calendarLegendCompleted": "Završen boravak",
+    "calendarLegendReserved": "Rezervisano",
+    "calendarNoBookings": "Nema rezervacija za ovaj oglas u ovom mjesecu — probaj drugi mjesec ili oglas."
   },
   "footer": {
     "tagline": "Pronađi savršen smještaj za svoje sljedeće putovanje.",

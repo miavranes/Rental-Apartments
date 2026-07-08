@@ -348,7 +348,19 @@
     "colRating": "Bewertung",
     "colFavorites": "Favoriten",
     "loadFailed": "Analysen konnten nicht geladen werden.",
-    "statusBreakdown": "bestätigt · abgeschlossen · ausstehend · storniert"
+    "statusBreakdown": "bestätigt · abgeschlossen · ausstehend · storniert",
+    "revenueByMonthHint": "Einnahmen aus Buchungen, die in diesem Monat erstellt wurden (letzte 12 Monate), ohne Stornierungen",
+    "bookingsByMonthHint": "Anzahl der in diesem Monat erstellten Buchungen",
+    "occupancyByMonthHint": "Anteil der Nächte dieses Monats, die gebucht waren, über alle deine Angebote",
+    "calendarTitle": "Verfügbarkeitskalender",
+    "calendarSubtitle": "Sieh, welche Termine für jedes Angebot belegt sind",
+    "calendarSelectLabel": "Angebot",
+    "calendarLegendAvailable": "Verfügbar",
+    "calendarLegendPending": "Wartet auf Bestätigung",
+    "calendarLegendConfirmed": "Bestätigt",
+    "calendarLegendCompleted": "Abgeschlossener Aufenthalt",
+    "calendarLegendReserved": "Reserviert",
+    "calendarNoBookings": "Keine Buchungen für dieses Angebot in diesem Monat — versuche einen anderen Monat oder ein anderes Angebot."
   },
   "footer": {
     "tagline": "Finde die perfekte Unterkunft für deine nächste Reise.",
