@@ -8,7 +8,11 @@ const getBlockedDates = async (req, res) => {
       'SELECT date FROM blocked_dates WHERE apartment_id = $1 ORDER BY date',
       [id]
     );
-    res.json(result.rows.map(r => r.date.toISOString().split('T')[0]));
+     const pad = (n) => String(n).padStart(2, '0');
+    res.json(result.rows.map(r => {
+      const d = r.date;
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    }));
   } catch (err) {
     serverError(res, err);
   }

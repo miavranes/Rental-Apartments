@@ -8,10 +8,6 @@ export function toLocalDateStr(date = new Date()) {
 export function todayLocal() {
   return toLocalDateStr(new Date());
 }
-
-// Dodaje n dana na datum u 'YYYY-MM-DD' formatu i vraca isti format.
-// Koristi se da bi check-out uvijek morao biti bar 1 dan poslije check-in-a
-// (minimum jedno nocenje, check-in i check-out ne mogu biti isti dan).
 export function addDays(dateStr, n) {
   const d = new Date(dateStr + 'T00:00:00');
   d.setDate(d.getDate() + n);

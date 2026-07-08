@@ -81,9 +81,9 @@ const createReservation = async (req, res) => {
 
     const reservation = result.rows[0];
 
-    const start = new Date(check_in);
-    const end   = new Date(check_out);
-    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+    const start = new Date(check_in + 'T00:00:00Z');
+    const end   = new Date(check_out + 'T00:00:00Z');
+    for (let d = new Date(start); d < end; d.setUTCDate(d.getUTCDate() + 1)) {
       const dateStr = d.toISOString().split('T')[0];
       await client.query(
         'INSERT INTO blocked_dates (apartment_id, date) VALUES ($1, $2) ON CONFLICT DO NOTHING',
@@ -216,11 +216,11 @@ const cancelReservation = async (req, res) => {
       ['cancelled', id]
     );
 
-    // Unblock dates
     const r = result.rows[0];
-    const start = new Date(r.check_in);
-    const end   = new Date(r.check_out);
-    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+    const toISODate = (v) => (v instanceof Date ? v : new Date(v)).toISOString().split('T')[0];
+    const start = new Date(toISODate(r.check_in) + 'T00:00:00Z');
+    const end   = new Date(toISODate(r.check_out) + 'T00:00:00Z');
+    for (let d = new Date(start); d < end; d.setUTCDate(d.getUTCDate() + 1)) {
       await pool.query(
         'DELETE FROM blocked_dates WHERE apartment_id = $1 AND date = $2',
         [r.apartment_id, d.toISOString().split('T')[0]]
