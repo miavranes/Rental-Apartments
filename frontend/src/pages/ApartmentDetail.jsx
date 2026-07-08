@@ -11,7 +11,7 @@ import MapView from '../components/MapView';
 import Navbar from '../components/Navbar';
 import { useTranslation } from 'react-i18next';
 import { formatLocation } from '../utils/locationUtils';
-import { todayLocal } from '../utils/dateUtils';
+import { todayLocal, addDays } from '../utils/dateUtils';
 import {
   Home, MapPin, BedDouble, Bed, Users,
   Wifi, Car, Snowflake, Waves, UtensilsCrossed, WashingMachine, Tv, PawPrint, Flame, Building,
@@ -345,7 +345,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
                 <div style={{ ...bp.calDrop, right: 0, left: 'auto' }} onClick={e => e.stopPropagation()}>
                   <Calendar
                     value={checkOut}
-                    minDate={checkIn || todayLocal()}
+                    minDate={checkIn ? addDays(checkIn, 1) : todayLocal()}
                     maxDate={checkoutMaxDate}
                     blockedDates={blockedDates}
                     onChange={(d) => { setCheckOut(d); setOpenCal(null); }}

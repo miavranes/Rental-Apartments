@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Calendar from './Calendar';
 import LocationAutocomplete from './LocationAutocomplete';
 import { formatLocation } from '../utils/locationUtils';
-import { todayLocal } from '../utils/dateUtils';
+import { todayLocal, addDays } from '../utils/dateUtils';
 
 function Dropdown({ children, open, style }) {
   return open ? (
@@ -121,7 +121,7 @@ export default function SearchBar() {
         <Dropdown open={isActive('checkout')}>
           <Calendar
             value={checkOut}
-            minDate={checkIn || todayLocal()}
+            minDate={checkIn ? addDays(checkIn, 1) : todayLocal()}
             onChange={(d) => { setCheckOut(d); setActive('guests'); }}
           />
         </Dropdown>

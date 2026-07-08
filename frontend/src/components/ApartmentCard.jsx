@@ -3,7 +3,7 @@ import { Home, Star, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatLocation } from '../utils/locationUtils';
-import favoriteService from '../services/favoriteService';
+import { useFavorites } from '../context/FavoritesContext';
 import { UPLOADS_URL } from '../config';
 
 export default function ApartmentCard({ apartment, index = 0 }) {
@@ -17,7 +17,8 @@ export default function ApartmentCard({ apartment, index = 0 }) {
     review_count,
   } = apartment;
 
-  const [favorite, setFavorite] = useState(false);
+  const { isFavorite, toggleFavorite: toggleFavoriteGlobal } = useFavorites();
+  const favorite = isFavorite(id);
   const [imgStatus, setImgStatus] = useState('loading'); // 'loading' | 'ok' | 'error'
   const [heartPop, setHeartPop] = useState(false);
 
@@ -26,13 +27,7 @@ export default function ApartmentCard({ apartment, index = 0 }) {
     e.stopPropagation();
     setHeartPop(true);
     try {
-      if (favorite) {
-        await favoriteService.remove(id);
-        setFavorite(false);
-      } else {
-        await favoriteService.add(id);
-        setFavorite(true);
-      }
+      await toggleFavoriteGlobal(id);
     } catch (err) {
       console.error(err);
     }

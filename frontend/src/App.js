@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { FavoritesProvider } from './context/FavoritesContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
@@ -21,6 +22,7 @@ export default function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
+        <FavoritesProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -40,6 +42,7 @@ export default function App() {
           <Route path="/owner/reservations" element={<ProtectedRoute><OwnerReservations /></ProtectedRoute>} />
         </Routes>
         <Footer />
+        </FavoritesProvider>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -43,7 +43,7 @@ const createReservation = async (req, res) => {
 
     if (nights <= 0) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Invalid dates.' });
+      return res.status(400).json({ error: 'Check-out date must be at least one night after check-in date.' });
     }
 
     const conflict = await client.query(

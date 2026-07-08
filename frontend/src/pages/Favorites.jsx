@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import ApartmentCard from "../components/ApartmentCard";
 import favoriteService from "../services/favoriteService";
+import { useFavorites } from "../context/FavoritesContext";
 import { Heart } from "lucide-react";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { isFavorite } = useFavorites();
+
+ const visibleFavorites = favorites.filter((a) => isFavorite(a.id));
 
   useEffect(() => {
     loadFavorites();
@@ -40,11 +44,7 @@ export default function Favorites() {
 
       <div style={styles.container}>
         <div style={styles.header}>
-          <Heart
-            size={28}
-            color="#ef4444"
-            fill="#ef4444"
-          />
+          
 
           <div>
             <h1 style={styles.title}>
@@ -52,12 +52,12 @@ export default function Favorites() {
             </h1>
 
             <p style={styles.subtitle}>
-              {favorites.length} saved apartments
+              {visibleFavorites.length} saved apartments
             </p>
           </div>
         </div>
 
-        {favorites.length === 0 ? (
+        {visibleFavorites.length === 0 ? (
           <div style={styles.empty}>
             <Heart
               size={60}
@@ -72,7 +72,7 @@ export default function Favorites() {
           </div>
         ) : (
           <div style={styles.grid}>
-            {favorites.map((apartment, i) => (
+            {visibleFavorites.map((apartment, i) => (
               <ApartmentCard
                 key={apartment.id}
                 apartment={apartment}
