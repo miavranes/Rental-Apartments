@@ -8,6 +8,8 @@ export function toLocalDateStr(date = new Date()) {
 export function todayLocal() {
   return toLocalDateStr(new Date());
 }
+
+// Dodaje n dana na datum u 'YYYY-MM-DD' formatu i vraca isti format.
 export function addDays(dateStr, n) {
   const d = new Date(dateStr + 'T00:00:00');
   d.setDate(d.getDate() + n);

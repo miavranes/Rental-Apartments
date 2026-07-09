@@ -148,6 +148,17 @@ function StripePaymentForm({ reservationId, total, onSuccess, onError }) {
       if (result.error) {
         onError(result.error.message);
       } else if (result.paymentIntent.status === 'succeeded') {
+        // Kartica je naplacena kod Stripe-a. Ne cekamo webhook (koji u
+        // developmentu cesto ne stigne) - odmah javljamo backend-u da
+        // provjeri i upise payment_status = 'paid', da host ne bi ostao
+        // zaglavljen sa "gost nije platio" iako jeste.
+        try {
+          await paymentService.confirm(reservationId);
+        } catch (confirmErr) {
+          // I ako ovaj poziv ne uspije, webhook ce (kad stigne) svejedno
+          // oznaciti placanje kao izvrseno, pa gostu ipak prikazujemo uspjeh.
+          console.error(confirmErr);
+        }
         onSuccess();
       }
     } catch (err) {
@@ -163,7 +174,7 @@ function StripePaymentForm({ reservationId, total, onSuccess, onError }) {
         <CardElement options={{ style: { base: { fontSize: '15px', color: '#222', fontFamily: "'Segoe UI', sans-serif", '::placeholder': { color: '#aaa' } } } }} />
       </div>
       <button type="submit" disabled={!stripe || loading} style={{ ...bp.btn, marginTop: 12 }} className="btn-press">
-        {loading ? t('common.processing') : `${t('booking.pay')} $${Number(total).toFixed(2)}`}
+        {loading ? t('common.processing') : `${t('booking.pay')} €${Number(total).toFixed(2)}`}
       </button>
     </form>
   );
@@ -259,7 +270,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
       <div style={bp.card}>
         <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0F4C5C', margin: '0 0 4px' }}>{t('booking.completePayment')}</h3>
         <p style={{ fontSize: 13, color: '#888', margin: '0 0 16px' }}>
-          {apartment.title} · {nights} {nights !== 1 ? t('booking.nights') : t('booking.night')} · <strong style={{ color: '#0F4C5C' }}>${total.toFixed(2)}</strong>
+          {apartment.title} · {nights} {nights !== 1 ? t('booking.nights') : t('booking.night')} · <strong style={{ color: '#0F4C5C' }}>€{total.toFixed(2)}</strong>
         </p>
         {error && <p style={bp.error}>{error}</p>}
         <Elements stripe={stripePromise}>
@@ -270,9 +281,7 @@ function BookingPanel({ apartment, blockedDates = [] }) {
             onError={(msg) => setError(msg)}
           />
         </Elements>
-        <button onClick={() => { setStep('done'); }} style={{ ...bp.btn, marginTop: 10, backgroundColor: '#f5f5f5', color: '#888', fontSize: 13 }} className="btn-press">
-          {t('booking.skipPayLater')}
-        </button>
+        
       </div>
     );
   }
@@ -389,12 +398,12 @@ function BookingPanel({ apartment, blockedDates = [] }) {
           <div style={bp.breakdown}>
             <div style={bp.breakRow}>
               <span>€{apartment.price_per_night} × {nights} {nights > 1 ? t('booking.nights') : t('booking.night')}</span>
-              <span>${total.toFixed(2)}</span>
+              <span>€{total.toFixed(2)}</span>
             </div>
             <div style={bp.breakDivider} />
             <div style={{ ...bp.breakRow, fontWeight: 700, color: '#0F4C5C' }}>
               <span>{t('booking.total')}</span>
-              <span>${total.toFixed(2)}</span>
+              <span>€{total.toFixed(2)}</span>
             </div>
           </div>
         )}

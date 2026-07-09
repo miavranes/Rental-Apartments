@@ -5,7 +5,15 @@ const getBlockedDates = async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query(
-      'SELECT date FROM blocked_dates WHERE apartment_id = $1 ORDER BY date',
+      `SELECT DISTINCT d::date AS date
+       FROM (
+         SELECT date FROM blocked_dates WHERE apartment_id = $1
+         UNION ALL
+         SELECT generate_series(check_in, check_out - INTERVAL '1 day', INTERVAL '1 day')::date
+         FROM reservations
+         WHERE apartment_id = $1 AND status IN ('pending', 'confirmed')
+       ) sub(d)
+       ORDER BY date`,
       [id]
     );
      const pad = (n) => String(n).padStart(2, '0');

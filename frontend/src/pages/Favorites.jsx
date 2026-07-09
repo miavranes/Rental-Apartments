@@ -10,7 +10,9 @@ export default function Favorites() {
   const [loading, setLoading] = useState(true);
   const { isFavorite } = useFavorites();
 
- const visibleFavorites = favorites.filter((a) => isFavorite(a.id));
+  // Prikazujemo samo one koji su i dalje u wishlisti (globalno stanje),
+  // tako da se kartica odmah skloni kad se srce isprazni.
+  const visibleFavorites = favorites.filter((a) => isFavorite(a.id));
 
   useEffect(() => {
     loadFavorites();
