@@ -51,7 +51,7 @@ export default function Calendar({ value, onChange, minDate, maxDate, blockedDat
         {DAYS.map(d => <div key={d} style={cal.dayName}>{d}</div>)}
         {cells.map((d, i) => (
           <button
-            key={i}
+            key={d ? toStr(d) : `empty-${i}`}
             type="button"
             disabled={isDisabled(d)}
             onClick={() => d && !isDisabled(d) && onChange(toStr(d))}
